@@ -4,7 +4,7 @@
 
 이 저장소는 다음 두 계층을 분리해 관리합니다.
 
-- **작성·판단 계층:** `skills/law-interpretation-request` — 법령해석 대상 적합성, 질의 보정, 문언·체계·목적·연혁 검토, 갑설·을설 작성
+- **작성·판단 계층:** `skills/law-interpretation-request` — 법령해석 대상 적합성, 질의 보정, 문언·체계·목적·연혁 검토, 갑설·을설 작성, 내부 논리검증
 - **법령 데이터 계층:** [`korean-law-mcp`](https://github.com/chrisryugj/korean-law-mcp) — 국가법령정보센터 기반 법령·판례·해석례 조회 및 인용 검증
 
 > 원칙: JDIPT는 `korean-law-mcp` 소스를 복제하지 않습니다. 업스트림을 외부 의존성으로 사용하고 버전만 이 저장소에서 관리합니다.
@@ -24,6 +24,26 @@
    - 나. 을설
 
 `4. 해석요청기관의 의견`부터 `8. 법령해석요청 체크리스트`까지는 출력하지 않습니다. 체크리스트의 적합성 기준은 내부 검증에만 사용합니다.
+
+### 내부 논리검증
+
+최종 문안 생성 전 `references/logic-validation.md`에 따라 논증을 내부 검증합니다.
+
+```text
+법령·해석례 조사
+→ 법적 논증 초안
+→ 문장·논증 분해
+→ 기호화/표준형 변환
+→ 전제 검토
+→ 형식적 타당성 검토
+→ 오류·전제 누락·반례 탐색
+→ 갑설·을설 상호 비교
+→ BLOCK 수정·재검증
+→ 출처·현행성 최종 검증
+→ 최종 문안
+```
+
+내부 기호화(`P`, `Q`, `R`), 논리 점수, 반례 탐색표와 수정 과정은 사용자가 별도로 요청하지 않는 한 최종 답변에 표시하지 않습니다.
 
 ## 저장소 구조
 
@@ -48,6 +68,7 @@ JDIPT/
       ├─ SKILL.md
       ├─ agents/openai.yaml
       ├─ references/
+      │  └─ logic-validation.md
       └─ evals/
 ```
 
@@ -77,13 +98,49 @@ npm run mcp
 npm run mcp:setup
 ```
 
-### 3. Codex MCP 설정
+### 3. API 키 입력
+
+실제 API 키는 GitHub 저장소에 커밋하지 않습니다.
+
+#### Codex에서 사용하는 경우 — 권장
+
+`config/codex.example.toml`을 참고하여 사용자 Codex 설정 파일에 다음처럼 등록합니다.
+
+```toml
+[mcp_servers.korean_law]
+command = "npx"
+args = ["-y", "korean-law-mcp@4.12.1"]
+enabled = true
+
+[mcp_servers.korean_law.env]
+LAW_OC = "발급받은_API_KEY"
+```
+
+Windows의 일반적인 사용자 설정 위치는 다음과 같습니다.
+
+```text
+%USERPROFILE%\.codex\config.toml
+```
+
+#### 저장소에서 MCP를 직접 실행하는 경우
+
+JDIPT 루트에 `.env` 파일을 만들 수 있습니다.
+
+```env
+LAW_OC=발급받은_API_KEY
+```
+
+`.env`는 `.gitignore`에 포함되어 있으므로 실제 키를 커밋하지 않습니다.
+
+#### GitHub Actions에서 사용하는 경우
+
+Repository `Settings → Secrets and variables → Actions`에 `LAW_OC` Repository secret을 등록합니다. 워크플로 파일에 실제 키를 직접 쓰지 않습니다.
+
+### 4. Codex MCP 설정
 
 `config/codex.example.toml` 내용을 사용자 Codex 설정에 반영합니다.
 
-중요: API 키는 저장소에 커밋하지 않습니다.
-
-### 4. Skill 설치
+### 5. Skill 설치
 
 ```text
 skills/law-interpretation-request/
@@ -91,7 +148,7 @@ skills/law-interpretation-request/
 
 폴더를 사용자 Agent Skills 경로의 `law-interpretation-request/`로 복사합니다.
 
-### 5. 검증
+### 6. 검증
 
 ```bash
 python scripts/validate_repo.py
@@ -118,6 +175,7 @@ Skill은 법적 근거를 확인할 때 다음 도구를 우선합니다.
 - `search_law` / `get_law_text` 동작
 - 결정례 검색·본문 조회 동작
 - Skill의 도구명 참조 정합성
+- 논리검증 후 출처·현행성 검증 순서가 유지되는지
 
 자세한 내용은 `docs/upstream-mcp.md`를 참조하십시오.
 
