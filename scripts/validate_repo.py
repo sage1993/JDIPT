@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
 PACKAGE = ROOT / "package.json"
 CODEX = ROOT / "config" / "codex.example.toml"
+REQUEST_FORMAT = SKILL.parent / "references" / "request-format.md"
+SOURCE_POLICY = SKILL.parent / "references" / "source-policy.md"
 EVAL_SCENARIOS = SKILL.parent / "evals" / "scenarios.md"
 EVAL_EXPECTED = SKILL.parent / "evals" / "expected-behavior.md"
 REQUIRED_REFERENCES = {
@@ -37,6 +39,47 @@ REQUIRED_LOGIC_SKILL_MARKERS = {
     "사실성 미확인",
     "갑설과 을설을 각각 독립 검증",
     "BLOCK",
+}
+REQUIRED_OUTPUT_SKILL_MARKERS = {
+    "모든 사용자용 최종 출력은 Markdown",
+    "기본 출력 모드 — 별도 형식 지시가 없을 때",
+    "1. 제목",
+    "2. 질의 배경 및 사실관계",
+    "3. 관련 법령 및 조문",
+    "4. 해석상 쟁점",
+    "5. 법률검토",
+    "6. 질의사항",
+    "7. 요청취지",
+    "8. 첨부자료",
+    "특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만",
+    "`법제처 법령해석요청서`",
+    "클릭 가능한 Markdown 인라인 하이퍼링크",
+}
+REQUIRED_REQUEST_FORMAT_MARKERS = {
+    "사용자가 별도 형식을 명시하지 않으면",
+    "# 1. 제목",
+    "# 2. 질의 배경 및 사실관계",
+    "# 3. 관련 법령 및 조문",
+    "# 4. 해석상 쟁점",
+    "# 5. 법률검토",
+    "# 6. 질의사항",
+    "# 7. 요청취지",
+    "# 8. 첨부자료",
+    "사용자가 명시적으로 법제처 법령해석요청서",
+    "# 1. 질의요지",
+    "# 2. 해석대상 법령조문 및 관련 법령",
+    "## 가. 해석대상 법령조문",
+    "## 나. 관련 법령",
+    "# 3. 대립되는 의견 및 이유",
+    "## 가. 갑설",
+    "## 나. 을설",
+    "모든 사용자용 최종 출력은 Markdown",
+}
+REQUIRED_SOURCE_LINK_MARKERS = {
+    "본문의 자료명 자체에 Markdown 인라인 하이퍼링크를 기본",
+    "[표시 텍스트](실제로 확인한 공식 URL)",
+    "원문 접근은 본문 인라인 링크를 우선",
+    "URL 패턴을 추측하지 않는다",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "P → Q",
@@ -77,6 +120,12 @@ REQUIRED_LOGIC_EVAL_MARKERS = {
     "E19. 검증 결과 비노출",
     "E20. 오류 수정과 원문 대응",
 }
+REQUIRED_OUTPUT_EVAL_MARKERS = {
+    "E21. 기본 1~8 출력",
+    "E22. 명시적 법제처 1~3 출력",
+    "E23. Markdown 출력 강제",
+    "E24. 공식자료 인라인 하이퍼링크",
+}
 
 
 def fail(message: str) -> None:
@@ -107,6 +156,7 @@ def main() -> int:
             fail(f"MCP tool reference missing: {tool}")
 
     require_markers(skill_text, REQUIRED_LOGIC_SKILL_MARKERS, "skill logic")
+    require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
 
     ref_dir = SKILL.parent / "references"
     actual = {p.name for p in ref_dir.glob("*.md")}
@@ -118,14 +168,25 @@ def main() -> int:
     logic_text = logic_path.read_text(encoding="utf-8")
     require_markers(logic_text, REQUIRED_LOGIC_REFERENCE_MARKERS, "logic reference")
 
+    request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
+    source_text = SOURCE_POLICY.read_text(encoding="utf-8")
+    require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
+    require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
+
     if not EVAL_SCENARIOS.is_file() or not EVAL_EXPECTED.is_file():
         fail("evaluation files missing")
     scenario_text = EVAL_SCENARIOS.read_text(encoding="utf-8")
     expected_text = EVAL_EXPECTED.read_text(encoding="utf-8")
     require_markers(scenario_text, REQUIRED_LOGIC_EVAL_MARKERS, "logic eval scenarios")
+    require_markers(scenario_text, REQUIRED_OUTPUT_EVAL_MARKERS, "output eval scenarios")
     require_markers(
         expected_text,
         {
+            "기본 1~8 구조",
+            "법제처 1~3 구조는 사용자가",
+            "모든 사용자용 최종 출력은 Markdown",
+            "Markdown 인라인 하이퍼링크",
+            "[공식 링크 확인 필요]",
             "내부 논리검증 필수 조건",
             "형식적 타당성 50",
             "전제 명확성 20",
@@ -143,7 +204,7 @@ def main() -> int:
             "추가가 필요한 전제",
             "사용자가 요청하지 않는 한 최종 결과에 노출하지 않는다",
         },
-        "logic expected behavior",
+        "expected behavior",
     )
 
     package = json.loads(PACKAGE.read_text(encoding="utf-8"))
@@ -176,6 +237,7 @@ def main() -> int:
     print(f"references={len(REQUIRED_REFERENCES)}")
     print(f"logic_markers={len(REQUIRED_LOGIC_REFERENCE_MARKERS)}")
     print(f"logic_eval_scenarios={len(REQUIRED_LOGIC_EVAL_MARKERS)}")
+    print(f"output_eval_scenarios={len(REQUIRED_OUTPUT_EVAL_MARKERS)}")
     return 0
 
 
