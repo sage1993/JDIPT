@@ -43,28 +43,27 @@ REQUIRED_LOGIC_SKILL_MARKERS = {
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
     "기본 출력 모드 — 별도 형식 지시가 없을 때",
-    "1. 제목",
+    "1. 요청취지",
     "2. 질의 배경 및 사실관계",
     "3. 관련 법령 및 조문",
     "4. 해석상 쟁점",
     "5. 법률검토",
-    "6. 질의사항",
-    "7. 요청취지",
-    "8. 첨부자료",
+    "6. 첨부자료",
+    "사용자의 질문",
+    "유추",
     "특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만",
     "`법제처 법령해석요청서`",
     "클릭 가능한 Markdown 인라인 하이퍼링크",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "사용자가 별도 형식을 명시하지 않으면",
-    "# 1. 제목",
+    "# 1. 요청취지",
     "# 2. 질의 배경 및 사실관계",
     "# 3. 관련 법령 및 조문",
     "# 4. 해석상 쟁점",
     "# 5. 법률검토",
-    "# 6. 질의사항",
-    "# 7. 요청취지",
-    "# 8. 첨부자료",
+    "# 6. 첨부자료",
+    "실제 검토 목적",
     "사용자가 명시적으로 법제처 법령해석요청서",
     "# 1. 질의요지",
     "# 2. 해석대상 법령조문 및 관련 법령",
@@ -121,10 +120,11 @@ REQUIRED_LOGIC_EVAL_MARKERS = {
     "E20. 오류 수정과 원문 대응",
 }
 REQUIRED_OUTPUT_EVAL_MARKERS = {
-    "E21. 기본 1~8 출력",
+    "E21. 기본 1~6 출력",
     "E22. 명시적 법제처 1~3 출력",
     "E23. Markdown 출력 강제",
     "E24. 공식자료 인라인 하이퍼링크",
+    "E25. 요청취지 유추",
 }
 
 
@@ -150,6 +150,10 @@ def main() -> int:
         fail("skill name mismatch")
     if "4~8 항목을 생성하지 않는다" not in skill_text:
         fail("1~3 only output rule missing")
+    if "최종 Markdown 본문은 다음 1~8 구조" in skill_text:
+        fail("legacy 1~8 default output rule remains in SKILL.md")
+    if "6. 질의사항" in skill_text:
+        fail("legacy 질의사항 section remains in SKILL.md")
 
     for tool in sorted(REQUIRED_MCP_TOOLS):
         if f"`{tool}`" not in skill_text:
@@ -170,6 +174,8 @@ def main() -> int:
 
     request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
+    if "다음 1~8 구조" in request_text or "# 6. 질의사항" in request_text:
+        fail("legacy default output sections remain in request-format.md")
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
 
@@ -182,7 +188,10 @@ def main() -> int:
     require_markers(
         expected_text,
         {
-            "기본 1~8 구조",
+            "기본 1~6 구조",
+            "`1. 요청취지`",
+            "실제 검토 목적",
+            "별도 `제목` 또는 `질의사항` 항목을 생성하지 않는다",
             "법제처 1~3 구조는 사용자가",
             "모든 사용자용 최종 출력은 Markdown",
             "Markdown 인라인 하이퍼링크",
