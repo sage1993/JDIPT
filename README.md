@@ -100,11 +100,17 @@ npm run mcp:setup
 
 ### 3. API 키 입력
 
-실제 API 키는 GitHub 저장소에 커밋하지 않습니다.
+`korean-law-mcp`는 실행 프로세스의 환경변수 `LAW_OC`를 읽습니다. 실제 API 키는 GitHub 저장소에 커밋하지 않습니다.
 
 #### Codex에서 사용하는 경우 — 권장
 
-`config/codex.example.toml`을 참고하여 사용자 Codex 설정 파일에 다음처럼 등록합니다.
+Codex는 기본적으로 `~/.codex/config.toml`에 MCP 설정을 저장합니다. Windows에서는 일반적으로 다음 경로입니다.
+
+```text
+%USERPROFILE%\.codex\config.toml
+```
+
+`config/codex.example.toml`을 참고하여 다음처럼 등록합니다.
 
 ```toml
 [mcp_servers.korean_law]
@@ -116,21 +122,36 @@ enabled = true
 LAW_OC = "발급받은_API_KEY"
 ```
 
-Windows의 일반적인 사용자 설정 위치는 다음과 같습니다.
+또는 Codex CLI에서 환경변수와 함께 서버를 등록할 수 있습니다.
 
-```text
-%USERPROFILE%\.codex\config.toml
+```bash
+codex mcp add korean_law --env LAW_OC=발급받은_API_KEY -- npx -y korean-law-mcp@4.12.1
+```
+
+등록 후 다음으로 확인합니다.
+
+```bash
+codex mcp list
 ```
 
 #### 저장소에서 MCP를 직접 실행하는 경우
 
-JDIPT 루트에 `.env` 파일을 만들 수 있습니다.
+실행 프로세스에 `LAW_OC` 환경변수를 전달합니다.
 
-```env
-LAW_OC=발급받은_API_KEY
+PowerShell:
+
+```powershell
+$env:LAW_OC="발급받은_API_KEY"
+npm run mcp
 ```
 
-`.env`는 `.gitignore`에 포함되어 있으므로 실제 키를 커밋하지 않습니다.
+bash/zsh:
+
+```bash
+LAW_OC="발급받은_API_KEY" npm run mcp
+```
+
+`.env.example`은 필요한 환경변수 이름을 기록하기 위한 참고 템플릿으로 유지합니다. JDIPT는 `.env` 파일의 자동 로딩을 전제로 하지 않습니다.
 
 #### GitHub Actions에서 사용하는 경우
 
