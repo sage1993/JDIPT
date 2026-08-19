@@ -1,0 +1,6 @@
+interface:
+  display_name: "법령해석요청 작성"
+  short_description: "대한민국 법령해석 질의·갑설·을설 작성 및 보정"
+  default_prompt: "대한민국 법령해석 원칙과 공식자료를 기준으로 이 질의를 검토하고, 요청 형식에 맞는 법령해석요청 초안을 작성해 주세요."
+policy:
+  allow_implicit_invocation: true
