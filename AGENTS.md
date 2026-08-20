@@ -1,9 +1,21 @@
 # JDIPT Repository Instructions
 
 ## 목적
-이 저장소는 대한민국 법령해석요청 업무용 Skills와 `korean-law-mcp` 연동 설정을 관리한다.
+이 저장소는 대한민국 법령해석요청 업무용 ChatGPT/Codex Plugin, Skill, `korean-law-mcp` 연동 설정을 관리한다.
 
-## 변경 원칙
+## Plugin 패키징 원칙
+- 저장소 루트 자체가 JDIPT Plugin 패키지다.
+- `.codex-plugin/plugin.json`은 필수 진입점이며 Plugin ID는 `jdipt`로 유지한다.
+- Plugin에 포함되는 Skill의 단일 원본은 `skills/law-interpretation-request/`에서 관리한다.
+- 같은 Skill을 `.agents/skills/law-interpretation-request/`에 복제하지 않는다.
+- manifest의 `skills` 경로는 `./skills/`로 유지한다.
+- `.codex-plugin/plugin.json`의 `version`은 `package.json`의 `version`과 일치시킨다.
+- `korean-law-mcp` 소스를 JDIPT에 vendor하지 않는다.
+- 현재 Plugin은 Skill-first 패키지다. ChatGPT 웹용 MCP App은 실제 원격/등록 MCP 연결과 App ID가 확보된 뒤에만 `.app.json`과 manifest `apps` 필드를 추가한다.
+- 확인되지 않은 App ID, MCP URL, manifest 필드를 임의로 만들지 않는다.
+- 비밀값(`LAW_OC`, 토큰 등)은 절대 커밋하지 않는다. 로컬 Codex MCP는 OS 환경변수와 `env_vars = ["LAW_OC"]`를 사용한다.
+
+## 법령해석 변경 원칙
 - 법령 데이터 조회 기능을 JDIPT 안에 중복 구현하지 않는다. 우선 `korean-law-mcp`의 공개 도구를 사용한다.
 - 업스트림 MCP의 내부 API에 직접 결합하지 말고 MCP 도구 인터페이스에 의존한다.
 - 별도 형식 지시가 없는 법령해석·검토 답변은 `1. 요청취지`부터 `6. 첨부자료`까지의 기본 1~6 구조를 사용한다.
@@ -17,7 +29,6 @@
 - 최종 법령해석 문안 생성 전 `skills/law-interpretation-request/references/logic-validation.md`의 내부 논리검증 Gate를 반드시 거친다.
 - 논리검증 중 원문·확인된 법적 근거에 없는 숨은 전제를 임의로 추가하지 않는다.
 - 논리검증 메모·기호화·점수표는 사용자가 요구하지 않는 한 사용자 출력에 노출하지 않는다.
-- 비밀값(`LAW_OC`, 토큰 등)은 절대 커밋하지 않는다.
 
 ## 변경 후 검증
 최소한 다음을 실행한다.
@@ -26,7 +37,9 @@
 python scripts/validate_repo.py
 ```
 
-`package.json` 또는 MCP 버전을 바꾼 경우에는 Node.js 환경에서 추가로 다음을 실행한다.
+`package.json`, Plugin manifest 또는 MCP 버전을 바꾼 경우에는 버전·경로 정합성을 함께 확인한다.
+
+`package.json` 또는 MCP 버전을 바꾼 경우 Node.js 환경에서 추가로 다음을 실행한다.
 
 ```bash
 npm install
@@ -36,3 +49,4 @@ npm run mcp -- --help
 업스트림 도구명이 바뀌었으면 `skills/law-interpretation-request/SKILL.md`와 `docs/upstream-mcp.md`를 함께 갱신한다.
 논리검증 계약을 바꿨으면 `references/logic-validation.md`, `evals/scenarios.md`, `evals/expected-behavior.md`, `scripts/validate_repo.py`를 함께 갱신한다.
 출력 형식 또는 인용정책을 바꿨으면 `SKILL.md`, `references/request-format.md`, `references/source-policy.md`, `evals/*`, `scripts/validate_repo.py`를 함께 갱신한다.
+Plugin 패키징을 바꿨으면 `.codex-plugin/plugin.json`, `docs/plugin-packaging.md`, `README.md`, `docs/architecture.md`, `docs/roadmap.md`, `scripts/validate_repo.py`를 함께 검토한다.
