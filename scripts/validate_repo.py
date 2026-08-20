@@ -7,11 +7,14 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
 PACKAGE = ROOT / "package.json"
+PLUGIN_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
+PLUGIN_DOC = ROOT / "docs" / "plugin-packaging.md"
 CODEX = ROOT / "config" / "codex.example.toml"
 REQUEST_FORMAT = SKILL.parent / "references" / "request-format.md"
 SOURCE_POLICY = SKILL.parent / "references" / "source-policy.md"
 EVAL_SCENARIOS = SKILL.parent / "evals" / "scenarios.md"
 EVAL_EXPECTED = SKILL.parent / "evals" / "expected-behavior.md"
+AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
 REQUIRED_REFERENCES = {
     "baseline-document-policy.md",
     "case-patterns.md",
@@ -223,11 +226,35 @@ def main() -> int:
     if version.startswith(("^", "~", ">", "<", "*")):
         fail("korean-law-mcp must use an exact pinned version")
 
+    if not PLUGIN_MANIFEST.is_file():
+        fail(".codex-plugin/plugin.json missing")
+    plugin = json.loads(PLUGIN_MANIFEST.read_text(encoding="utf-8"))
+    if plugin.get("name") != "jdipt":
+        fail("plugin name must be jdipt")
+    if plugin.get("version") != package.get("version"):
+        fail("plugin version must match package.json")
+    if plugin.get("skills") != "./skills/":
+        fail("plugin skills path must be ./skills/")
+    interface = plugin.get("interface") or {}
+    if interface.get("displayName") != "JDIPT":
+        fail("plugin displayName must be JDIPT")
+    if not interface.get("shortDescription"):
+        fail("plugin shortDescription missing")
+    prompts = interface.get("defaultPrompt")
+    if not isinstance(prompts, list) or not prompts:
+        fail("plugin defaultPrompt must contain at least one prompt")
+    if AGENT_SKILL_DUPLICATE.exists():
+        fail("duplicate law-interpretation-request skill found under .agents/skills")
+    if not PLUGIN_DOC.is_file():
+        fail("docs/plugin-packaging.md missing")
+
     codex_text = CODEX.read_text(encoding="utf-8")
     if f"korean-law-mcp@{version}" not in codex_text:
         fail("Codex config MCP version does not match package.json")
-    if "REPLACE_WITH_LOCAL_SECRET" not in codex_text:
-        fail("Codex example must not contain a real LAW_OC secret")
+    if 'env_vars = ["LAW_OC"]' not in codex_text:
+        fail("Codex example must forward LAW_OC with env_vars")
+    if "REPLACE_WITH_LOCAL_SECRET" in codex_text:
+        fail("Codex example must not embed a LAW_OC placeholder value")
 
     tracked_text = "\n".join(
         p.read_text(encoding="utf-8", errors="ignore")
@@ -241,6 +268,7 @@ def main() -> int:
 
     print("PASS")
     print(f"skill={SKILL.relative_to(ROOT)}")
+    print(f"plugin_manifest={PLUGIN_MANIFEST.relative_to(ROOT)}")
     print(f"korean-law-mcp={version}")
     print(f"required_tools={len(REQUIRED_MCP_TOOLS)}")
     print(f"references={len(REQUIRED_REFERENCES)}")
