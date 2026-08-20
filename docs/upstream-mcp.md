@@ -30,6 +30,13 @@
 4. 연혁·특정 도구가 필요하면 `discover_tools`로 적합한 도구를 찾고 `execute_tool`로 실행한다.
 5. 최종 문안 직전 `legal_analysis`의 인용 검증 기능을 우선 고려한다.
 
+## 현재 공개 검증 상태
+
+- `korean-law-mcp@4.12.1` exact pin 유지
+- Korean Law MCP 실제 호출/E2E: PASS
+- Codex 로컬 MCP 설정은 `env_vars = ["LAW_OC"]`로 OS 환경변수만 전달
+- 정적 공개 release gate: `python scripts/validate_repo.py`, `npm install`, `npm run mcp -- --help`
+
 ## 업그레이드 체크리스트
 
 - [ ] npm 패키지 버전과 Node.js 최소 버전 확인

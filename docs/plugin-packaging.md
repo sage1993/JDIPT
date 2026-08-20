@@ -173,14 +173,18 @@ Marketplace에 대해서는 추가로 다음 계약을 확인한다.
 
 정적 검증과 실제 Codex 설치는 별개다. E26은 새 설치 환경에서 `jdipt@sage1993`를 실제 설치하고, Plugin명/Skill명을 명시하지 않은 일반 법령해석 요청에서 자동 Skill activation을 확인한 경우에만 PASS로 판정한다.
 
-## 배포 전 남은 항목
+## v0.1.0 공개 검증 상태
 
-현재 Marketplace manifest가 추가되었으므로 다음 단계는 실제 설치 검증이다.
+JDIPT v0.1.0 공개를 위해 다음 실제 검증을 완료했다.
 
-- 로컬 또는 GitHub source에서 Plugin 설치 smoke test
-- E10~E25 실제 에이전트 회귀평가
-- E26 신규 설치 후 자동 Skill 적용
-- `korean-law-mcp` 실제 조회 E2E
-- ChatGPT 웹에서 MCP가 필요한 경우 원격/등록 MCP App 구성
-- 공개 저장소 전환 시 라이선스·개인정보·지원정보 최종 확인
-- Plugin Directory 제출을 진행할 경우 제출 시점의 최신 심사 요구사항 재확인
+- 신규 설치 환경 Plugin smoke test: PASS
+- E10~E25 실제 에이전트 회귀평가: PASS
+- E26 신규 설치 후 자동 Skill 적용: PASS
+- `korean-law-mcp` 실제 조회 E2E: PASS
+
+공개 release gate는 GitHub Actions 대신 다음 수동 검증 절차를 사용한다.
+
+```bash
+python scripts/validate_repo.py
+npm ci
+npm run mcp -- --help

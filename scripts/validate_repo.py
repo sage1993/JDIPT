@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
+import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
 PACKAGE = ROOT / "package.json"
 PLUGIN_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
+MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 PLUGIN_DOC = ROOT / "docs" / "plugin-packaging.md"
 CODEX = ROOT / "config" / "codex.example.toml"
 REQUEST_FORMAT = SKILL.parent / "references" / "request-format.md"
@@ -155,6 +158,26 @@ REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E26. Plugin 설치 후 자동 Skill 적용",
 }
 
+SECRET_ASSIGNMENT_RE = re.compile(
+    r"(?im)\b(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_PAT|API_KEY|API_TOKEN|ACCESS_TOKEN|AUTH_TOKEN|BEARER_TOKEN|PRIVATE_KEY)\s*[:=]\s*[\"']?([^\"'\s,#]+)"
+)
+BEARER_ASSIGNMENT_RE = re.compile(
+    r"(?im)\bAuthorization\s*:\s*Bearer\s+([A-Za-z0-9._~+/=-]{16,})"
+)
+PLACEHOLDER_VALUES = {
+    "",
+    "changeme",
+    "dummy",
+    "example",
+    "placeholder",
+    "your-token",
+    "your_api_key",
+    "your_api_token",
+    "replace-me",
+    "replace_with_local_secret",
+    "xxx",
+}
+
 
 def fail(message: str) -> None:
     print(f"FAIL: {message}")
@@ -165,6 +188,58 @@ def require_markers(text: str, markers: set[str], scope: str) -> None:
     missing = sorted(marker for marker in markers if marker not in text)
     if missing:
         fail(f"{scope} markers missing: {missing}")
+
+
+def read_tracked_files() -> list[tuple[str, str]]:
+    result = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    paths = [Path(raw) for raw in result.stdout.decode("utf-8").split("\0") if raw]
+    files: list[tuple[str, str]] = []
+    for path in paths:
+        absolute = ROOT / path
+        if absolute.is_file():
+            files.append((path.as_posix(), absolute.read_text(encoding="utf-8", errors="ignore")))
+    return files
+
+
+def is_placeholder(value: str) -> bool:
+    normalized = value.strip().strip("\"'").strip().lower()
+    return (
+        normalized in PLACEHOLDER_VALUES
+        or normalized.startswith("your_")
+        or normalized.startswith("your-")
+        or normalized.startswith("replace_")
+        or normalized.startswith("replace-")
+        or normalized.startswith("발급받은")
+        or normalized.startswith("<")
+    )
+
+
+def validate_tracked_secrets() -> None:
+    tracked_files = read_tracked_files()
+    for relative, file_text in tracked_files:
+        if relative == "scripts/validate_repo.py":
+            continue
+        filename = Path(relative).name
+        if filename == ".env" or (filename.startswith(".env.") and filename != ".env.example"):
+            fail(f"tracked secret environment file found: {relative}")
+
+        for line_number, line in enumerate(file_text.splitlines(), start=1):
+            law_oc = re.search(r"(?i)(?:^|\s)(?:export\s+)?LAW_OC\s*=\s*(\S*)", line)
+            if law_oc and not is_placeholder(law_oc.group(1)):
+                fail(f"non-empty LAW_OC assignment found in {relative}:{line_number}")
+
+            for match in SECRET_ASSIGNMENT_RE.finditer(line):
+                if not is_placeholder(match.group(1)):
+                    fail(f"secret-like assignment found in {relative}:{line_number}")
+
+            bearer = BEARER_ASSIGNMENT_RE.search(line)
+            if bearer and not is_placeholder(bearer.group(1)):
+                fail(f"bearer token assignment found in {relative}:{line_number}")
 
 
 def main() -> int:
@@ -284,6 +359,34 @@ def main() -> int:
     if not PLUGIN_DOC.is_file():
         fail("docs/plugin-packaging.md missing")
 
+    if not MARKETPLACE.is_file():
+        fail(".agents/plugins/marketplace.json missing")
+    try:
+        marketplace = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"Marketplace manifest JSON invalid: {exc}")
+    if marketplace.get("name") != "sage1993":
+        fail("Marketplace name must be sage1993")
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list):
+        fail("Marketplace plugins must be an array")
+    jdipt_entries = [entry for entry in plugins if isinstance(entry, dict) and entry.get("name") == "jdipt"]
+    if len(jdipt_entries) != 1:
+        fail(f"Marketplace must contain exactly one jdipt plugin entry, found {len(jdipt_entries)}")
+    jdipt_entry = jdipt_entries[0]
+    source = jdipt_entry.get("source")
+    if not isinstance(source, dict) or source.get("source") != "local":
+        fail("Marketplace jdipt source.source must be local")
+    if source.get("path") != ".":
+        fail("Marketplace jdipt source.path must be .")
+    policy = jdipt_entry.get("policy")
+    if not isinstance(policy, dict) or policy.get("installation") != "AVAILABLE":
+        fail("Marketplace jdipt policy.installation must be AVAILABLE")
+    if policy.get("authentication") != "ON_INSTALL":
+        fail("Marketplace jdipt policy.authentication must be ON_INSTALL")
+    if jdipt_entry.get("category") != "Productivity":
+        fail("Marketplace jdipt category must be Productivity")
+
     codex_text = CODEX.read_text(encoding="utf-8")
     if f"korean-law-mcp@{version}" not in codex_text:
         fail("Codex config MCP version does not match package.json")
@@ -292,19 +395,16 @@ def main() -> int:
     if "REPLACE_WITH_LOCAL_SECRET" in codex_text:
         fail("Codex example must not embed a LAW_OC placeholder value")
 
-    tracked_text = "\n".join(
-        p.read_text(encoding="utf-8", errors="ignore")
-        for p in ROOT.rglob("*")
-        if p.is_file()
-        and p.suffix.lower()
-        in {".md", ".json", ".toml", ".yml", ".yaml", ".example", ".gitignore"}
-    )
-    if "LAW_OC=REPLACE_WITH_LOCAL_SECRET" in tracked_text:
+    tracked_files = read_tracked_files()
+    tracked_text = "\n".join(file_text for _, file_text in tracked_files)
+    if "LAW_OC=REPLACE_WITH_" + "LOCAL_SECRET" in tracked_text:
         fail("secret-like value found in tracked text")
+    validate_tracked_secrets()
 
     print("PASS")
     print(f"skill={SKILL.relative_to(ROOT)}")
     print(f"plugin_manifest={PLUGIN_MANIFEST.relative_to(ROOT)}")
+    print(f"marketplace_manifest={MARKETPLACE.relative_to(ROOT)}")
     print(f"korean-law-mcp={version}")
     print(f"required_tools={len(REQUIRED_MCP_TOOLS)}")
     print(f"references={len(REQUIRED_REFERENCES)}")

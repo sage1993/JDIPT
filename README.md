@@ -270,6 +270,23 @@ MCP가 연결되지 않은 환경에서는 Skill의 공식자료 우선 정책�
 - 공개 배포 전 저장소 visibility·라이선스·개인정보·지원정보 최종 확인
 - Plugin Directory 제출을 진행할 경우 제출 시점의 최신 심사 요구사항 확인
 
+## v0.1.0 공개 상태
+
+JDIPT v0.1.0은 **Codex Plugin 신규 설치, Skill 자동 적용 회귀평가(E10~E26), Korean Law MCP 실제 E2E 검증을 완료한 공개 배포 가능 버전**입니다.
+
+완료된 실제 검증:
+
+- 신규 설치 환경 Plugin smoke test: PASS
+- E10~E26 실제 회귀평가: PASS
+- Korean Law MCP 실제 E2E: PASS
+
+정적 공개 release gate는 다음 수동 절차로 수행합니다.
+
+```bash
+python scripts/validate_repo.py
+npm ci
+npm run mcp -- --help
+
 ## 주의
 
 JDIPT가 작성한 결과는 법률자문 확정 의견이 아니라 검토·제출용 초안입니다. 실제 제출 전 사실관계, 현행 법령, 조문 버전, 판례 및 법령해석례 원문을 재확인해야 합니다.

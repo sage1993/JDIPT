@@ -18,8 +18,8 @@
 - [x] E10~E20 논리검증 평가 시나리오 정의
 - [x] 기본 1~6 Markdown 출력 및 요청취지 유추 규칙
 - [x] E21~E25 출력·인용 평가 시나리오 정의
-- [ ] E10~E25 새 컨텍스트 실제 에이전트 회귀 평가
-- [ ] 실제 MCP 호출 시나리오 평가
+- [x] E10~E25 새 컨텍스트 실제 에이전트 회귀 평가
+- [x] 실제 MCP 호출 시나리오 평가
 - [ ] 현행 조문 → 연혁 → 해석례 → 인용검증 표준 플로우 정교화
 - [ ] MCP 오류/빈 결과/부분 결과 처리 규칙 보강
 - [ ] 복합질의 분해 기준 평가 케이스 추가
@@ -33,12 +33,12 @@
 - [x] `korean-law-mcp` vendor 금지 및 외부 의존성 경계 문서화
 - [x] `LAW_OC`를 저장소/config에 직접 넣지 않고 `env_vars`로 전달하는 로컬 Codex 예시
 - [x] Plugin 패키징 문서 추가
-- [ ] 로컬/개인 Plugin 설치 smoke test
-- [ ] ChatGPT/Codex 새 컨텍스트에서 Plugin Skill 자동 적용 확인
+- [x] 로컬/개인 Plugin 설치 smoke test
+- [x] ChatGPT/Codex 새 컨텍스트에서 Plugin Skill 자동 적용 확인
 - [ ] ChatGPT 웹에서 MCP 도구가 필요한 경우 원격/등록 MCP App 구성
 - [ ] `.app.json` 및 manifest `apps` 연결 E2E 검증
 - [ ] 공개 Plugin Directory 제출 전 심사 요구사항 확인
-- [ ] 공개 배포 전 최종 회귀 평가
+- [x] 공개 배포 전 최종 회귀 평가
 
 ## v0.4 — Modular skills
 

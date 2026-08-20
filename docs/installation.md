@@ -78,3 +78,12 @@ JDIPT Plugin은 Skill-first 구조이므로 Plugin 설치 자체는 `korean-law-
 - `category = Productivity`
 - `python scripts/validate_repo.py`
 - 신규 설치 후 E26 자동 Skill 적용 Smoke Test
+
+## 수동 공개 release gate
+
+공개 전에는 다음 정적 검증과 Node MCP smoke를 실행한다.
+
+```bash
+python scripts/validate_repo.py
+npm ci
+npm run mcp -- --help

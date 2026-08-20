@@ -54,6 +54,7 @@ law-interpretation-request Skill
 저장소 루트 자체가 Plugin 패키지다.
 
 - `.codex-plugin/plugin.json`: Plugin 필수 진입점
+- `.agents/plugins/marketplace.json`: `jdipt@sage1993` 로컬 Marketplace 설치 계약
 - `skills/`: Plugin에 번들되는 Skill의 단일 원본
 - `docs/`, `scripts/`, `config/`: 개발·검증·운영 문서와 도구
 
