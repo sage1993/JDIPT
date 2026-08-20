@@ -1,10 +1,8 @@
 # ~/.codex/config.toml 에 병합하는 예시입니다.
-# LAW_OC는 실제 값으로 로컬에서 설정하고 저장소에는 커밋하지 마십시오.
+# LAW_OC 실제 값은 OS 환경변수로 설정하고 저장소나 config.toml에 기록하지 마십시오.
 
 [mcp_servers.korean_law]
 command = "npx"
 args = ["-y", "korean-law-mcp@4.12.1"]
 enabled = true
-
-[mcp_servers.korean_law.env]
-LAW_OC = "REPLACE_WITH_LOCAL_SECRET"
+env_vars = ["LAW_OC"]
