@@ -11,10 +11,13 @@ JDIPT는 다음 두 계층을 분리해 관리합니다.
 
 ## Plugin 패키징
 
-JDIPT 저장소 루트 자체가 하나의 Plugin 패키지입니다. OpenAI의 현재 Plugin 패키징 사양에 따라 `.codex-plugin/plugin.json`을 진입점으로 사용하고, Plugin에 포함되는 Skill의 단일 원본은 `skills/`에서 관리합니다.
+JDIPT 저장소 루트 자체가 하나의 Plugin 패키지입니다. OpenAI의 현재 Codex Plugin 패키징 사양에 따라 `.codex-plugin/plugin.json`을 Plugin 진입점으로 사용하고, `.agents/plugins/marketplace.json`을 repo/team Marketplace 진입점으로 사용합니다. Plugin에 포함되는 Skill의 단일 원본은 `skills/`에서 관리합니다.
 
 ```text
 JDIPT/
+├─ .agents/
+│  └─ plugins/
+│     └─ marketplace.json
 ├─ .codex-plugin/
 │  └─ plugin.json
 ├─ skills/
@@ -27,6 +30,7 @@ JDIPT/
 │  └─ codex.example.toml
 ├─ docs/
 │  ├─ architecture.md
+│  ├─ installation.md
 │  ├─ plugin-packaging.md
 │  ├─ upstream-mcp.md
 │  └─ roadmap.md
@@ -37,7 +41,9 @@ JDIPT/
 └─ package.json
 ```
 
-`skills/law-interpretation-request/`를 `.agents/skills/`에 중복 복제하지 않습니다. Plugin manifest의 `skills` 필드는 `./skills/`를 가리킵니다.
+`skills/law-interpretation-request/`를 `.agents/skills/` 또는 별도 배포 폴더에 중복 복제하지 않습니다. Plugin manifest의 `skills` 필드는 `./skills/`를 가리킵니다.
+
+Marketplace 이름은 `sage1993`, Plugin 이름은 `jdipt`이며 Marketplace의 local source `.`가 저장소 루트 Plugin을 가리킵니다. Codex의 현재 Marketplace 로더는 `.` 또는 `./`를 Marketplace 루트로 해석하므로 Skill 원본을 이동하지 않고 배포할 수 있습니다.
 
 현재 패키지는 **Skill-first Plugin**입니다. `korean-law-mcp`는 vendor하지 않고 Codex 로컬 환경에서 선택적으로 연결합니다. ChatGPT 웹에서 MCP 도구까지 제공하려면 별도의 원격/등록 MCP App 구성이 필요하며, 실제 App ID가 발급되기 전에는 `.app.json`이나 가짜 연결 정보를 만들지 않습니다.
 
@@ -45,9 +51,39 @@ JDIPT/
 
 공식 참고 문서:
 
-- https://developers.openai.com/plugins/build/plugins
-- https://help.openai.com/en/articles/20001256-plugins-in-chatgpt-and-codex
+- https://github.com/openai/codex/tree/main/codex-rs/skills/src/assets/samples/plugin-creator
 - https://developers.openai.com/codex/mcp
+- https://help.openai.com/en/articles/20001256-plugins-in-chatgpt-and-codex
+
+## Codex 설치
+
+### GitHub Marketplace로 설치
+
+GitHub 저장소에 접근할 수 있는 환경에서는 다음 순서로 설치합니다.
+
+```bash
+codex plugin marketplace add sage1993/JDIPT
+codex plugin add jdipt@sage1993
+codex plugin list
+```
+
+현재 저장소가 private인 동안에는 GitHub 읽기 권한과 Git 인증이 있는 사용자만 설치할 수 있습니다. 불특정 사용자에게 배포하려면 저장소를 public으로 전환하거나 사용자들이 접근할 수 있는 별도의 Git remote가 필요합니다.
+
+### 로컬 clone에서 설치
+
+```bash
+git clone https://github.com/sage1993/JDIPT.git
+cd JDIPT
+codex plugin marketplace add .
+codex plugin add jdipt@sage1993
+codex plugin list
+```
+
+이미 clone한 저장소가 있다면 `git clone` 단계는 생략합니다.
+
+설치 후에는 **새 Codex thread**를 시작하여 Skill discovery와 자동 적용을 검증합니다. Plugin명이나 Skill명을 직접 언급하지 않은 일반 법령해석 요청에서 `law-interpretation-request`가 적용되어야 E26 자동 적용 Smoke Test를 PASS로 판정할 수 있습니다.
+
+상세 설치·Smoke Test 절차는 [`docs/installation.md`](docs/installation.md)를 참조하십시오.
 
 ## 출력 정책
 
@@ -136,7 +172,7 @@ JDIPT/
 python scripts/validate_repo.py
 ```
 
-검증에는 Plugin manifest, Skill 구조, 출력·논리검증 계약, MCP 버전, 비밀값 정책이 포함됩니다.
+검증에는 Plugin manifest, Skill 구조, 출력·논리검증 계약, MCP 버전, 비밀값 정책이 포함됩니다. Marketplace manifest의 배포 계약은 `docs/installation.md`의 배포 전 확인 항목과 함께 검토합니다.
 
 ### 3. Codex 로컬에서 Korean Law MCP 사용 — 선택
 
@@ -221,14 +257,18 @@ MCP가 연결되지 않은 환경에서는 Skill의 공식자료 우선 정책�
 
 ## 배포 상태
 
-현재 저장소는 OpenAI 공식 Plugin manifest와 `skills/` 구조를 갖춘 **Plugin 패키징 단계**입니다. 공개 Plugin Directory 제출 전에는 별도로 다음 검증이 필요합니다.
+현재 저장소는 OpenAI Codex Plugin manifest, `skills/` 구조 및 repo/team Marketplace manifest를 갖춘 **Codex 설치 준비 단계**입니다.
+
+남은 검증은 다음과 같습니다.
 
 - 실제 Plugin 설치 smoke test
 - E10~E20 새 컨텍스트 행동 회귀평가
-- E21~E26 출력·자동 적용 회귀평가
+- E21~E25 출력 회귀평가
+- E26 신규 설치 후 자동 Skill 적용 회귀평가
 - 실제 `korean-law-mcp` E2E
 - ChatGPT 웹에서 MCP까지 제공할 경우 원격/등록 MCP App 구성
-- 제출 시점의 최신 Plugin 심사 요구사항 확인
+- 공개 배포 전 저장소 visibility·라이선스·개인정보·지원정보 최종 확인
+- Plugin Directory 제출을 진행할 경우 제출 시점의 최신 심사 요구사항 확인
 
 ## 주의
 
