@@ -41,6 +41,10 @@ REQUIRED_LOGIC_SKILL_MARKERS = {
     "비정형 자연어 추론",
     "사실성 미확인",
     "갑설과 을설을 각각 독립 검증",
+    "추상 논리 시나리오",
+    "선택지 완전성",
+    "동일한 법률용어",
+    "내부 오류분류명",
     "BLOCK",
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
@@ -101,6 +105,10 @@ REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "거짓 양자택일",
     "순환논증",
     "반례 가능성",
+    "추상 입력 보존",
+    "선택지 완전성",
+    "동일 용어 의미 변경",
+    "내부 오류분류명",
     "형식적 타당성 | 전제 명확성 | 연결성 | 개념 일관성",
     "형식적 타당성 | 50점",
     "전제의 명확성 | 20점",
@@ -128,6 +136,14 @@ REQUIRED_LOGIC_EVAL_MARKERS = {
     "E18. 갑설·을설 상호 불일치",
     "E19. 검증 결과 비노출",
     "E20. 오류 수정과 원문 대응",
+}
+REQUIRED_LOGIC_REGRESSION_MARKERS = {
+    "E10~E20 공통 출력 조건",
+    "특정 법률·조문·판례·법제처 해석례·사실관계를 임의로 대응시키거나 만들어내지 않는다",
+    "가능한 해석 전부",
+    "동일 조문의 동일 용어 `건축물`의 의미가 양 설에서 달라졌다는 점을 BLOCK으로 탐지",
+    "정보부족 질문 테스트가 아니라 비노출 테스트",
+    "내부 기호·분류명은 기본 출력에 노출하지 않는다",
 }
 REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E21. 기본 1~6 출력",
@@ -195,6 +211,7 @@ def main() -> int:
     scenario_text = EVAL_SCENARIOS.read_text(encoding="utf-8")
     expected_text = EVAL_EXPECTED.read_text(encoding="utf-8")
     require_markers(scenario_text, REQUIRED_LOGIC_EVAL_MARKERS, "logic eval scenarios")
+    require_markers(scenario_text, REQUIRED_LOGIC_REGRESSION_MARKERS, "logic regression scenarios")
     require_markers(scenario_text, REQUIRED_OUTPUT_EVAL_MARKERS, "output eval scenarios")
     require_markers(
         expected_text,
@@ -212,6 +229,11 @@ def main() -> int:
             "최상위 제목 문자열·순서·H1 수준 중 하나라도 기본 계약과 다르거나",
             "Plugin 행동 PASS로 인정하지 않는다",
             "내부 논리검증 필수 조건",
+            "추상 논리 시나리오의 A/B/P/Q",
+            "선택지 완전성 자체를 독립 전제",
+            "동일한 법률용어의 의미가 양 설 사이에서 달라지면 BLOCK",
+            "내부 검증 비노출 조건",
+            "정보부족 질문 테스트가 아니라 비노출 테스트",
             "형식적 타당성 50",
             "전제 명확성 20",
             "근거-결론 연결성 20",
@@ -226,7 +248,6 @@ def main() -> int:
             "수정 원칙",
             "수정 예시",
             "추가가 필요한 전제",
-            "사용자가 요청하지 않는 한 최종 결과에 노출하지 않는다",
         },
         "expected behavior",
     )
