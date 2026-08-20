@@ -1,6 +1,8 @@
 # JDIPT
 
-**JDIPT (Judicial / Legal Interpretation Prompt Toolkit)**는 대한민국 법령해석요청 업무를 위한 ChatGPT/Codex Plugin 소스 저장소입니다.
+**JDIPT (Judicial / Legal Interpretation Prompt Toolkit)**는 대한민국 법령해석요청 업무를 위한 **Codex Plugin** 소스 저장소입니다.
+
+v0.1.0은 Skill-first Codex Plugin으로 배포하며, ChatGPT Plugin Directory 등록 및 ChatGPT 웹용 원격 MCP App은 포함하지 않습니다.
 
 JDIPT는 다음 두 계층을 분리해 관리합니다.
 
@@ -57,9 +59,9 @@ Marketplace 이름은 `sage1993`, Plugin 이름은 `jdipt`이며 Marketplace의 
 
 ## Codex 설치
 
-### GitHub Marketplace로 설치
+### GitHub 저장소에서 Codex Plugin 설치
 
-GitHub 저장소에 접근할 수 있는 환경에서는 다음 순서로 설치합니다.
+공개 GitHub 저장소를 Codex Marketplace source로 등록한 뒤 Plugin을 설치합니다.
 
 ```bash
 codex plugin marketplace add sage1993/JDIPT
@@ -67,7 +69,7 @@ codex plugin add jdipt@sage1993
 codex plugin list
 ```
 
-현재 저장소가 private인 동안에는 GitHub 읽기 권한과 Git 인증이 있는 사용자만 설치할 수 있습니다. 불특정 사용자에게 배포하려면 저장소를 public으로 전환하거나 사용자들이 접근할 수 있는 별도의 Git remote가 필요합니다.
+JDIPT는 공개 저장소이므로 별도의 저장소 읽기 권한 없이 Git source로 Marketplace를 등록할 수 있습니다.
 
 ### 로컬 clone에서 설치
 
@@ -212,7 +214,7 @@ CLI의 `--env` 방식은 사용자의 Codex 설정에 값을 기록할 수 있�
 ### 4. 저장소에서 MCP 직접 실행 — 선택
 
 ```bash
-npm install
+npm ci
 npm run mcp
 ```
 
