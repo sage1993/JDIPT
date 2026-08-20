@@ -87,3 +87,11 @@ JDIPT Plugin은 Skill-first 구조이므로 Plugin 설치 자체는 `korean-law-
 python scripts/validate_repo.py
 npm ci
 npm run mcp -- --help
+```
+
+v0.1.0 공개 검증 결과:
+
+- Plugin fresh install smoke: PASS
+- E10~E26 regression: PASS
+- Korean Law MCP E2E: PASS
+- `npm audit --omit=dev`: 0 vulnerabilities

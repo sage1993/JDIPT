@@ -35,7 +35,7 @@
 - `korean-law-mcp@4.12.1` exact pin 유지
 - Korean Law MCP 실제 호출/E2E: PASS
 - Codex 로컬 MCP 설정은 `env_vars = ["LAW_OC"]`로 OS 환경변수만 전달
-- 정적 공개 release gate: `python scripts/validate_repo.py`, `npm install`, `npm run mcp -- --help`
+- 정적 공개 release gate: `python scripts/validate_repo.py`, `npm ci`, `npm run mcp -- --help`
 
 ## 업그레이드 체크리스트
 

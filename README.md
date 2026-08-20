@@ -172,7 +172,7 @@ codex plugin list
 python scripts/validate_repo.py
 ```
 
-검증에는 Plugin manifest, Skill 구조, 출력·논리검증 계약, MCP 버전, 비밀값 정책이 포함됩니다. Marketplace manifest의 배포 계약은 `docs/installation.md`의 배포 전 확인 항목과 함께 검토합니다.
+검증에는 Plugin manifest, Marketplace manifest, Skill 구조, 출력·논리검증 계약, MCP 버전, tracked secret 정책이 포함됩니다.
 
 ### 3. Codex 로컬에서 Korean Law MCP 사용 — 선택
 
@@ -255,21 +255,6 @@ MCP가 연결되지 않은 환경에서는 Skill의 공식자료 우선 정책�
 
 자세한 내용은 `docs/upstream-mcp.md`와 `docs/plugin-packaging.md`를 참조하십시오.
 
-## 배포 상태
-
-현재 저장소는 OpenAI Codex Plugin manifest, `skills/` 구조 및 repo/team Marketplace manifest를 갖춘 **Codex 설치 준비 단계**입니다.
-
-남은 검증은 다음과 같습니다.
-
-- 실제 Plugin 설치 smoke test
-- E10~E20 새 컨텍스트 행동 회귀평가
-- E21~E25 출력 회귀평가
-- E26 신규 설치 후 자동 Skill 적용 회귀평가
-- 실제 `korean-law-mcp` E2E
-- ChatGPT 웹에서 MCP까지 제공할 경우 원격/등록 MCP App 구성
-- 공개 배포 전 저장소 visibility·라이선스·개인정보·지원정보 최종 확인
-- Plugin Directory 제출을 진행할 경우 제출 시점의 최신 심사 요구사항 확인
-
 ## v0.1.0 공개 상태
 
 JDIPT v0.1.0은 **Codex Plugin 신규 설치, Skill 자동 적용 회귀평가(E10~E26), Korean Law MCP 실제 E2E 검증을 완료한 공개 배포 가능 버전**입니다.
@@ -279,6 +264,7 @@ JDIPT v0.1.0은 **Codex Plugin 신규 설치, Skill 자동 적용 회귀평가(E
 - 신규 설치 환경 Plugin smoke test: PASS
 - E10~E26 실제 회귀평가: PASS
 - Korean Law MCP 실제 E2E: PASS
+- `npm audit --omit=dev`: 0 vulnerabilities
 
 정적 공개 release gate는 다음 수동 절차로 수행합니다.
 
@@ -286,6 +272,9 @@ JDIPT v0.1.0은 **Codex Plugin 신규 설치, Skill 자동 적용 회귀평가(E
 python scripts/validate_repo.py
 npm ci
 npm run mcp -- --help
+```
+
+ChatGPT 웹용 원격/등록 MCP App, `.app.json`, Plugin Directory 등록·심사는 이 버전에 포함되지 않습니다.
 
 ## 주의
 

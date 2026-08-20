@@ -188,3 +188,4 @@ JDIPT v0.1.0 공개를 위해 다음 실제 검증을 완료했다.
 python scripts/validate_repo.py
 npm ci
 npm run mcp -- --help
+```
