@@ -1,13 +1,53 @@
 # JDIPT
 
-**JDIPT (Judicial / Legal Interpretation Prompt Toolkit)**는 대한민국 법령해석요청 업무를 위한 Codex/ChatGPT 플러그인 소스 저장소입니다.
+**JDIPT (Judicial / Legal Interpretation Prompt Toolkit)**는 대한민국 법령해석요청 업무를 위한 ChatGPT/Codex Plugin 소스 저장소입니다.
 
-이 저장소는 다음 두 계층을 분리해 관리합니다.
+JDIPT는 다음 두 계층을 분리해 관리합니다.
 
 - **작성·판단 계층:** `skills/law-interpretation-request` — 법령해석 대상 적합성, 질의 보정, 문언·체계·목적·연혁 검토, 내부 논리검증, 최종 문안 작성
 - **법령 데이터 계층:** [`korean-law-mcp`](https://github.com/chrisryugj/korean-law-mcp) — 국가법령정보센터 기반 법령·판례·해석례 조회 및 인용 검증
 
-> 원칙: JDIPT는 `korean-law-mcp` 소스를 복제하지 않습니다. 업스트림을 외부 의존성으로 사용하고 버전만 이 저장소에서 관리합니다.
+> 원칙: JDIPT는 `korean-law-mcp` 소스를 복제하지 않습니다. 업스트림을 외부 의존성으로 사용하고 버전을 이 저장소에서 관리합니다.
+
+## Plugin 패키징
+
+JDIPT 저장소 루트 자체가 하나의 Plugin 패키지입니다. OpenAI의 현재 Plugin 패키징 사양에 따라 `.codex-plugin/plugin.json`을 진입점으로 사용하고, Plugin에 포함되는 Skill의 단일 원본은 `skills/`에서 관리합니다.
+
+```text
+JDIPT/
+├─ .codex-plugin/
+│  └─ plugin.json
+├─ skills/
+│  └─ law-interpretation-request/
+│     ├─ SKILL.md
+│     ├─ agents/
+│     ├─ references/
+│     └─ evals/
+├─ config/
+│  └─ codex.example.toml
+├─ docs/
+│  ├─ architecture.md
+│  ├─ plugin-packaging.md
+│  ├─ upstream-mcp.md
+│  └─ roadmap.md
+├─ scripts/
+│  └─ validate_repo.py
+├─ AGENTS.md
+├─ README.md
+└─ package.json
+```
+
+`skills/law-interpretation-request/`를 `.agents/skills/`에 중복 복제하지 않습니다. Plugin manifest의 `skills` 필드는 `./skills/`를 가리킵니다.
+
+현재 패키지는 **Skill-first Plugin**입니다. `korean-law-mcp`는 vendor하지 않고 Codex 로컬 환경에서 선택적으로 연결합니다. ChatGPT 웹에서 MCP 도구까지 제공하려면 별도의 원격/등록 MCP App 구성이 필요하며, 실제 App ID가 발급되기 전에는 `.app.json`이나 가짜 연결 정보를 만들지 않습니다.
+
+상세 정책은 [`docs/plugin-packaging.md`](docs/plugin-packaging.md)를 참조하십시오.
+
+공식 참고 문서:
+
+- https://developers.openai.com/plugins/build/plugins
+- https://help.openai.com/en/articles/20001256-plugins-in-chatgpt-and-codex
+- https://developers.openai.com/codex/mcp
 
 ## 출력 정책
 
@@ -75,137 +115,71 @@
 
 내부 기호화(`P`, `Q`, `R`), 논리 점수, 반례 탐색표와 수정 과정은 사용자가 별도로 요청하지 않는 한 최종 답변에 표시하지 않습니다.
 
-## 저장소 구조
-
-```text
-JDIPT/
-├─ README.md
-├─ AGENTS.md
-├─ package.json
-├─ .env.example
-├─ .github/
-│  └─ dependabot.yml
-├─ config/
-│  └─ codex.example.toml
-├─ docs/
-│  ├─ architecture.md
-│  ├─ upstream-mcp.md
-│  └─ roadmap.md
-├─ scripts/
-│  └─ validate_repo.py
-└─ skills/
-   └─ law-interpretation-request/
-      ├─ SKILL.md
-      ├─ agents/openai.yaml
-      ├─ references/
-      │  ├─ logic-validation.md
-      │  ├─ request-format.md
-      │  └─ source-policy.md
-      └─ evals/
-```
-
 ## 빠른 시작
 
 ### 1. 요구사항
 
-- Node.js `>=20.19.0`
-- Python 3.11+ (저장소 검증용)
-- 국가법령정보 공동활용 API 키 `LAW_OC` 권장
+- Python 3.11+ — 저장소 정적 검증
+- Node.js `>=20.19.0` — `korean-law-mcp`를 로컬에서 사용할 경우
+- 국가법령정보 공동활용 API 키 `LAW_OC` — `korean-law-mcp` 사용 시
 
-### 2. MCP 설치
-
-```bash
-npm install
-```
-
-직접 실행:
+### 2. 저장소 검증
 
 ```bash
-npm run mcp
+python scripts/validate_repo.py
 ```
 
-업스트림 초기 설정:
+검증에는 Plugin manifest, Skill 구조, 출력·논리검증 계약, MCP 버전, 비밀값 정책이 포함됩니다.
+
+### 3. Codex 로컬에서 Korean Law MCP 사용 — 선택
+
+`korean-law-mcp`는 실행 프로세스의 환경변수 `LAW_OC`를 읽습니다. 실제 API 키는 GitHub 저장소나 Codex 설정 파일에 기록하지 않습니다.
+
+PowerShell 예시:
+
+```powershell
+$env:LAW_OC="발급받은_API_KEY"
+```
+
+bash/zsh 예시:
 
 ```bash
-npm run mcp:setup
+export LAW_OC="발급받은_API_KEY"
 ```
 
-### 3. API 키 입력
-
-`korean-law-mcp`는 실행 프로세스의 환경변수 `LAW_OC`를 읽습니다. 실제 API 키는 GitHub 저장소에 커밋하지 않습니다.
-
-#### Codex에서 사용하는 경우 — 권장
-
-Codex는 기본적으로 `~/.codex/config.toml`에 MCP 설정을 저장합니다. Windows에서는 일반적으로 다음 경로입니다.
-
-```text
-%USERPROFILE%\.codex\config.toml
-```
-
-`config/codex.example.toml`을 참고하여 다음처럼 등록합니다.
+그 다음 `config/codex.example.toml`을 사용자 `~/.codex/config.toml`에 병합합니다.
 
 ```toml
 [mcp_servers.korean_law]
 command = "npx"
 args = ["-y", "korean-law-mcp@4.12.1"]
 enabled = true
-
-[mcp_servers.korean_law.env]
-LAW_OC = "발급받은_API_KEY"
+env_vars = ["LAW_OC"]
 ```
 
-또는 Codex CLI에서 환경변수와 함께 서버를 등록할 수 있습니다.
+또는 CLI에서 직접 등록할 수 있습니다.
 
 ```bash
 codex mcp add korean_law --env LAW_OC=발급받은_API_KEY -- npx -y korean-law-mcp@4.12.1
-```
-
-등록 후 다음으로 확인합니다.
-
-```bash
 codex mcp list
 ```
 
-#### 저장소에서 MCP를 직접 실행하는 경우
+CLI의 `--env` 방식은 사용자의 Codex 설정에 값을 기록할 수 있으므로, 비밀값을 config에 남기고 싶지 않으면 OS 환경변수 + `env_vars` 방식을 권장합니다.
 
-실행 프로세스에 `LAW_OC` 환경변수를 전달합니다.
+### 4. 저장소에서 MCP 직접 실행 — 선택
 
-PowerShell:
-
-```powershell
-$env:LAW_OC="발급받은_API_KEY"
+```bash
+npm install
 npm run mcp
 ```
 
-bash/zsh:
+업스트림 초기 설정이 필요하면:
 
 ```bash
-LAW_OC="발급받은_API_KEY" npm run mcp
+npm run mcp:setup
 ```
 
-`.env.example`은 필요한 환경변수 이름을 기록하기 위한 참고 템플릿으로 유지합니다. JDIPT는 `.env` 파일의 자동 로딩을 전제로 하지 않습니다.
-
-#### GitHub Actions에서 사용하는 경우
-
-Repository `Settings → Secrets and variables → Actions`에 `LAW_OC` Repository secret을 등록합니다. 워크플로 파일에 실제 키를 직접 쓰지 않습니다.
-
-### 4. Codex MCP 설정
-
-`config/codex.example.toml` 내용을 사용자 Codex 설정에 반영합니다.
-
-### 5. Skill 설치
-
-```text
-skills/law-interpretation-request/
-```
-
-폴더를 사용자 Agent Skills 경로의 `law-interpretation-request/`로 복사합니다.
-
-### 6. 검증
-
-```bash
-python scripts/validate_repo.py
-```
+`.env.example`은 필요한 환경변수 이름을 기록하기 위한 참고 템플릿이며 JDIPT는 `.env` 자동 로딩을 전제로 하지 않습니다.
 
 ## MCP 사용 정책
 
@@ -219,6 +193,8 @@ Skill은 법적 근거를 확인할 때 다음 도구를 우선합니다.
 
 검색 결과만으로 조문을 확정하지 않고, 최종 문안에 사용할 조문은 본문 조회로 재확인합니다.
 
+MCP가 연결되지 않은 환경에서는 Skill의 공식자료 우선 정책에 따라 국가법령정보센터 등 공식 출처를 사용합니다.
+
 ## 업스트림 관리
 
 `korean-law-mcp`는 이 저장소의 `package.json`에서 정확한 버전으로 고정합니다. Dependabot이 주 1회 업데이트 가능성을 확인합니다. 업스트림 버전 변경 PR은 최소한 다음을 확인한 뒤 반영합니다.
@@ -228,12 +204,23 @@ Skill은 법적 근거를 확인할 때 다음 도구를 우선합니다.
 - `search_law` / `get_law_text` 동작
 - 결정례 검색·본문 조회 동작
 - Skill의 도구명 참조 정합성
-- 기본 1~6 / 명시적 법제처 1~3 출력 모드가 유지되는지
-- 요청취지가 사용자 질문에서 합리적으로 유추되는지
-- 공식자료 인라인 하이퍼링크 정책이 유지되는지
-- 논리검증 후 출처·현행성 검증 순서가 유지되는지
+- 기본 1~6 / 명시적 법제처 1~3 출력 모드 유지
+- 요청취지 유추 규칙 유지
+- 공식자료 인라인 하이퍼링크 정책 유지
+- 논리검증 후 출처·현행성 검증 순서 유지
+- `.codex-plugin/plugin.json`과 `package.json` 버전 일치
 
-자세한 내용은 `docs/upstream-mcp.md`를 참조하십시오.
+자세한 내용은 `docs/upstream-mcp.md`와 `docs/plugin-packaging.md`를 참조하십시오.
+
+## 배포 상태
+
+현재 저장소는 OpenAI 공식 Plugin manifest와 `skills/` 구조를 갖춘 **Plugin 패키징 단계**입니다. 공개 Plugin Directory 제출 전에는 별도로 다음 검증이 필요합니다.
+
+- 실제 Plugin 설치 smoke test
+- E10~E25 새 컨텍스트 행동 회귀평가
+- 실제 `korean-law-mcp` E2E
+- ChatGPT 웹에서 MCP까지 제공할 경우 원격/등록 MCP App 구성
+- 제출 시점의 최신 Plugin 심사 요구사항 확인
 
 ## 주의
 
