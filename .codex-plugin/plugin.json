@@ -1,0 +1,33 @@
+{
+  "name": "jdipt",
+  "version": "0.1.0",
+  "description": "대한민국 법령해석요청 작성·검토를 위한 법률검토 워크플로",
+  "author": {
+    "name": "sage1993",
+    "url": "https://github.com/sage1993"
+  },
+  "homepage": "https://github.com/sage1993/JDIPT",
+  "repository": "https://github.com/sage1993/JDIPT",
+  "license": "MIT",
+  "keywords": [
+    "korean-law",
+    "legal-interpretation",
+    "법령해석",
+    "대한민국-법령"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "JDIPT",
+    "shortDescription": "대한민국 법령해석요청 작성·검토",
+    "longDescription": "대한민국 법령의 의미와 적용범위를 검토하고 법령해석요청 및 내부 법률검토 문안을 구조화합니다.",
+    "developerName": "sage1993",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": [
+      "이 법령 쟁점을 검토해줘.",
+      "법제처 법령해석요청서 형식으로 작성해줘."
+    ]
+  }
+}
