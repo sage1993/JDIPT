@@ -136,9 +136,6 @@ REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E24. 공식자료 인라인 하이퍼링크",
     "E25. 요청취지 유추",
     "E26. Plugin 설치 후 자동 Skill 적용",
-    "1번 제목 이전에 별도 서론",
-    "최상위 Markdown 제목",
-    "Markdown H1",
 }
 
 
@@ -190,8 +187,6 @@ def main() -> int:
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
     if "다음 1~8 구조" in request_text or "# 6. 질의사항" in request_text:
         fail("legacy default output sections remain in request-format.md")
-    if "또는 문서 맥락에 맞는 제목 수준" in request_text:
-        fail("request-format.md still allows variable top-level heading levels")
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
 
@@ -204,11 +199,7 @@ def main() -> int:
     require_markers(
         expected_text,
         {
-            "기본 1~6 구조",
-            "문자열과 순서까지 그대로",
-            "Markdown H1",
-            "`# 1. 요청취지` 이전에는 별도 서론",
-            "결론·검토의견·적용상 유의사항",
+            "기본 1~6 항목은 모두 Markdown H1",
             "`1. 요청취지`",
             "실제 검토 목적",
             "별도 `제목` 또는 `질의사항` 항목을 생성하지 않는다",
@@ -218,6 +209,7 @@ def main() -> int:
             "[공식 링크 확인 필요]",
             "Plugin 적용 조건",
             "Skill명이나 `@jdipt`를 명시하지 않은",
+            "최상위 제목 문자열·순서·H1 수준 중 하나라도 기본 계약과 다르거나",
             "Plugin 행동 PASS로 인정하지 않는다",
             "내부 논리검증 필수 조건",
             "형식적 타당성 50",
