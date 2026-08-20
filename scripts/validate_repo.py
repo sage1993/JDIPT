@@ -46,12 +46,15 @@ REQUIRED_LOGIC_SKILL_MARKERS = {
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
     "기본 출력 모드 — 별도 형식 지시가 없을 때",
-    "1. 요청취지",
-    "2. 질의 배경 및 사실관계",
-    "3. 관련 법령 및 조문",
-    "4. 해석상 쟁점",
-    "5. 법률검토",
-    "6. 첨부자료",
+    "최상위 Markdown 제목은 아래 문자열을 그대로 사용한다",
+    "# 1. 요청취지",
+    "# 2. 질의 배경 및 사실관계",
+    "# 3. 관련 법령 및 조문",
+    "# 4. 해석상 쟁점",
+    "# 5. 법률검토",
+    "# 6. 첨부자료",
+    "1번 제목 이전에 별도 서론",
+    "결론·검토의견·적용상 유의사항",
     "사용자의 질문",
     "유추",
     "특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만",
@@ -60,12 +63,16 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "사용자가 별도 형식을 명시하지 않으면",
+    "문자열과 순서를 그대로 유지",
+    "최상위 1~6 항목은 모두 Markdown H1",
+    "1번 항목 이전에는 별도 서론",
     "# 1. 요청취지",
     "# 2. 질의 배경 및 사실관계",
     "# 3. 관련 법령 및 조문",
     "# 4. 해석상 쟁점",
     "# 5. 법률검토",
     "# 6. 첨부자료",
+    "결론·검토의견·적용상 유의사항",
     "실제 검토 목적",
     "사용자가 명시적으로 법제처 법령해석요청서",
     "# 1. 질의요지",
@@ -129,6 +136,9 @@ REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E24. 공식자료 인라인 하이퍼링크",
     "E25. 요청취지 유추",
     "E26. Plugin 설치 후 자동 Skill 적용",
+    "1번 제목 이전에 별도 서론",
+    "최상위 Markdown 제목",
+    "Markdown H1",
 }
 
 
@@ -180,6 +190,8 @@ def main() -> int:
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
     if "다음 1~8 구조" in request_text or "# 6. 질의사항" in request_text:
         fail("legacy default output sections remain in request-format.md")
+    if "또는 문서 맥락에 맞는 제목 수준" in request_text:
+        fail("request-format.md still allows variable top-level heading levels")
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
 
@@ -193,6 +205,10 @@ def main() -> int:
         expected_text,
         {
             "기본 1~6 구조",
+            "문자열과 순서까지 그대로",
+            "Markdown H1",
+            "`# 1. 요청취지` 이전에는 별도 서론",
+            "결론·검토의견·적용상 유의사항",
             "`1. 요청취지`",
             "실제 검토 목적",
             "별도 `제목` 또는 `질의사항` 항목을 생성하지 않는다",
