@@ -128,6 +128,7 @@ REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E23. Markdown 출력 강제",
     "E24. 공식자료 인라인 하이퍼링크",
     "E25. 요청취지 유추",
+    "E26. Plugin 설치 후 자동 Skill 적용",
 }
 
 
@@ -199,6 +200,9 @@ def main() -> int:
             "모든 사용자용 최종 출력은 Markdown",
             "Markdown 인라인 하이퍼링크",
             "[공식 링크 확인 필요]",
+            "Plugin 적용 조건",
+            "Skill명이나 `@jdipt`를 명시하지 않은",
+            "Plugin 행동 PASS로 인정하지 않는다",
             "내부 논리검증 필수 조건",
             "형식적 타당성 50",
             "전제 명확성 20",
