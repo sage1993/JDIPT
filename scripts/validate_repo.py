@@ -146,7 +146,7 @@ REQUIRED_SOURCE_LINK_MARKERS = {
     "끝이 `=`로 끝나는 미완성 query URL",
 }
 REQUIRED_AGENT_CONFIG_MARKERS = {
-    "allow_implicit_invocation: true",
+    "allow_implicit_invocation: false",
     "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
     "기본 4단 법률검토형",
 }
@@ -208,7 +208,7 @@ REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E23. Markdown 출력 강제",
     "E24. 공식자료 인라인 하이퍼링크",
     "E25. 질의요지의 사실 최소화",
-    "E26. Plugin 설치 후 자동 Skill 적용",
+    "E26. Plugin 설치 후 명시적 Skill 호출 Smoke",
     "E27. 법적 대상·정의·하위분류 특정",
     "E28. 본칙·예외 선택",
     "E29. 동일 사항 중복규율과 특별규정",
@@ -230,9 +230,12 @@ REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS = {
     "실제 확인된 완전한 URL",
     "...lsiSeq=",
     "NOT_EXECUTED",
+    "explicit-only",
 }
 REQUIRED_AGENTS_MARKERS = {
     "Legal Issue Mapping → Legal Interpretation → Logic Validation → Answer Rendering",
+    "explicit-only Skill",
+    "allow_implicit_invocation",
     "정보 부족 처리",
     "Output Hygiene 및 URL provenance",
     "최종 Rendering Gate",
@@ -368,6 +371,8 @@ def main() -> int:
         fail("skills/law-interpretation-request/agents/openai.yaml missing")
     agent_config_text = AGENT_CONFIG.read_text(encoding="utf-8")
     require_markers(agent_config_text, REQUIRED_AGENT_CONFIG_MARKERS, "skill invocation metadata")
+    if "allow_implicit_invocation: true" in agent_config_text:
+        fail("law-interpretation-request must remain explicit-only")
 
     ref_dir = SKILL.parent / "references"
     actual = {p.name for p in ref_dir.glob("*.md")}
@@ -415,6 +420,7 @@ def main() -> int:
         {
             "실행 소스 고정 조건",
             "실제 JDIPT v0.2.0 소스인지 확인",
+            "allow_implicit_invocation",
             "추상 법적 논리 시나리오",
             "기본 4단 항목은 모두 Markdown H1",
             "번호 목록이나 일반 텍스트는 H1로 인정하지 않는다",
@@ -438,10 +444,10 @@ def main() -> int:
             "[공식 링크 확인 필요]",
             "URL provenance 및 공식자료 조건",
             "끝이 `=`인 미완성 URL",
-            "Plugin 적용 조건",
-            "Skill명이나 `@jdipt`를 명시하지 않은",
+            "Plugin 명시 호출 조건",
+            "explicit-only",
+            "자동 선택되는 것을 release gate로 요구하지 않는다",
             "Plugin 행동 PASS로 인정하지 않는다",
-            "Skill 선택 전 노출되는 description",
             "내부 논리검증 필수 조건",
             "추상 논리 시나리오의 A/B/P/Q",
             "선택지 완전성 자체를 독립 전제",
