@@ -43,6 +43,13 @@
 - [x] 독립적으로 판단 가능한 복수 쟁점에서만 하위 소제목 사용
 - [x] 법제처 제출용 1~3 구조 유지
 
+### 호출 정책
+
+- [x] `law-interpretation-request`를 explicit-only Skill로 전환
+- [x] `allow_implicit_invocation: false` 적용
+- [x] 자동 Skill 선택을 v0.2 release gate에서 제거
+- [x] E26을 설치본 명시 호출 Smoke Test로 전환
+
 ### 사례 패턴 및 평가
 
 - [x] 22-0351 법적 분류형 패턴 추가
@@ -50,8 +57,8 @@
 - [x] 20-0604 규율공백형 패턴 추가
 - [x] E27~E35 Issue Mapping / Answer-first / Narrative Coherence 평가 정의
 - [x] E36~E38 Golden Case 정의
-- [ ] E1~E38 새 컨텍스트 실제 행동 회귀 평가
-- [ ] E26 Plugin 자동 적용 새 컨텍스트 3회 연속 검증
+- [ ] E1~E38 새 컨텍스트 명시 호출 행동 회귀 평가
+- [ ] E26 설치된 Plugin v0.2.0 명시 호출 Smoke Test
 - [ ] `python scripts/validate_repo.py` / `npm ci` / `npm audit --omit=dev` / MCP help 최종 release gate
 - [ ] v0.2.0 release 판정 및 배포
 
