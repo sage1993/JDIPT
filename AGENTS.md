@@ -14,6 +14,8 @@
 - 현재 Plugin은 Skill-first 패키지다. ChatGPT 웹용 MCP App은 실제 원격/등록 MCP 연결과 App ID가 확보된 뒤에만 `.app.json`과 manifest `apps` 필드를 추가한다.
 - 확인되지 않은 App ID, MCP URL, manifest 필드를 임의로 만들지 않는다.
 - 비밀값(`LAW_OC`, 토큰 등)은 절대 커밋하지 않는다. 로컬 Codex MCP는 OS 환경변수와 `env_vars = ["LAW_OC"]`를 사용한다.
+- `law-interpretation-request`는 **explicit-only Skill**로 유지한다. `skills/law-interpretation-request/agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
+- 일반 법령 질문에 자동 Skill 선택을 요구하지 않는다. 사용자가 필요할 때 `$law-interpretation-request`로 명시 호출하는 방식을 기본 운영 정책으로 한다.
 
 ## 법령해석 변경 원칙
 - 법령 데이터 조회 기능을 JDIPT 안에 중복 구현하지 않는다. 우선 `korean-law-mcp`의 공개 도구를 사용한다.
@@ -101,6 +103,7 @@ npm run mcp -- --help
 논리검증 계약을 바꿨으면 `references/logic-validation.md`, `evals/scenarios.md`, `evals/expected-behavior.md`, `scripts/validate_repo.py`를 함께 갱신하고 **E10~E20을 새 컨텍스트에서 다시 실행**한다.
 Legal Issue Mapping 계약을 바꿨으면 `references/legal-issue-mapping.md`, `SKILL.md`, `references/interpretation-principles.md`, `references/case-patterns.md`, `evals/*`, `scripts/validate_repo.py`를 함께 검토한다.
 출력 형식·Output Hygiene·URL provenance를 바꿨으면 `SKILL.md`, `references/request-format.md`, `references/source-policy.md`, `evals/*`, `scripts/validate_repo.py`, `AGENTS.md`, `README.md`, `docs/architecture.md`를 함께 갱신한다.
+Skill 호출 정책을 바꿨으면 `agents/openai.yaml`, `evals/*`, `docs/installation.md`, `README.md`, `docs/roadmap.md`, `scripts/validate_repo.py`를 함께 갱신한다.
 행동 검증 전에는 실제 resolved Skill source가 v0.2.0인지 확인한다. 설치본이 stale하거나 버전을 확인할 수 없으면 v0.2.0 PASS/FAIL로 계산하지 않는다.
-이번 v0.2 계약은 E27~E38을 추가로 검증하고, 특히 22-0351·17-0047·20-0604 Golden Case에서 법적 분류형·중복규율형·규율공백형을 서로 구분해야 한다.
+이번 v0.2 계약은 E1~E38을 명시 호출로 검증하고, 특히 22-0351·17-0047·20-0604 Golden Case에서 법적 분류형·중복규율형·규율공백형을 서로 구분해야 한다.
 Plugin 패키징을 바꿨으면 `.codex-plugin/plugin.json`, `docs/plugin-packaging.md`, `README.md`, `docs/architecture.md`, `docs/roadmap.md`, `scripts/validate_repo.py`를 함께 검토한다.
