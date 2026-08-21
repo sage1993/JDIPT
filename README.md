@@ -50,6 +50,8 @@ Marketplace 이름은 `sage1993`, Plugin 이름은 `jdipt`이며 Marketplace의 
 
 현재 패키지는 **Skill-first Plugin**입니다. `korean-law-mcp`는 vendor하지 않고 Codex 로컬 환경에서 선택적으로 연결합니다. ChatGPT 웹에서 MCP 도구까지 제공하려면 별도의 원격/등록 MCP App 구성이 필요하며, 실제 App ID가 발급되기 전에는 `.app.json`이나 가짜 연결 정보를 만들지 않습니다.
 
+`law-interpretation-request`는 v0.2.0부터 **explicit-only**로 운영합니다. `agents/openai.yaml`의 `allow_implicit_invocation`은 `false`이며, 일반 법령 질문에 자동 적용되는 것을 요구하지 않습니다. 필요할 때 사용자가 `$law-interpretation-request`로 직접 호출합니다.
+
 상세 정책은 [`docs/plugin-packaging.md`](docs/plugin-packaging.md)를 참조하십시오.
 
 공식 참고 문서:
@@ -84,7 +86,13 @@ codex plugin list
 
 이미 clone한 저장소가 있다면 `git clone` 단계는 생략합니다.
 
-설치 또는 refresh 후에는 **새 Codex thread**를 시작하여 Skill discovery와 자동 적용을 검증합니다. Plugin명이나 Skill명을 직접 언급하지 않은 일반 법령해석 요청에서 `law-interpretation-request`가 적용되어야 E26 자동 적용 Smoke Test를 PASS로 판정할 수 있습니다.
+설치 또는 refresh 후에는 **새 Codex thread**를 시작하여 Skill을 명시 호출합니다.
+
+```text
+$law-interpretation-request 이 법령 쟁점을 검토해줘.
+```
+
+E26은 설치된 v0.2.0 Plugin에서 위와 같은 **명시 호출**이 정상 작동하는지 확인하는 Smoke Test입니다. 자동 Skill 선택은 v0.2.0 release gate에 포함하지 않습니다.
 
 상세 설치·Smoke Test 절차는 [`docs/installation.md`](docs/installation.md)를 참조하십시오.
 
@@ -328,7 +336,7 @@ npm audit --omit=dev
 npm run mcp -- --help
 ```
 
-행동 검증은 E1~E38을 대상으로 하며 E26 Plugin 자동 적용을 새 컨텍스트에서 3회 반복합니다. E36~E38은 각각 22-0351, 17-0047, 20-0604 패턴을 검증합니다. 실제 검증이 완료되기 전에는 v0.2.0을 PASS로 표시하지 않습니다.
+행동 검증은 E1~E38을 `$law-interpretation-request` **명시 호출**로 실행합니다. E26은 설치된 Plugin v0.2.0에서 명시 호출이 정상 동작하는지 확인하는 Smoke Test이며 자동 Skill 선택은 검증하지 않습니다. E36~E38은 각각 22-0351, 17-0047, 20-0604 패턴을 검증합니다. 실제 검증이 완료되기 전에는 v0.2.0을 PASS로 표시하지 않습니다.
 
 ChatGPT 웹용 원격/등록 MCP App, `.app.json`, Plugin Directory 등록·심사는 별도 작업입니다.
 
