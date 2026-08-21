@@ -52,6 +52,17 @@ JDIPT/
 
 Manifest의 Plugin 내부 경로는 Plugin 루트 기준 상대경로로 유지한다.
 
+## Skill 호출 정책
+
+`law-interpretation-request`는 v0.2.0부터 **explicit-only** Skill로 운영한다.
+
+```yaml
+policy:
+  allow_implicit_invocation: false
+```
+
+일반 법령 질문에 자동 선택되는 것을 요구하지 않으며, 사용자가 필요할 때 `$law-interpretation-request`로 직접 호출한다. 설치 및 release gate에서도 자동 Skill activation을 검증하지 않는다.
+
 ## Repo Marketplace
 
 `.agents/plugins/marketplace.json`은 JDIPT를 repo/team Marketplace로 노출한다.
@@ -104,7 +115,7 @@ codex plugin add jdipt@sage1993
 codex plugin list
 ```
 
-설치 후 Skill 및 MCP 변경사항을 확실히 반영하려면 새 Codex thread에서 검증한다.
+설치 후 Skill 및 MCP 변경사항을 확실히 반영하려면 새 Codex thread에서 `$law-interpretation-request`를 명시 호출해 검증한다.
 
 상세 절차와 E26 Smoke Test 조건은 [`installation.md`](installation.md)를 참조한다.
 
@@ -158,6 +169,7 @@ python scripts/validate_repo.py
 - `skills/law-interpretation-request/SKILL.md` 존재
 - `.agents/skills/law-interpretation-request` 중복본 부재
 - Plugin 표시명과 기본 프롬프트 존재
+- `agents/openai.yaml`의 `allow_implicit_invocation: false`
 - `LAW_OC` 실제 비밀값 미포함
 - `config/codex.example.toml`이 `LAW_OC`를 `env_vars`로 전달
 
@@ -171,7 +183,7 @@ Marketplace에 대해서는 추가로 다음 계약을 확인한다.
 - `policy.authentication = ON_INSTALL`
 - `category = Productivity`
 
-정적 검증과 실제 Codex 설치는 별개다. E26은 새 설치 환경에서 `jdipt@sage1993`를 실제 설치하고, Plugin명/Skill명을 명시하지 않은 일반 법령해석 요청에서 자동 Skill activation을 확인한 경우에만 PASS로 판정한다.
+정적 검증과 실제 Codex 설치는 별개다. E26은 새 설치 환경에서 v0.2.0 Plugin을 실제 설치하고 `$law-interpretation-request`를 명시 호출했을 때 Skill이 정상 적용되는 경우에 PASS로 판정한다.
 
 ## v0.1.0 공개 검증 상태
 
@@ -181,6 +193,8 @@ JDIPT v0.1.0 공개를 위해 다음 실제 검증을 완료했다.
 - E10~E25 실제 에이전트 회귀평가: PASS
 - E26 신규 설치 후 자동 Skill 적용: PASS
 - `korean-law-mcp` 실제 조회 E2E: PASS
+
+v0.1.0의 자동 적용 검증은 historical record이며 v0.2.0의 호출 정책에는 승계하지 않는다.
 
 공개 release gate는 GitHub Actions 대신 다음 수동 검증 절차를 사용한다.
 
