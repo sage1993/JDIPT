@@ -14,6 +14,7 @@ MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 PLUGIN_DOC = ROOT / "docs" / "plugin-packaging.md"
 CODEX = ROOT / "config" / "codex.example.toml"
 AGENTS = ROOT / "AGENTS.md"
+AGENT_CONFIG = SKILL.parent / "agents" / "openai.yaml"
 REQUEST_FORMAT = SKILL.parent / "references" / "request-format.md"
 SOURCE_POLICY = SKILL.parent / "references" / "source-policy.md"
 ISSUE_MAPPING = SKILL.parent / "references" / "legal-issue-mapping.md"
@@ -67,7 +68,9 @@ REQUIRED_ISSUE_MAPPING_SKILL_MARKERS = {
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
+    "정식 요청서라는 표현이 없어도 일반적인 대한민국 법령 해석·적용 질문이면 사용한다",
     "기본 출력 모드 — 별도 형식 지시가 없을 때",
+    "추상적인 A/B/P/Q 법적 논리 시나리오",
     "최상위 Markdown 제목은 아래 문자열과 순서를 그대로 사용한다",
     "# 1. 질의요지",
     "# 2. 검토결론",
@@ -80,6 +83,7 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "`법제처 법령해석요청서`",
     "클릭 가능한 Markdown 인라인 하이퍼링크",
     "최종 Rendering Gate",
+    "줄 시작이 반드시 `# `",
     "Output Hygiene check",
     "URL provenance check",
     "$law-interpretation-request",
@@ -88,6 +92,7 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "사용자가 별도 형식을 명시하지 않으면",
     "기본 4단 법률검토형",
+    "A/B/P/Q 같은 추상 법적 논리 시나리오",
     "문자열과 순서 그대로",
     "# 1. 질의요지",
     "# 2. 검토결론",
@@ -106,6 +111,7 @@ REQUIRED_REQUEST_FORMAT_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
     "정보 부족 응답",
     "Output Hygiene 및 최종 Rendering Gate",
+    "번호만 있는 일반 텍스트나 목록은 H1로 인정하지 않는다",
     "현재 실행에서 실제 확인한 완전한 공식 URL",
 }
 REQUIRED_ISSUE_MAPPING_MARKERS = {
@@ -138,6 +144,11 @@ REQUIRED_SOURCE_LINK_MARKERS = {
     "현재 실행 중 실제로 관찰·확인한 URL만",
     "식별자가 비어 있는 URL",
     "끝이 `=`로 끝나는 미완성 query URL",
+}
+REQUIRED_AGENT_CONFIG_MARKERS = {
+    "allow_implicit_invocation: true",
+    "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
+    "기본 4단 법률검토형",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "P → Q",
@@ -353,6 +364,11 @@ def main() -> int:
     require_markers(skill_text, REQUIRED_ISSUE_MAPPING_SKILL_MARKERS, "skill issue mapping")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
 
+    if not AGENT_CONFIG.is_file():
+        fail("skills/law-interpretation-request/agents/openai.yaml missing")
+    agent_config_text = AGENT_CONFIG.read_text(encoding="utf-8")
+    require_markers(agent_config_text, REQUIRED_AGENT_CONFIG_MARKERS, "skill invocation metadata")
+
     ref_dir = SKILL.parent / "references"
     actual = {p.name for p in ref_dir.glob("*.md")}
     missing = REQUIRED_REFERENCES - actual
@@ -399,7 +415,9 @@ def main() -> int:
         {
             "실행 소스 고정 조건",
             "실제 JDIPT v0.2.0 소스인지 확인",
+            "추상 법적 논리 시나리오",
             "기본 4단 항목은 모두 Markdown H1",
+            "번호 목록이나 일반 텍스트는 H1로 인정하지 않는다",
             "`# 1. 질의요지`",
             "`# 2. 검토결론`",
             "`# 3. 검토이유`",
@@ -423,6 +441,7 @@ def main() -> int:
             "Plugin 적용 조건",
             "Skill명이나 `@jdipt`를 명시하지 않은",
             "Plugin 행동 PASS로 인정하지 않는다",
+            "Skill 선택 전 노출되는 description",
             "내부 논리검증 필수 조건",
             "추상 논리 시나리오의 A/B/P/Q",
             "선택지 완전성 자체를 독립 전제",
@@ -536,6 +555,7 @@ def main() -> int:
     print(f"logic_eval_scenarios={len(REQUIRED_LOGIC_EVAL_MARKERS)}")
     print(f"output_eval_scenarios={len(REQUIRED_OUTPUT_EVAL_MARKERS)}")
     print(f"output_hygiene_eval_markers={len(REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS)}")
+    print(f"skill_invocation_markers={len(REQUIRED_AGENT_CONFIG_MARKERS)}")
     return 0
 
 
