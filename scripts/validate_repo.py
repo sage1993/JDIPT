@@ -15,14 +15,17 @@ PLUGIN_DOC = ROOT / "docs" / "plugin-packaging.md"
 CODEX = ROOT / "config" / "codex.example.toml"
 REQUEST_FORMAT = SKILL.parent / "references" / "request-format.md"
 SOURCE_POLICY = SKILL.parent / "references" / "source-policy.md"
+ISSUE_MAPPING = SKILL.parent / "references" / "legal-issue-mapping.md"
 EVAL_SCENARIOS = SKILL.parent / "evals" / "scenarios.md"
 EVAL_EXPECTED = SKILL.parent / "evals" / "expected-behavior.md"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
+
 REQUIRED_REFERENCES = {
     "baseline-document-policy.md",
     "case-patterns.md",
     "eligibility-checklist.md",
     "interpretation-principles.md",
+    "legal-issue-mapping.md",
     "logic-validation.md",
     "request-format.md",
     "source-policy.md",
@@ -50,39 +53,42 @@ REQUIRED_LOGIC_SKILL_MARKERS = {
     "내부 오류분류명",
     "BLOCK",
 }
+REQUIRED_ISSUE_MAPPING_SKILL_MARKERS = {
+    "references/legal-issue-mapping.md",
+    "법적 쟁점 매핑 Gate",
+    "문제 발생 지점",
+    "규율 공백",
+    "충족",
+    "불충족",
+    "확인 필요",
+}
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
     "기본 출력 모드 — 별도 형식 지시가 없을 때",
-    "최상위 Markdown 제목은 아래 문자열을 그대로 사용한다",
-    "# 1. 요청취지",
-    "# 2. 질의 배경 및 사실관계",
-    "# 3. 관련 법령 및 조문",
-    "# 4. 해석상 쟁점",
-    "# 5. 법률검토",
-    "# 6. 첨부자료",
-    "1번 제목 이전에 별도 서론",
-    "결론·검토의견·적용상 유의사항",
-    "사용자의 질문",
-    "유추",
+    "최상위 Markdown 제목은 아래 문자열과 순서를 그대로 사용한다",
+    "# 1. 질의요지",
+    "# 2. 검토결론",
+    "# 3. 검토이유",
+    "# 4. 관련 법령 및 자료",
+    "검토결론을 상세 검토이유보다 먼저",
+    "단일 쟁점",
+    "서로 독립적으로 판단 가능한 복수의 법적 쟁점",
     "특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만",
     "`법제처 법령해석요청서`",
     "클릭 가능한 Markdown 인라인 하이퍼링크",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "사용자가 별도 형식을 명시하지 않으면",
-    "문자열과 순서를 그대로 유지",
-    "최상위 1~6 항목은 모두 Markdown H1",
-    "1번 항목 이전에는 별도 서론",
-    "# 1. 요청취지",
-    "# 2. 질의 배경 및 사실관계",
-    "# 3. 관련 법령 및 조문",
-    "# 4. 해석상 쟁점",
-    "# 5. 법률검토",
-    "# 6. 첨부자료",
-    "결론·검토의견·적용상 유의사항",
-    "실제 검토 목적",
-    "사용자가 명시적으로 법제처 법령해석요청서",
+    "기본 4단 법률검토형",
+    "문자열과 순서 그대로",
     "# 1. 질의요지",
+    "# 2. 검토결론",
+    "# 3. 검토이유",
+    "# 4. 관련 법령 및 자료",
+    "검토결론을 상세 검토이유보다 먼저",
+    "Narrative Coherence 규칙",
+    "서로 독립적으로 판단 가능한 복수의 법적 쟁점",
+    "사용자가 명시적으로 법제처 법령해석요청서",
     "# 2. 해석대상 법령조문 및 관련 법령",
     "## 가. 해석대상 법령조문",
     "## 나. 관련 법령",
@@ -90,6 +96,19 @@ REQUIRED_REQUEST_FORMAT_MARKERS = {
     "## 가. 갑설",
     "## 나. 을설",
     "모든 사용자용 최종 출력은 Markdown",
+}
+REQUIRED_ISSUE_MAPPING_MARKERS = {
+    "법적 쟁점 매핑 Gate",
+    "주체",
+    "행위",
+    "법적 상태 또는 분류",
+    "적용 규범 지도",
+    "동일 사항의 중복 규율",
+    "규율 공백",
+    "충족",
+    "불충족",
+    "확인 필요",
+    "문제 발생 지점",
 }
 REQUIRED_SOURCE_LINK_MARKERS = {
     "본문의 자료명 자체에 Markdown 인라인 하이퍼링크를 기본",
@@ -146,16 +165,36 @@ REQUIRED_LOGIC_REGRESSION_MARKERS = {
     "임의로 대응시키거나 만들어내지 않는다",
     "가능한 해석 전부",
     "동일 조문의 동일 용어 `건축물`의 의미가 양 설에서 달라졌다는 점을 BLOCK으로 탐지",
-    "추가 질문 없이 기본 1~6 Markdown 형식을 사용",
+    "추가 질문 없이 기본 4단 Markdown 형식을 사용",
     "내부 기호·분류명은 기본 출력에 노출하지 않는다",
 }
 REQUIRED_OUTPUT_EVAL_MARKERS = {
-    "E21. 기본 1~6 출력",
+    "E21. 기본 4단 Answer-first 출력",
     "E22. 명시적 법제처 1~3 출력",
     "E23. Markdown 출력 강제",
     "E24. 공식자료 인라인 하이퍼링크",
-    "E25. 요청취지 유추",
+    "E25. 질의요지의 사실 최소화",
     "E26. Plugin 설치 후 자동 Skill 적용",
+    "E27. 법적 대상·정의·하위분류 특정",
+    "E28. 본칙·예외 선택",
+    "E29. 동일 사항 중복규율과 특별규정",
+    "E30. 규율 공백과 일반법 보충 적용",
+    "E31. 사실관계와 법적 요건 연결",
+    "E32. 문제 발생 지점 특정",
+    "E33. Answer-first 결론 우선",
+    "E34. 단일 쟁점 Narrative Coherence",
+    "E35. 복수 독립 쟁점에서만 소제목 사용",
+    "E36. Golden Case — 22-0351 법적 분류형",
+    "E37. Golden Case — 17-0047 중복규율형",
+    "E38. Golden Case — 20-0604 규율공백형",
+}
+LEGACY_DEFAULT_HEADINGS = {
+    "\n# 1. 요청취지\n",
+    "\n# 2. 질의 배경 및 사실관계\n",
+    "\n# 3. 관련 법령 및 조문\n",
+    "\n# 4. 해석상 쟁점\n",
+    "\n# 5. 법률검토\n",
+    "\n# 6. 첨부자료\n",
 }
 
 SECRET_ASSIGNMENT_RE = re.compile(
@@ -188,6 +227,14 @@ def require_markers(text: str, markers: set[str], scope: str) -> None:
     missing = sorted(marker for marker in markers if marker not in text)
     if missing:
         fail(f"{scope} markers missing: {missing}")
+
+
+def reject_legacy_default_headings(text: str, scope: str) -> None:
+    found = sorted(marker.strip() for marker in LEGACY_DEFAULT_HEADINGS if marker in text)
+    if found:
+        fail(f"{scope} legacy default headings remain: {found}")
+    if "기본 1~6" in text or "1~6 법률검토형" in text:
+        fail(f"{scope} legacy 1~6 default contract remains")
 
 
 def read_tracked_files() -> list[tuple[str, str]]:
@@ -257,12 +304,14 @@ def main() -> int:
         fail("legacy 1~8 default output rule remains in SKILL.md")
     if "6. 질의사항" in skill_text:
         fail("legacy 질의사항 section remains in SKILL.md")
+    reject_legacy_default_headings(skill_text, "SKILL.md")
 
     for tool in sorted(REQUIRED_MCP_TOOLS):
         if f"`{tool}`" not in skill_text:
             fail(f"MCP tool reference missing: {tool}")
 
     require_markers(skill_text, REQUIRED_LOGIC_SKILL_MARKERS, "skill logic")
+    require_markers(skill_text, REQUIRED_ISSUE_MAPPING_SKILL_MARKERS, "skill issue mapping")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
 
     ref_dir = SKILL.parent / "references"
@@ -270,6 +319,11 @@ def main() -> int:
     missing = REQUIRED_REFERENCES - actual
     if missing:
         fail(f"reference files missing: {sorted(missing)}")
+
+    if not ISSUE_MAPPING.is_file():
+        fail("legal-issue-mapping.md missing")
+    issue_mapping_text = ISSUE_MAPPING.read_text(encoding="utf-8")
+    require_markers(issue_mapping_text, REQUIRED_ISSUE_MAPPING_MARKERS, "issue mapping reference")
 
     logic_path = ref_dir / "logic-validation.md"
     logic_text = logic_path.read_text(encoding="utf-8")
@@ -279,6 +333,7 @@ def main() -> int:
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
     if "다음 1~8 구조" in request_text or "# 6. 질의사항" in request_text:
         fail("legacy default output sections remain in request-format.md")
+    reject_legacy_default_headings(request_text, "request-format.md")
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
 
@@ -292,17 +347,24 @@ def main() -> int:
     require_markers(
         expected_text,
         {
-            "기본 1~6 항목은 모두 Markdown H1",
-            "`1. 요청취지`",
-            "실제 검토 목적",
-            "별도 `제목` 또는 `질의사항` 항목을 생성하지 않는다",
+            "기본 4단 항목은 모두 Markdown H1",
+            "`# 1. 질의요지`",
+            "`# 2. 검토결론`",
+            "`# 3. 검토이유`",
+            "`# 4. 관련 법령 및 자료`",
+            "검토결론은 상세 검토이유보다 먼저",
+            "서로 독립적으로 판단 가능한 복수의 법적 쟁점",
+            "법적 쟁점 매핑 필수 조건",
+            "동일 사항의 중복 규율",
+            "규율 공백",
+            "문제 발생 지점",
+            "Answer-first 및 Narrative Coherence 조건",
             "법제처 1~3 구조는 사용자가",
             "모든 사용자용 최종 출력은 Markdown",
             "Markdown 인라인 하이퍼링크",
             "[공식 링크 확인 필요]",
             "Plugin 적용 조건",
             "Skill명이나 `@jdipt`를 명시하지 않은",
-            "최상위 제목 문자열·순서·H1 수준 중 하나라도 기본 계약과 다르거나",
             "Plugin 행동 PASS로 인정하지 않는다",
             "내부 논리검증 필수 조건",
             "추상 논리 시나리오의 A/B/P/Q",
@@ -326,6 +388,10 @@ def main() -> int:
             "수정 예시",
             "추가가 필요한 전제",
             "내부 검증 흔적은 최종 답변에 노출하지 않는다",
+            "Golden Case 조건",
+            "E36",
+            "E37",
+            "E38",
         },
         "expected behavior",
     )
@@ -408,6 +474,7 @@ def main() -> int:
     print(f"korean-law-mcp={version}")
     print(f"required_tools={len(REQUIRED_MCP_TOOLS)}")
     print(f"references={len(REQUIRED_REFERENCES)}")
+    print(f"issue_mapping_markers={len(REQUIRED_ISSUE_MAPPING_MARKERS)}")
     print(f"logic_markers={len(REQUIRED_LOGIC_REFERENCE_MARKERS)}")
     print(f"logic_eval_scenarios={len(REQUIRED_LOGIC_EVAL_MARKERS)}")
     print(f"output_eval_scenarios={len(REQUIRED_OUTPUT_EVAL_MARKERS)}")
