@@ -1,0 +1,77 @@
+name: JDIPT v0.2 validation
+
+on:
+  push:
+    branches:
+      - docs/jdipt-v0.2-plan
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Sync package-lock root version
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('package-lock.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['version'] == '0.1.0', data['version']
+          assert data['packages']['']['version'] == '0.1.0', data['packages']['']['version']
+          data['version'] = '0.2.0'
+          data['packages']['']['version'] = '0.2.0'
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git diff --numstat -- package-lock.json
+          changed="$(git diff --numstat -- package-lock.json)"
+          added="$(printf '%s' "$changed" | awk '{print $1}')"
+          deleted="$(printf '%s' "$changed" | awk '{print $2}')"
+          test "$added" -le 2
+          test "$deleted" -le 2
+
+      - name: Commit package-lock sync
+        shell: bash
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add -- package-lock.json
+            git commit -m "chore: sync v0.2 package lock"
+            git push origin HEAD:docs/jdipt-v0.2-plan
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate repository
+        run: npm run validate
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
+      - name: MCP CLI smoke
+        run: npm run mcp -- --help
+
+      - name: Diff check
+        run: git diff --check
