@@ -43,6 +43,28 @@ codex plugin list
 
 이전 대화에서 이미 로드된 Skill 상태를 재사용하면 실제 새 버전의 자동 적용 여부를 확인하기 어렵기 때문에 버전 갱신 후에는 반드시 새 컨텍스트를 사용한다.
 
+### v0.2.0 행동검증 전 설치본 확인
+
+E26 또는 설치본을 사용하는 행동검증은 **실제 resolved Plugin/Skill source가 v0.2.0인지 확인한 뒤** 실행한다.
+
+Windows의 기본 설치 경로를 사용하는 경우 예시:
+
+```powershell
+$jdipt = Join-Path $HOME ".codex\plugins\jdipt"
+Get-Content "$jdipt\.codex-plugin\plugin.json"
+Select-String -Path "$jdipt\skills\law-interpretation-request\SKILL.md" -Pattern '# 2. 검토결론','최종 Rendering Gate'
+```
+
+PASS 기준:
+
+- 설치본 manifest의 `version`이 `0.2.0`
+- 설치본 `SKILL.md`에 `# 2. 검토결론` 존재
+- 설치본 `SKILL.md`에 `최종 Rendering Gate` 존재
+
+설치 경로가 다르면 `codex plugin list`가 표시하는 설치 상태와 실제 Plugin 저장 위치를 기준으로 동일 항목을 확인한다.
+
+v0.2.0 설치 여부를 확인할 수 없거나 설치본이 여전히 v0.1.0이면 해당 실행은 v0.2.0의 PASS/FAIL로 계산하지 않는다. 먼저 refresh 또는 재설치로 설치본을 갱신한다.
+
 ## 설치 Smoke Test
 
 새 thread에서 Plugin명이나 Skill명을 명시하지 않고 일반 법령해석 질문을 입력한다.
@@ -69,8 +91,10 @@ PASS 조건:
 
 5. `# 2. 검토결론`이 상세 검토이유보다 먼저 나온다.
 6. 단일 쟁점에서 `법적 정의`, `적용 규정`, `사안 적용`, `문제 발생 지점`, `해석`을 각각 하위 제목으로 기계적으로 나누지 않는다.
-7. 공식자료 링크 정책과 내부 논리검증 비노출 규칙을 유지한다.
-8. 일반 비법률 요청에서 Skill이 과도하게 활성화되지 않는다.
+7. `$law-interpretation-request`, `@jdipt`, Skill/Plugin activation 문자열 등 실행 메타데이터가 사용자 답변에 노출되지 않는다.
+8. 공식자료 링크는 현재 실행에서 실제 확인한 완전한 URL만 사용하며 식별자가 비어 있거나 끝이 `=`인 미완성 URL을 출력하지 않는다.
+9. 내부 논리검증 기호화·점수·오류분류명을 사용자에게 노출하지 않는다.
+10. 일반 비법률 요청에서 Skill이 과도하게 활성화되지 않는다.
 
 정적 패키징 검증과 실제 Codex 설치 Smoke Test는 별개다. 저장소 정적 검증이 PASS하더라도 실제 설치 및 자동 Skill activation을 수행하지 않았다면 E26을 PASS로 판정하지 않는다.
 
@@ -94,7 +118,8 @@ JDIPT Plugin은 Skill-first 구조이므로 Plugin 설치 자체는 `korean-law-
 - `policy.authentication = ON_INSTALL`
 - `category = Productivity`
 - `python scripts/validate_repo.py`
-- 신규 설치 또는 refresh 후 E26 자동 Skill 적용 Smoke Test 3회
+- 신규 설치 또는 refresh 후 설치본 version/source 확인
+- E26 자동 Skill 적용 Smoke Test 3회
 
 ## 수동 공개 release gate
 
