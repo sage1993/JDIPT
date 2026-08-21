@@ -16,6 +16,7 @@ JDIPT Plugin
           ▼
 law-interpretation-request Skill
    │
+   ├─ explicit-only invocation
    ├─ 적합성 점검
    ├─ 질의 보정
    │
@@ -83,6 +84,8 @@ Answer Rendering
 
 현재 Plugin은 **Skill-first**로 패키징한다. `korean-law-mcp`는 Plugin 내부에 vendor하지 않고 외부 의존성으로 유지한다.
 
+`law-interpretation-request`의 invocation policy는 **explicit-only**다. `skills/law-interpretation-request/agents/openai.yaml`에서 `allow_implicit_invocation: false`를 유지하며 일반 법령 질문에 자동 선택되는 것을 요구하지 않는다. 사용자가 필요할 때 `$law-interpretation-request`로 직접 호출한다.
+
 ChatGPT 웹은 로컬 Codex MCP 설정을 읽지 않으므로, 공개 Plugin에서 MCP 도구까지 제공하려면 별도의 원격/등록 MCP App 구성이 필요하다. 실제 App ID나 원격 MCP 연결이 준비되기 전에는 `.app.json`을 임의로 생성하지 않는다.
 
 ## 책임 경계
@@ -91,7 +94,7 @@ ChatGPT 웹은 로컬 Codex MCP 설정을 읽지 않으므로, 공개 Plugin에�
 
 - Plugin identity와 Skill 패키징
 - 설치 화면용 메타데이터
-- 법령해석 Skill 제공
+- explicit-only 법령해석 Skill 제공
 - MCP가 없는 환경에서도 공식자료 우선 정책으로 동작
 
 ### Legal Issue Mapping Gate
@@ -149,6 +152,7 @@ ChatGPT 웹은 로컬 Codex MCP 설정을 읽지 않으므로, 공개 Plugin에�
 
 ### law-interpretation-request Skill
 
+- 명시 호출된 법령해석 요청 처리
 - 요청 목적과 질의 유형 판단
 - 법령해석 대상 적합성 판정
 - Legal Issue Mapping, Interpretation, Logic Validation, Rendering 순서 조정
