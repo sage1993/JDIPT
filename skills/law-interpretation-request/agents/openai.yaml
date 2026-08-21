@@ -3,4 +3,4 @@ interface:
   short_description: "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토 및 법제처 요청서 작성"
   default_prompt: "대한민국 법령의 의미·적용범위·요건·예외·특례 또는 규정 간 관계를 검토하고, 별도 형식 지시가 없으면 기본 4단 법률검토형으로 답변해 주세요."
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
