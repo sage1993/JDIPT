@@ -13,9 +13,11 @@ PLUGIN_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 PLUGIN_DOC = ROOT / "docs" / "plugin-packaging.md"
 CODEX = ROOT / "config" / "codex.example.toml"
+AGENTS = ROOT / "AGENTS.md"
 REQUEST_FORMAT = SKILL.parent / "references" / "request-format.md"
 SOURCE_POLICY = SKILL.parent / "references" / "source-policy.md"
 ISSUE_MAPPING = SKILL.parent / "references" / "legal-issue-mapping.md"
+ELIGIBILITY = SKILL.parent / "references" / "eligibility-checklist.md"
 EVAL_SCENARIOS = SKILL.parent / "evals" / "scenarios.md"
 EVAL_EXPECTED = SKILL.parent / "evals" / "expected-behavior.md"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
@@ -61,6 +63,7 @@ REQUIRED_ISSUE_MAPPING_SKILL_MARKERS = {
     "충족",
     "불충족",
     "확인 필요",
+    "가상 규정·정의·본칙·예외·사실관계를 직접 제공",
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
@@ -76,6 +79,11 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만",
     "`법제처 법령해석요청서`",
     "클릭 가능한 Markdown 인라인 하이퍼링크",
+    "최종 Rendering Gate",
+    "Output Hygiene check",
+    "URL provenance check",
+    "$law-interpretation-request",
+    "정보 부족으로 질문만 하고 중단",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "사용자가 별도 형식을 명시하지 않으면",
@@ -96,6 +104,9 @@ REQUIRED_REQUEST_FORMAT_MARKERS = {
     "## 가. 갑설",
     "## 나. 을설",
     "모든 사용자용 최종 출력은 Markdown",
+    "정보 부족 응답",
+    "Output Hygiene 및 최종 Rendering Gate",
+    "현재 실행에서 실제 확인한 완전한 공식 URL",
 }
 REQUIRED_ISSUE_MAPPING_MARKERS = {
     "법적 쟁점 매핑 Gate",
@@ -109,12 +120,24 @@ REQUIRED_ISSUE_MAPPING_MARKERS = {
     "불충족",
     "확인 필요",
     "문제 발생 지점",
+    "해당 검토의 전제로 보존",
+    "메타적으로만 말한 경우",
+}
+REQUIRED_ELIGIBILITY_MARKERS = {
+    "정보 부족과 형식상 부적합을 구분",
+    "필수 정보 부족",
+    "그 응답에서는 초안 작성을 중단",
+    "형식상 부적합하지만 보정 가능",
 }
 REQUIRED_SOURCE_LINK_MARKERS = {
     "본문의 자료명 자체에 Markdown 인라인 하이퍼링크를 기본",
     "[표시 텍스트](실제로 확인한 공식 URL)",
     "원문 접근은 본문 인라인 링크를 우선",
     "URL 패턴을 추측하지 않는다",
+    "URL provenance Gate",
+    "현재 실행 중 실제로 관찰·확인한 URL만",
+    "식별자가 비어 있는 URL",
+    "끝이 `=`로 끝나는 미완성 query URL",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "P → Q",
@@ -187,6 +210,22 @@ REQUIRED_OUTPUT_EVAL_MARKERS = {
     "E36. Golden Case — 22-0351 법적 분류형",
     "E37. Golden Case — 17-0047 중복규율형",
     "E38. Golden Case — 20-0604 규율공백형",
+}
+REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS = {
+    "공통 Output Hygiene 조건",
+    "$law-interpretation-request",
+    "사용자가 직접 붙인 `P`, `Q`",
+    "Skill 호출 문자열",
+    "실제 확인된 완전한 URL",
+    "...lsiSeq=",
+    "NOT_EXECUTED",
+}
+REQUIRED_AGENTS_MARKERS = {
+    "Legal Issue Mapping → Legal Interpretation → Logic Validation → Answer Rendering",
+    "정보 부족 처리",
+    "Output Hygiene 및 URL provenance",
+    "최종 Rendering Gate",
+    "# 2. 해석대상 법령조문 및 관련 법령",
 }
 LEGACY_DEFAULT_HEADINGS = {
     "\n# 1. 요청취지\n",
@@ -325,6 +364,11 @@ def main() -> int:
     issue_mapping_text = ISSUE_MAPPING.read_text(encoding="utf-8")
     require_markers(issue_mapping_text, REQUIRED_ISSUE_MAPPING_MARKERS, "issue mapping reference")
 
+    if not ELIGIBILITY.is_file():
+        fail("eligibility-checklist.md missing")
+    eligibility_text = ELIGIBILITY.read_text(encoding="utf-8")
+    require_markers(eligibility_text, REQUIRED_ELIGIBILITY_MARKERS, "eligibility reference")
+
     logic_path = ref_dir / "logic-validation.md"
     logic_text = logic_path.read_text(encoding="utf-8")
     require_markers(logic_text, REQUIRED_LOGIC_REFERENCE_MARKERS, "logic reference")
@@ -337,6 +381,11 @@ def main() -> int:
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
 
+    if not AGENTS.is_file():
+        fail("AGENTS.md missing")
+    agents_text = AGENTS.read_text(encoding="utf-8")
+    require_markers(agents_text, REQUIRED_AGENTS_MARKERS, "repository instructions")
+
     if not EVAL_SCENARIOS.is_file() or not EVAL_EXPECTED.is_file():
         fail("evaluation files missing")
     scenario_text = EVAL_SCENARIOS.read_text(encoding="utf-8")
@@ -344,9 +393,12 @@ def main() -> int:
     require_markers(scenario_text, REQUIRED_LOGIC_EVAL_MARKERS, "logic eval scenarios")
     require_markers(scenario_text, REQUIRED_LOGIC_REGRESSION_MARKERS, "logic regression scenarios")
     require_markers(scenario_text, REQUIRED_OUTPUT_EVAL_MARKERS, "output eval scenarios")
+    require_markers(scenario_text, REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS, "output hygiene eval scenarios")
     require_markers(
         expected_text,
         {
+            "실행 소스 고정 조건",
+            "실제 JDIPT v0.2.0 소스인지 확인",
             "기본 4단 항목은 모두 Markdown H1",
             "`# 1. 질의요지`",
             "`# 2. 검토결론`",
@@ -354,15 +406,20 @@ def main() -> int:
             "`# 4. 관련 법령 및 자료`",
             "검토결론은 상세 검토이유보다 먼저",
             "서로 독립적으로 판단 가능한 복수의 법적 쟁점",
+            "자료 부족 조건",
+            "그 응답에서는 초안 작성을 중단",
             "법적 쟁점 매핑 필수 조건",
             "동일 사항의 중복 규율",
             "규율 공백",
             "문제 발생 지점",
             "Answer-first 및 Narrative Coherence 조건",
+            "Output Hygiene 조건",
             "법제처 1~3 구조는 사용자가",
             "모든 사용자용 최종 출력은 Markdown",
             "Markdown 인라인 하이퍼링크",
             "[공식 링크 확인 필요]",
+            "URL provenance 및 공식자료 조건",
+            "끝이 `=`인 미완성 URL",
             "Plugin 적용 조건",
             "Skill명이나 `@jdipt`를 명시하지 않은",
             "Plugin 행동 PASS로 인정하지 않는다",
@@ -478,6 +535,7 @@ def main() -> int:
     print(f"logic_markers={len(REQUIRED_LOGIC_REFERENCE_MARKERS)}")
     print(f"logic_eval_scenarios={len(REQUIRED_LOGIC_EVAL_MARKERS)}")
     print(f"output_eval_scenarios={len(REQUIRED_OUTPUT_EVAL_MARKERS)}")
+    print(f"output_hygiene_eval_markers={len(REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS)}")
     return 0
 
 
