@@ -83,7 +83,7 @@
 - JDIPT Plugin이 **v0.2.0으로 설치·활성화된** 새 컨텍스트에서는 사용자가 Skill명이나 `@jdipt`를 명시하지 않은 일반적인 대한민국 법령해석·법률검토 질문에도 `law-interpretation-request` 규칙이 적용되어야 한다.
 - Plugin 자동 적용 테스트는 Skill 직접 호출 테스트와 분리한다. 직접 호출 없이 정확한 H1 4단 구조, Answer-first, Narrative Coherence, Output Hygiene, 내부 논리검증, URL provenance 정책이 나타나는지 확인한다.
 - Plugin 설치 상태에서 기본 출력의 최상위 제목 문자열·순서·H1 수준이 다르거나, `# 2. 검토결론`이 상세 이유보다 뒤에 나오거나, 단일 쟁점을 내부 단계별 소제목으로 과분할하면 실패로 판정한다.
-- Plugin이 설치되지 않았거나 v0.2.0 설치 여부를 확인할 수 없는 환경의 답변을 Plugin 행동 PASS 또는 FAIL로 인정하지 않는다.
+- v0.2.0 설치 여부를 확인하지 못한 실행은 **Plugin 행동 PASS로 인정하지 않는다.** 동시에 v0.2.0 자체의 FAIL로도 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
 
 ## 내부 논리검증 필수 조건
 
