@@ -21,6 +21,7 @@ ISSUE_MAPPING = SKILL.parent / "references" / "legal-issue-mapping.md"
 ELIGIBILITY = SKILL.parent / "references" / "eligibility-checklist.md"
 EVAL_SCENARIOS = SKILL.parent / "evals" / "scenarios.md"
 EVAL_EXPECTED = SKILL.parent / "evals" / "expected-behavior.md"
+EVAL_V022 = SKILL.parent / "evals" / "v0.2.2-regressions.md"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
 
 REQUIRED_REFERENCES = {
@@ -77,6 +78,16 @@ REQUIRED_COUNTEREVIDENCE_SKILL_MARKERS = {
     "실체·절차·신청양식 기능",
     "조건부 결론",
 }
+REQUIRED_V022_SKILL_MARKERS = {
+    "Fail-closed Hard Gates",
+    "Referenced Source Resolution Hard Gate",
+    "참조자료 확인 실패",
+    "정부24",
+    "첫 비공백 줄",
+    "초안을 **폐기**",
+    "기존 일반 건축물의 최초 전환",
+    "건축물 신축",
+}
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
     "정식 요청서라는 표현이 없어도 일반적인 대한민국 법령 해석·적용 질문이면 사용한다",
@@ -93,8 +104,7 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만",
     "`법제처 법령해석요청서`",
     "클릭 가능한 Markdown 인라인 하이퍼링크",
-    "최종 Rendering Gate",
-    "줄 시작이 반드시 `# `",
+    "최종 Rendering Hard Gate",
     "Output Hygiene check",
     "URL provenance check",
     "$law-interpretation-request",
@@ -121,9 +131,19 @@ REQUIRED_REQUEST_FORMAT_MARKERS = {
     "## 나. 을설",
     "모든 사용자용 최종 출력은 Markdown",
     "정보 부족 응답",
-    "Output Hygiene 및 최종 Rendering Gate",
-    "번호만 있는 일반 텍스트나 목록은 H1로 인정하지 않는다",
+    "Output Hygiene 및 최종 Rendering Hard Gate",
     "현재 실행에서 실제 확인한 완전한 공식 URL",
+}
+REQUIRED_RENDERING_HARD_GATE_MARKERS = {
+    "최종 Rendering Hard Gate",
+    "첫 비공백 줄",
+    "H1의 개수가 정확히 4개",
+    "그 초안은 폐기",
+    "재렌더링한 결과",
+    "# 1. 질의요지",
+    "# 2. 검토결론",
+    "# 3. 검토이유",
+    "# 4. 관련 법령 및 자료",
 }
 REQUIRED_ISSUE_MAPPING_MARKERS = {
     "법적 쟁점 매핑 Gate",
@@ -179,6 +199,16 @@ REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS = {
     "잠정 결론을 실제로 제한하는지",
     "존재하지 않는 반대근거",
 }
+REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS = {
+    "Referenced Source Resolution Hard Gate",
+    "필수 확인자료로 승격",
+    "참조자료 확인 실패",
+    "정부24",
+    "설립승인사항 변경",
+    "기존 일반 건축물의 최초 전환",
+    "건축물 신축",
+    "실제 문언을 끝내 확인하지 못했으면",
+}
 REQUIRED_AGENT_CONFIG_MARKERS = {
     "allow_implicit_invocation: false",
     "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
@@ -222,6 +252,14 @@ REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS = {
     "조건부로 낮춘다",
     "명시적 제한이 없다는 이유만으로 무조건 가능하다고 결론내리지 않는다",
     "별지서식",
+}
+REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS = {
+    "Referenced Source Resolution BLOCK",
+    "실제 문언을 확인하지 못한 경우",
+    "정부24",
+    "기존 일반 건축물의 최초 전환",
+    "건축물 신축",
+    "참조자료의 미확인 상태",
 }
 REQUIRED_LOGIC_EVAL_MARKERS = {
     "E10. 전건 긍정 정상",
@@ -278,6 +316,15 @@ REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS = {
 REQUIRED_COUNTEREVIDENCE_EVAL_MARKERS = {
     "E39. Counterevidence — 별지서식 충돌형",
     "E40. 규정 부재 논증 Counterexample",
+}
+REQUIRED_V022_EVAL_MARKERS = {
+    "E41. Referenced annex/form resolution BLOCK",
+    "E42. Post-research final rendering hard gate",
+    "첫 비공백 줄",
+    "별지 제3호서식",
+    "별지 제5호서식",
+    "9/9 PASS",
+    "42/42 PASS",
 }
 REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS = {
     "Source Completeness",
@@ -423,6 +470,7 @@ def main() -> int:
     require_markers(skill_text, REQUIRED_LOGIC_SKILL_MARKERS, "skill logic")
     require_markers(skill_text, REQUIRED_ISSUE_MAPPING_SKILL_MARKERS, "skill issue mapping")
     require_markers(skill_text, REQUIRED_COUNTEREVIDENCE_SKILL_MARKERS, "skill counterevidence")
+    require_markers(skill_text, REQUIRED_V022_SKILL_MARKERS, "skill v0.2.2 hard gates")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
 
     if not AGENT_CONFIG.is_file():
@@ -457,6 +505,7 @@ def main() -> int:
     logic_text = logic_path.read_text(encoding="utf-8")
     require_markers(logic_text, REQUIRED_LOGIC_REFERENCE_MARKERS, "logic reference")
     require_markers(logic_text, REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS, "logic counterevidence")
+    require_markers(logic_text, REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS, "logic referenced source resolution")
 
     request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
@@ -464,11 +513,17 @@ def main() -> int:
         fail("legacy default output sections remain in request-format.md")
     reject_legacy_default_headings(request_text, "request-format.md")
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
+    require_markers(request_text, REQUIRED_RENDERING_HARD_GATE_MARKERS, "final rendering hard gate")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
     require_markers(
         source_text,
         REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS,
         "source completeness policy",
+    )
+    require_markers(
+        source_text,
+        REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS,
+        "referenced source resolution policy",
     )
 
     if not AGENTS.is_file():
@@ -476,15 +531,17 @@ def main() -> int:
     agents_text = AGENTS.read_text(encoding="utf-8")
     require_markers(agents_text, REQUIRED_AGENTS_MARKERS, "repository instructions")
 
-    if not EVAL_SCENARIOS.is_file() or not EVAL_EXPECTED.is_file():
+    if not EVAL_SCENARIOS.is_file() or not EVAL_EXPECTED.is_file() or not EVAL_V022.is_file():
         fail("evaluation files missing")
     scenario_text = EVAL_SCENARIOS.read_text(encoding="utf-8")
     expected_text = EVAL_EXPECTED.read_text(encoding="utf-8")
+    v022_eval_text = EVAL_V022.read_text(encoding="utf-8")
     require_markers(scenario_text, REQUIRED_LOGIC_EVAL_MARKERS, "logic eval scenarios")
     require_markers(scenario_text, REQUIRED_LOGIC_REGRESSION_MARKERS, "logic regression scenarios")
     require_markers(scenario_text, REQUIRED_OUTPUT_EVAL_MARKERS, "output eval scenarios")
     require_markers(scenario_text, REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS, "output hygiene eval scenarios")
     require_markers(scenario_text, REQUIRED_COUNTEREVIDENCE_EVAL_MARKERS, "counterevidence eval scenarios")
+    require_markers(v022_eval_text, REQUIRED_V022_EVAL_MARKERS, "v0.2.2 regression scenarios")
     require_markers(
         expected_text,
         {
@@ -631,6 +688,7 @@ def main() -> int:
     print(f"logic_eval_scenarios={len(REQUIRED_LOGIC_EVAL_MARKERS)}")
     print(f"output_eval_scenarios={len(REQUIRED_OUTPUT_EVAL_MARKERS)}")
     print(f"output_hygiene_eval_markers={len(REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS)}")
+    print(f"v022_eval_markers={len(REQUIRED_V022_EVAL_MARKERS)}")
     print(f"skill_invocation_markers={len(REQUIRED_AGENT_CONFIG_MARKERS)}")
     return 0
 
