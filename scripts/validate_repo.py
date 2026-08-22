@@ -66,6 +66,17 @@ REQUIRED_ISSUE_MAPPING_SKILL_MARKERS = {
     "확인 필요",
     "가상 규정·정의·본칙·예외·사실관계를 직접 제공",
 }
+REQUIRED_COUNTEREVIDENCE_SKILL_MARKERS = {
+    "Source Completeness",
+    "Counterevidence",
+    "잠정 결론",
+    "별표",
+    "별지서식",
+    "규정 부재",
+    "위임근거",
+    "실체·절차·신청양식 기능",
+    "조건부 결론",
+}
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "모든 사용자용 최종 출력은 Markdown",
     "정식 요청서라는 표현이 없어도 일반적인 대한민국 법령 해석·적용 질문이면 사용한다",
@@ -129,6 +140,16 @@ REQUIRED_ISSUE_MAPPING_MARKERS = {
     "해당 검토의 전제로 보존",
     "메타적으로만 말한 경우",
 }
+REQUIRED_COUNTEREVIDENCE_ISSUE_MAPPING_MARKERS = {
+    "잠정 결론",
+    "별표",
+    "별지서식",
+    "명문 제한 없음",
+    "규정 부재",
+    "결론을 확정하기 전에 우선 확인한다",
+    "반대근거의 강제 생성",
+    "단순 절차·서식상 분류",
+}
 REQUIRED_ELIGIBILITY_MARKERS = {
     "정보 부족과 형식상 부적합을 구분",
     "필수 정보 부족",
@@ -144,6 +165,19 @@ REQUIRED_SOURCE_LINK_MARKERS = {
     "현재 실행 중 실제로 관찰·확인한 URL만",
     "식별자가 비어 있는 URL",
     "끝이 `=`로 끝나는 미완성 query URL",
+}
+REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS = {
+    "Source Completeness",
+    "Counterevidence",
+    "잠정 결론",
+    "별표",
+    "별지서식",
+    "명문 제한 없음",
+    "규정 부재",
+    "법적 기능",
+    "명시적 위임근거",
+    "잠정 결론을 실제로 제한하는지",
+    "존재하지 않는 반대근거",
 }
 REQUIRED_AGENT_CONFIG_MARKERS = {
     "allow_implicit_invocation: false",
@@ -179,6 +213,15 @@ REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "수정 제안 작성",
     "원래 문장 번호 | 수정 전 문제 | 수정 원칙 | 수정 예시 | 추가가 필요한 전제",
     "수정 및 재검증 Gate",
+}
+REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS = {
+    "Counterevidence BLOCK",
+    "잠정 결론",
+    "법적 기능",
+    "위임근거",
+    "조건부로 낮춘다",
+    "명시적 제한이 없다는 이유만으로 무조건 가능하다고 결론내리지 않는다",
+    "별지서식",
 }
 REQUIRED_LOGIC_EVAL_MARKERS = {
     "E10. 전건 긍정 정상",
@@ -231,6 +274,20 @@ REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS = {
     "...lsiSeq=",
     "NOT_EXECUTED",
     "explicit-only",
+}
+REQUIRED_COUNTEREVIDENCE_EVAL_MARKERS = {
+    "E39. Counterevidence — 별지서식 충돌형",
+    "E40. 규정 부재 논증 Counterexample",
+}
+REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS = {
+    "Counterevidence 공통조건",
+    "명시적 제한 없음",
+    "별지서식",
+    "법적 기능",
+    "위임관계",
+    "없는 반대근거",
+    "E39",
+    "E40",
 }
 REQUIRED_AGENTS_MARKERS = {
     "Legal Issue Mapping → Legal Interpretation → Logic Validation → Answer Rendering",
@@ -365,6 +422,7 @@ def main() -> int:
 
     require_markers(skill_text, REQUIRED_LOGIC_SKILL_MARKERS, "skill logic")
     require_markers(skill_text, REQUIRED_ISSUE_MAPPING_SKILL_MARKERS, "skill issue mapping")
+    require_markers(skill_text, REQUIRED_COUNTEREVIDENCE_SKILL_MARKERS, "skill counterevidence")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
 
     if not AGENT_CONFIG.is_file():
@@ -384,6 +442,11 @@ def main() -> int:
         fail("legal-issue-mapping.md missing")
     issue_mapping_text = ISSUE_MAPPING.read_text(encoding="utf-8")
     require_markers(issue_mapping_text, REQUIRED_ISSUE_MAPPING_MARKERS, "issue mapping reference")
+    require_markers(
+        issue_mapping_text,
+        REQUIRED_COUNTEREVIDENCE_ISSUE_MAPPING_MARKERS,
+        "issue mapping counterevidence",
+    )
 
     if not ELIGIBILITY.is_file():
         fail("eligibility-checklist.md missing")
@@ -393,6 +456,7 @@ def main() -> int:
     logic_path = ref_dir / "logic-validation.md"
     logic_text = logic_path.read_text(encoding="utf-8")
     require_markers(logic_text, REQUIRED_LOGIC_REFERENCE_MARKERS, "logic reference")
+    require_markers(logic_text, REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS, "logic counterevidence")
 
     request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
@@ -401,6 +465,11 @@ def main() -> int:
     reject_legacy_default_headings(request_text, "request-format.md")
     require_markers(request_text, REQUIRED_REQUEST_FORMAT_MARKERS, "request format")
     require_markers(source_text, REQUIRED_SOURCE_LINK_MARKERS, "source link policy")
+    require_markers(
+        source_text,
+        REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS,
+        "source completeness policy",
+    )
 
     if not AGENTS.is_file():
         fail("AGENTS.md missing")
@@ -415,11 +484,11 @@ def main() -> int:
     require_markers(scenario_text, REQUIRED_LOGIC_REGRESSION_MARKERS, "logic regression scenarios")
     require_markers(scenario_text, REQUIRED_OUTPUT_EVAL_MARKERS, "output eval scenarios")
     require_markers(scenario_text, REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS, "output hygiene eval scenarios")
+    require_markers(scenario_text, REQUIRED_COUNTEREVIDENCE_EVAL_MARKERS, "counterevidence eval scenarios")
     require_markers(
         expected_text,
         {
             "실행 소스 고정 조건",
-            "실제 JDIPT v0.2.0 소스인지 확인",
             "allow_implicit_invocation",
             "추상 법적 논리 시나리오",
             "기본 4단 항목은 모두 Markdown H1",
@@ -477,6 +546,7 @@ def main() -> int:
         },
         "expected behavior",
     )
+    require_markers(expected_text, REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS, "counterevidence expected behavior")
 
     package = json.loads(PACKAGE.read_text(encoding="utf-8"))
     version = package.get("dependencies", {}).get("korean-law-mcp")
