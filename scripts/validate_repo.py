@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
 PACKAGE = ROOT / "package.json"
+PACKAGE_LOCK = ROOT / "package-lock.json"
 PLUGIN_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 PLUGIN_DOC = ROOT / "docs" / "plugin-packaging.md"
@@ -606,6 +607,21 @@ def main() -> int:
     require_markers(expected_text, REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS, "counterevidence expected behavior")
 
     package = json.loads(PACKAGE.read_text(encoding="utf-8"))
+    if not PACKAGE_LOCK.is_file():
+        fail("package-lock.json missing")
+
+    package_lock = json.loads(PACKAGE_LOCK.read_text(encoding="utf-8"))
+    package_version = package.get("version")
+    lock_version = package_lock.get("version")
+    lock_root_version = (package_lock.get("packages") or {}).get("", {}).get("version")
+
+    if not package_version:
+        fail("package.json version missing")
+    if lock_version != package_version:
+        fail("package-lock.json version must match package.json")
+    if lock_root_version != package_version:
+        fail('package-lock.json packages[""] version must match package.json')
+
     version = package.get("dependencies", {}).get("korean-law-mcp")
     if not version:
         fail("korean-law-mcp dependency missing")
