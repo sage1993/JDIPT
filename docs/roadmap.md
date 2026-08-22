@@ -68,6 +68,18 @@
 - [ ] MCP 오류/빈 결과/부분 결과 처리 규칙 보강
 - [ ] 복합질의 분해 기준 평가 케이스 추가
 
+## v0.2.1 — Counterevidence Gate
+
+- [ ] 명시적 제한·규정 부재만으로 가능 결론을 확정하지 않는 Counterevidence 계약
+- [ ] 관련 하위법령·별표·별지서식·절차규정의 Source Completeness 확인
+- [ ] 별표·별지서식의 소속 법령·위임근거·규범적 기능·상위법 정합성 평가
+- [ ] 중대한 미해결 반대근거 발견 시 확정 결론을 조건부 결론 또는 확인 필요로 낮춤
+- [x] E39 별지서식 충돌형 및 E40 규정 부재 논증 Counterexample fixture
+- [ ] E39/E40 RED 관찰 후 production contract 수정 및 GREEN 검증
+- [ ] targeted 15/15 및 full E1~E40 40/40 명시 호출 회귀
+- [ ] `python scripts/validate_repo.py`, `npm ci`, `npm audit --omit=dev`, MCP help, `git diff --check`
+- [ ] 실제 지식산업센터 질의 smoke 및 URL provenance 확인
+
 ## v0.3 — MCP / distribution expansion
 
 - [ ] ChatGPT 웹에서 MCP 도구가 필요한 경우 원격/등록 MCP App 구성

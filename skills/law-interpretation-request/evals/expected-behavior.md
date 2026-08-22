@@ -2,12 +2,12 @@
 
 ## 실행 소스 고정 조건
 
-행동 평가를 시작하기 전에 검증 대상 Skill이 실제 JDIPT v0.2.0 소스인지 확인한다.
+행동 평가를 시작하기 전에 검증 대상 Skill이 실제 JDIPT v0.2.1 소스인지 확인한다.
 
 - repository 기반 직접 호출이면 검증 대상 branch/HEAD를 기록하고 그 checkout의 `skills/law-interpretation-request/SKILL.md`가 기본 4단 계약을 포함하는지 확인한다.
-- 설치된 Plugin/Skill을 호출하는 환경이면 설치본 manifest가 `0.2.0`인지, 설치본 `SKILL.md`에 `# 2. 검토결론`과 최종 Rendering Gate가 있는지 확인한 뒤 새 컨텍스트에서 실행한다.
-- 설치본이 v0.1.0이거나 resolved Skill source를 확인할 수 없어 구 1~6 계약과 혼재할 가능성이 있으면 그 실행을 v0.2.0 FAIL로 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
-- E26은 refresh/업데이트된 JDIPT v0.2.0 설치본에서 `$law-interpretation-request`를 명시 호출하여 실행한다.
+- 설치된 Plugin/Skill을 호출하는 환경이면 설치본 manifest가 `0.2.1`인지, 설치본 `SKILL.md`에 `# 2. 검토결론`과 최종 Rendering Gate가 있는지 확인한 뒤 새 컨텍스트에서 실행한다.
+- 설치본이 v0.1.0이거나 resolved Skill source를 확인할 수 없어 구 1~6 계약과 혼재할 가능성이 있으면 그 실행을 v0.2.1 FAIL로 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
+- E26은 refresh/업데이트된 JDIPT v0.2.1 설치본에서 `$law-interpretation-request`를 명시 호출하여 실행한다.
 - 설치본 `agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
 
 ## 기본 출력 통과 조건
@@ -84,12 +84,12 @@
 
 ## Plugin 명시 호출 조건
 
-- JDIPT Plugin v0.2.0의 `law-interpretation-request`는 **explicit-only** Skill이다.
+- JDIPT Plugin v0.2.1의 `law-interpretation-request`는 **explicit-only** Skill이다.
 - `skills/law-interpretation-request/agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
 - 사용자가 Skill명이나 `$law-interpretation-request`를 명시하지 않은 일반 법령 질문에서 Skill이 자동 선택되는 것을 release gate로 요구하지 않는다.
-- E26은 설치된 JDIPT Plugin v0.2.0 환경에서 `$law-interpretation-request`를 명시 호출했을 때 정확한 H1 4단 구조, Answer-first, Narrative Coherence, Output Hygiene, 내부 논리검증, URL provenance 정책이 적용되는지 확인한다.
+- E26은 설치된 JDIPT Plugin v0.2.1 환경에서 `$law-interpretation-request`를 명시 호출했을 때 정확한 H1 4단 구조, Answer-first, Narrative Coherence, Output Hygiene, 내부 논리검증, URL provenance 정책이 적용되는지 확인한다.
 - 명시 호출 후 기본 출력의 최상위 제목 문자열·순서·H1 수준이 다르거나, `# 2. 검토결론`이 상세 이유보다 뒤에 나오거나, 단일 쟁점을 내부 단계별 소제목으로 과분할하면 실패로 판정한다.
-- v0.2.0 설치 여부를 확인하지 못한 실행은 **Plugin 행동 PASS로 인정하지 않는다.** 동시에 v0.2.0 자체의 FAIL로도 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
+- v0.2.1 설치 여부를 확인하지 못한 실행은 **Plugin 행동 PASS로 인정하지 않는다.** 동시에 v0.2.1 자체의 FAIL로도 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
 
 ## 내부 논리검증 필수 조건
 
