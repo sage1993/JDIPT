@@ -7,6 +7,7 @@ v0.2.0은 Skill-first Codex Plugin의 법률검토 파이프라인을 `Legal Iss
 JDIPT는 다음 두 계층을 분리해 관리합니다.
 
 - **작성·판단 계층:** `skills/law-interpretation-request` — 법령해석 대상 적합성, 법적 쟁점 매핑, 문언·체계·목적·연혁 검토, 내부 논리검증, 최종 문안 작성
+- **반대방향 근거 확인:** 명시적 제한 부재에 기대어 가능 결론을 확정하지 않고, 필요한 경우 하위법령·별표·별지서식·절차규정의 기능과 위임근거를 확인하며 미해결 중대한 반대근거는 조건부 결론으로 반영
 - **법령 데이터 계층:** [`korean-law-mcp`](https://github.com/chrisryugj/korean-law-mcp) — 국가법령정보센터 기반 법령·판례·해석례 조회 및 인용 검증
 
 > 원칙: JDIPT는 `korean-law-mcp` 소스를 복제하지 않습니다. 업스트림을 외부 의존성으로 사용하고 버전을 이 저장소에서 관리합니다.
@@ -92,7 +93,7 @@ codex plugin list
 $law-interpretation-request 이 법령 쟁점을 검토해줘.
 ```
 
-E26은 설치된 v0.2.0 Plugin에서 위와 같은 **명시 호출**이 정상 작동하는지 확인하는 Smoke Test입니다. 자동 Skill 선택은 v0.2.0 release gate에 포함하지 않습니다.
+E26은 설치된 v0.2.1 Plugin에서 위와 같은 **명시 호출**이 정상 작동하는지 확인하는 Smoke Test입니다. 자동 Skill 선택은 v0.2.1 release gate에 포함하지 않습니다.
 
 상세 설치·Smoke Test 절차는 [`docs/installation.md`](docs/installation.md)를 참조하십시오.
 
@@ -343,3 +344,9 @@ ChatGPT 웹용 원격/등록 MCP App, `.app.json`, Plugin Directory 등록·심�
 ## 주의
 
 JDIPT가 작성한 결과는 법률자문 확정 의견이 아니라 검토·제출용 초안입니다. 실제 제출 전 사실관계, 현행 법령, 조문 버전, 판례 및 법령해석례 원문을 재확인해야 합니다.
+
+## v0.2.1 Counterevidence Gate
+
+v0.2.1은 기존 4단 출력·explicit-only·URL provenance 계약을 유지하면서, 잠정 결론 전에 Source Completeness / Counterevidence를 확인합니다. E39/E40은 별지서식과 규정 부재 논증이 결론을 흔들 수 있는 경우를 검증하며, 별지서식만으로 반대 결론을 확정하지 않고 위임근거·규범적 기능·상위법과의 정합성을 평가합니다. 중대한 반대근거가 해결되지 않으면 조건부 결론 또는 확인 필요로 낮춥니다.
+
+최종 release gate는 targeted 15/15, full E1~E40 40/40, `python scripts/validate_repo.py`, `npm ci`, `npm audit --omit=dev` 0 vulnerabilities, MCP help exit 0, `git diff --check`, 실제 지식산업센터 질의 smoke입니다.
