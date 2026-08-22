@@ -262,6 +262,12 @@ REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS = {
     "건축물 신축",
     "참조자료의 미확인 상태",
 }
+REQUIRED_ABSTRACT_FIXTURE_LOGIC_MARKERS = {
+    "추상 fixture 전제 보존 Hard Gate",
+    "일반적인 법률상식",
+    "`시설`, `조직`, `책임자`, `운영기준`",
+    "새로 만든 정의·요건·법적 효과",
+}
 REQUIRED_LOGIC_EVAL_MARKERS = {
     "E10. 전건 긍정 정상",
     "E11. 전건 부정 오류",
@@ -324,6 +330,8 @@ REQUIRED_V022_EVAL_MARKERS = {
     "첫 비공백 줄",
     "별지 제3호서식",
     "별지 제5호서식",
+    "일반적 법률상식",
+    "fixture에 없는 시설·조직·책임자·운영기준",
     "9/9 PASS",
     "42/42 PASS",
 }
@@ -507,6 +515,7 @@ def main() -> int:
     require_markers(logic_text, REQUIRED_LOGIC_REFERENCE_MARKERS, "logic reference")
     require_markers(logic_text, REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS, "logic counterevidence")
     require_markers(logic_text, REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS, "logic referenced source resolution")
+    require_markers(logic_text, REQUIRED_ABSTRACT_FIXTURE_LOGIC_MARKERS, "logic abstract fixture preservation")
 
     request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
