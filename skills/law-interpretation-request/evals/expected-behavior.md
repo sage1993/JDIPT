@@ -2,12 +2,12 @@
 
 ## 실행 소스 고정 조건
 
-행동 평가를 시작하기 전에 검증 대상 Skill이 실제 JDIPT v0.2.1 소스인지 확인한다.
+행동 평가를 시작하기 전에 검증 대상 Skill이 실제 JDIPT v0.2.2 소스인지 확인한다.
 
-- repository 기반 직접 호출이면 검증 대상 branch/HEAD를 기록하고 그 checkout의 `skills/law-interpretation-request/SKILL.md`가 기본 4단 계약을 포함하는지 확인한다.
-- 설치된 Plugin/Skill을 호출하는 환경이면 설치본 manifest가 `0.2.1`인지, 설치본 `SKILL.md`에 `# 2. 검토결론`과 최종 Rendering Gate가 있는지 확인한 뒤 새 컨텍스트에서 실행한다.
-- 설치본이 v0.1.0이거나 resolved Skill source를 확인할 수 없어 구 1~6 계약과 혼재할 가능성이 있으면 그 실행을 v0.2.1 FAIL로 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
-- E26은 refresh/업데이트된 JDIPT v0.2.1 설치본에서 `$law-interpretation-request`를 명시 호출하여 실행한다.
+- repository 기반 직접 호출이면 검증 대상 branch/HEAD를 기록하고 그 checkout의 `skills/law-interpretation-request/SKILL.md`가 기본 4단 계약과 v0.2.2 Hard Gate를 포함하는지 확인한다.
+- 설치된 Plugin/Skill을 호출하는 환경이면 설치본 manifest가 `0.2.2`인지, 설치본 `SKILL.md`에 `# 2. 검토결론`, `Referenced Source Resolution Hard Gate`, `최종 Rendering Hard Gate`가 있는지 확인한 뒤 새 컨텍스트에서 실행한다.
+- 설치본이 v0.1.0/v0.2.0/v0.2.1이거나 resolved Skill source를 확인할 수 없으면 그 실행을 v0.2.2 FAIL로 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
+- E26은 refresh/업데이트된 JDIPT v0.2.2 설치본에서 `$law-interpretation-request`를 명시 호출하여 실행한다.
 - 설치본 `agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
 
 ## 기본 출력 통과 조건
@@ -81,15 +81,16 @@
 - 공식 URL을 확인하지 못하면 링크 패턴을 추측하지 않고 `[공식 링크 확인 필요]`로 표시하거나 링크 없이 확인 필요로 둔다.
 - `https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=`처럼 식별자가 비어 있는 URL, 끝이 `=`인 미완성 URL, placeholder가 남은 URL은 실패다.
 - 공식 도메인이라는 사실만으로 상세 URL의 provenance가 확인된 것으로 보지 않는다.
+- 현행법을 근거로 답변하면서 현재 실행에서 확인하지 않은 과거 시행본 URL을 현행 근거 링크처럼 사용하면 실패다.
 
 ## Plugin 명시 호출 조건
 
-- JDIPT Plugin v0.2.1의 `law-interpretation-request`는 **explicit-only** Skill이다.
+- JDIPT Plugin v0.2.2의 `law-interpretation-request`는 **explicit-only** Skill이다.
 - `skills/law-interpretation-request/agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
 - 사용자가 Skill명이나 `$law-interpretation-request`를 명시하지 않은 일반 법령 질문에서 Skill이 자동 선택되는 것을 release gate로 요구하지 않는다.
-- E26은 설치된 JDIPT Plugin v0.2.1 환경에서 `$law-interpretation-request`를 명시 호출했을 때 정확한 H1 4단 구조, Answer-first, Narrative Coherence, Output Hygiene, 내부 논리검증, URL provenance 정책이 적용되는지 확인한다.
+- E26은 설치된 JDIPT Plugin v0.2.2 환경에서 `$law-interpretation-request`를 명시 호출했을 때 정확한 H1 4단 구조, Answer-first, Narrative Coherence, Output Hygiene, 내부 논리검증, URL provenance 정책이 적용되는지 확인한다.
 - 명시 호출 후 기본 출력의 최상위 제목 문자열·순서·H1 수준이 다르거나, `# 2. 검토결론`이 상세 이유보다 뒤에 나오거나, 단일 쟁점을 내부 단계별 소제목으로 과분할하면 실패로 판정한다.
-- v0.2.1 설치 여부를 확인하지 못한 실행은 **Plugin 행동 PASS로 인정하지 않는다.** 동시에 v0.2.1 자체의 FAIL로도 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
+- v0.2.2 설치 여부를 확인하지 못한 실행은 **Plugin 행동 PASS로 인정하지 않는다.** 동시에 v0.2.2 자체의 FAIL로도 계산하지 않고 `NOT_EXECUTED` 또는 환경 오류로 기록한다.
 
 ## 내부 논리검증 필수 조건
 
@@ -130,12 +131,30 @@
 - E36~E38 모두 `# 2. 검토결론`과 `# 3. 검토이유` 말미의 결론이 일치해야 한다.
 
 ## Counterevidence 공통조건
+
 - Source Completeness와 Counterevidence를 확인한다.
 - 위임 또는 법적 기능을 평가한다.
 - 존재하지 않는 반대근거를 생성하지 않는다.
-
 - 명시적 제한 없음이라는 부재 논증만으로 적극 결론을 확정하면 FAIL.
 - fixture에 제공된 하위법령·별표·별지서식의 법적 기능과 위임관계를 평가해야 함.
 - 하위 자료가 있다는 이유만으로 반대 결론을 자동 채택하면 FAIL.
 - fixture에 없는 반대근거를 생성하면 FAIL.
 - E39/E40 모두 기본 4단 Markdown H1 + Answer-first 유지.
+
+## Referenced Source Resolution Hard Gate 조건
+
+- 공식 조문이 핵심 별표·별지서식·부표·부록을 직접 참조하고 그 자료의 문언이 결론에 영향을 줄 수 있으면 해당 자료는 필수 확인자료다.
+- 상위 조문에서 참조 존재만 확인한 것은 PASS가 아니다.
+- 원문 별지서식 대신 정부24·검색요약·2차 안내자료만 확인한 상태는 PASS가 아니다.
+- 실제 문언을 확인할 수 없으면 `자료 없음`이나 `제한 없음`으로 바꾸지 않고 조건부 결론으로 낮춘다.
+- `설립승인사항 변경`과 `기존 일반 건축물의 최초 전환`, `신설`과 `건축물 신축`을 문언·정의 근거 없이 동일시하면 FAIL.
+- E41은 별지서식 실제 문언이 제공되지 않은 fixture이므로, 모델이 별지 내용을 만들어내거나 확정 결론을 내리면 FAIL.
+
+## Final Rendering Hard Gate 조건
+
+- 정보 부족 질문-only 응답을 제외한 기본 모드에서 **첫 비공백 줄은 정확히 `# 1. 질의요지`**여야 한다.
+- 줄 시작이 `# `인 최상위 H1은 정확히 4개여야 한다.
+- H1 문자열과 순서는 정확히 `# 1. 질의요지` → `# 2. 검토결론` → `# 3. 검토이유` → `# 4. 관련 법령 및 자료`여야 한다.
+- 첫 H1 이전에 `결론적으로`, `이유는 다음과 같습니다`, Skill 적용 안내 등 사용자용 서론이 있으면 FAIL.
+- 장시간 조사·MCP 호출이 있었더라도 이 규칙은 완화되지 않는다.
+- E42는 source unresolved 상태와 출력구조를 동시에 검증한다. H1이 없거나 하나라도 이름·순서가 다르면 FAIL.
