@@ -280,12 +280,12 @@ REQUIRED_COUNTEREVIDENCE_EVAL_MARKERS = {
     "E40. 규정 부재 논증 Counterexample",
 }
 REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS = {
-    "Counterevidence 공통조건",
+    "Source Completeness",
+    "Counterevidence",
     "명시적 제한 없음",
     "별지서식",
-    "법적 기능",
-    "위임관계",
-    "없는 반대근거",
+    "위임 또는 법적 기능",
+    "존재하지 않는 반대근거",
     "E39",
     "E40",
 }
