@@ -23,7 +23,7 @@ law-interpretation-request Skill
    ├───────────── optional ─────────────┐
    │                                    ▼
    │                             Korean Law MCP
-   │                             ├─ 현행 법령 조회
+   │                             ├─ 현행·연혁 법령 조회
    │                             ├─ 결정례/해석례 조회
    │                             ├─ 연혁·관련 규정 탐색
    │                             └─ 인용 검증
@@ -32,6 +32,7 @@ law-interpretation-request Skill
 Legal Issue Mapping Gate
    │
    ├─ 주체·행위·대상 특정
+   ├─ 적용 기준시점 특정
    ├─ 법적 정의·분류
    ├─ 적용 규범 지도
    ├─ 규정 관계 진단
@@ -41,11 +42,13 @@ Legal Issue Mapping Gate
    ▼
 Legal Interpretation
    │
+   ├─ 적용 법령 버전 선확정
    ├─ 문언
    ├─ 정의·참조
    ├─ 체계
    ├─ 목적
    ├─ 연혁
+   ├─ 자료 권위·법적 기능
    └─ 판례·법령해석례
    │
    ▼
@@ -71,7 +74,7 @@ Logic Validation Gate
    └─ BLOCK 수정·재검증
    │
    ▼
-출처·현행성 최종 검증
+출처·적용시점·권위·Evidence 최종 검증
    │
    ▼
 Answer Rendering
@@ -111,22 +114,48 @@ ChatGPT 웹은 로컬 Codex MCP 설정을 읽지 않으므로, 공개 Plugin에�
 `skills/law-interpretation-request/references/legal-issue-mapping.md`가 담당한다.
 
 - 질문의 주체·행위·대상과 법적 상태 또는 분류 특정
+- 허가일·신청일·처분일·행위일·변경허가/변경승인일 등 적용 기준시점 후보 특정
+- 현재 적용 질문과 과거 법적 효과 질문을 구분하고, 개정법 시행일·경과조치가 결론을 바꾸는지 확인
 - 직접 정의와 상·하위 법적 개념 확인
 - 정의·본칙·요건·예외·특례·위임·적용 제외·준용 등 규범 역할 분류
 - 동일 사항 중복규율·일반/특별·누적 적용·규율 공백·다른 규율대상 구분
 - 사용자 사실과 법적 요건을 `충족` / `불충족` / `확인 필요`로 연결
 - 서로 다른 결론을 가르는 실제 문제 발생 지점 특정
 
-이 Gate는 법적 결론을 미리 정하지 않는다. 어떤 규범을 어떤 사실에 연결하여 해석해야 하는지 확정하는 역할만 수행한다.
+이 Gate는 법적 결론을 미리 정하지 않는다. 어떤 시점의 어떤 규범을 어떤 사실에 연결하여 해석해야 하는지 확정하는 역할만 수행한다.
 
 ### Legal Interpretation
 
 `references/interpretation-principles.md`와 `references/case-patterns.md`가 담당한다.
 
-- Mapping에서 확정한 법적 대상과 규정 관계를 전제로 규범의 객관적 의미·범위를 해석
+- Mapping에서 확정한 법적 대상·규정 관계·적용 기준시점을 전제로 규범의 객관적 의미·범위를 해석
+- 적용 기준시점에 유효한 법령 버전을 먼저 확정하고 공포일·시행일·경과조치를 구분
 - 문언을 우선하고 필요한 경우 정의·참조, 체계, 목적, 연혁, 판례·법령해석례를 추가
 - 중복규율형과 규율공백형을 구분하고 단순 `특별법 우선`으로 축약하지 않음
 - 예외·특례·침익 규정의 엄격해석 원칙 적용
+- 대법원 판례·헌재 결정·법제처 정부유권해석·소관부처 질의회신의 법적 기능을 구분
+- 과거 판례·해석례 사용 시 당시 조문 버전과 현재 검토대상 조문의 동일성을 확인
+
+### Authority / Temporal / Evidence subgates
+
+`references/source-policy.md`가 기존 Source Completeness와 URL provenance 외에 다음 세 계약을 담당한다.
+
+1. **적용 기준시점·현행성 Gate**
+   - 현재 적용 질문은 현행법을 기본으로 하되, 과거 허가·신청·처분·행위의 법적 효과를 묻는 경우 해당 시점에 유효한 법령을 우선한다.
+   - 후속 변경허가·변경승인과 개정법 시행일·경과조치는 별도 기준시점으로 검토한다.
+   - material date가 확인되지 않으면 임의로 현재법을 적용하지 않고 조건부 결론으로 낮춘다.
+
+2. **Authority / Legal Effect Gate**
+   - 검색 우선순위와 법적 효력을 분리한다.
+   - 법률·하위법령·자치법규·행정규칙·대법원 판례·헌재 결정·법제처 정부유권해석·부처 질의회신의 기능을 구분한다.
+   - 법제처 해석례와 부처 회신을 법원 확정판결과 동일한 구속력으로 취급하지 않는다.
+
+3. **Claim-level Evidence Gate**
+   - 외부 자료의 문언·판시·해석결론·시행일 등에 관한 `Source Claim`은 현재 실행에서 확인한 근거에 추적 가능해야 한다.
+   - 확인된 근거와 사용자 사실을 연결한 `Analytical Inference`는 모델이 생성할 수 있으나 출처가 직접 말한 내용처럼 표현하지 않는다.
+   - 모든 문장에 citation을 강제하지 않고 결론을 지탱하는 material legal proposition의 provenance를 검증한다.
+
+이 세 subgate는 사용자에게 별도 내부표로 노출하는 기능이 아니라 Legal Issue Mapping과 Legal Interpretation의 입력·검증조건이다.
 
 ### Logic Validation Gate
 
