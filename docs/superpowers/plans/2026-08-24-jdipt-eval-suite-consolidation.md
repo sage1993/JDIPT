@@ -4,7 +4,7 @@
 
 **Goal:** JDIPT의 실제 LLM 회귀 실행을 Core 14건 / Full active 26건으로 축소하면서 기존 E1~E42 계약과 추적성을 보존한다.
 
-**Architecture:** E1~E46은 catalog로 보존하고 `suite-manifest.json`이 실제 실행군을 결정한다. Runner와 release gate는 manifest를 읽어 실행하며, 신규 v0.2.3 behavior는 E43~E46 네 건으로 통합한다.
+**Architecture:** E1~E46은 catalog로 보존하고 `suite-manifest.json`이 실제 실행군을 결정한다. Runner와 release gate는 manifest를 읽어 실행하며, 신규 v0.2.3 behavior는 E43~E46 네 건으로 통합한다. 기존 `validate_repo.py`의 E1~E42 registry 계약은 유지하고 E43~E46은 별도 oracle extension과 authority/temporal validator로 검증한다.
 
 **Tech Stack:** Python 3, pytest, Markdown eval fixtures, JSON suite/oracle manifests, Codex CLI regression runner.
 
@@ -15,7 +15,7 @@
 - E1~E42 기존 fixture를 삭제하지 않는다.
 - 기본 출력 4단 및 법제처 1~3 계약을 변경하지 않는다.
 - `allow_implicit_invocation: false`를 유지한다.
-- `korean-law-mcp` 버전을 변경하지 않는다.
+- `korean-law-mcp@4.12.1`을 유지한다.
 - package/plugin version bump는 이번 PR 범위에 포함하지 않는다.
 - 기존 v0.2.2 fail-closed 계약을 약화하지 않는다.
 
@@ -26,60 +26,53 @@
 **Files:**
 - Create: `skills/law-interpretation-request/evals/suite-manifest.json`
 - Create: `scripts/eval_suite.py`
-- Create/Modify: `tests/test_eval_suite.py`
+- Create: `tests/test_eval_suite.py`
 
-**Interfaces:**
-- Produces: `load_suite_manifest()`, `suite_case_ids(name)`, Core/Full/Legacy ID 집합
-
-- [ ] RED: manifest가 없으면 테스트가 실패하도록 Core=14, Full=26, Legacy=20, union=E1~E46 조건을 작성한다.
-- [ ] `suite-manifest.json`에 정확한 케이스 목록과 legacy coverage mapping을 작성한다.
-- [ ] `scripts/eval_suite.py`에서 중복·누락·잘못된 case ID를 fail-closed 검증한다.
-- [ ] pytest로 manifest contract를 검증한다.
+- [x] Core 14, Full 26, Legacy 20, Catalog E1~E46 계약을 정의한다.
+- [x] Core가 Full의 부분집합인지 검증한다.
+- [x] Full과 Legacy가 Catalog를 정확히 분할하는지 검증한다.
+- [x] Legacy 각 case가 active 대표 case에 연결되는지 coverage mapping을 검증한다.
 
 ### Task 2: v0.2.3 E43~E46 통합
 
 **Files:**
-- Modify: `skills/law-interpretation-request/evals/v0.2.3-authority-temporal-evidence.md`
+- Modify/Create: `skills/law-interpretation-request/evals/v0.2.3-authority-temporal-evidence.md`
+- Create: `skills/law-interpretation-request/evals/v0.2.3-machine-oracles.json`
 - Modify: `scripts/validate_authority_temporal_contract.py`
 - Modify: `tests/test_authority_temporal_evidence_contract.py`
 
-**Interfaces:**
-- Produces: E43 Temporal lifecycle, E44 temporal unknown, E45 authority/versioning, E46 claim/inference
+- [x] E43 과거 허가 + 개정법 + 변경허가를 Temporal lifecycle 하나로 통합한다.
+- [x] E44 material date 미확인 fail-closed를 독립 유지한다.
+- [x] E45 법제처/대법원 authority와 precedent versioning을 통합한다.
+- [x] E46 Source Claim / Analytical Inference를 독립 유지한다.
+- [x] 기존 E47/E48 별도 실행을 제거한다.
 
-- [ ] 기존 E43~E48 문서를 E43~E46 네 시나리오로 재작성한다.
-- [ ] validator/test의 expected range를 E43~E46으로 변경한다.
-- [ ] 기존 E48 관련 의미가 E44에 보존되는지 확인한다.
-
-### Task 3: Oracle catalog E1~E46 확장
+### Task 3: Oracle catalog 호환 구조
 
 **Files:**
-- Modify: `skills/law-interpretation-request/evals/machine-oracles.json`
+- Preserve/Modify: `skills/law-interpretation-request/evals/machine-oracles.json`
+- Create: `skills/law-interpretation-request/evals/v0.2.3-machine-oracles.json`
 - Modify: `scripts/regression_oracles.py`
 - Modify: `tests/test_regression_oracles.py`
 
-**Interfaces:**
-- Consumes: E1~E46 catalog
-- Produces: 기존 checks + v0.2.3 semantic guard checks
+- [x] 기존 `validate_repo.py`가 요구하는 E01~E42 base registry를 보존한다.
+- [x] E43~E46 oracle을 extension 파일로 분리한다.
+- [x] runtime loader에서는 base + extension을 합쳐 E1~E46 catalog로 검증한다.
+- [x] combined `release_critical` case가 Core 14와 정확히 일치하도록 한다.
+- [x] temporal/authority/evidence semantic guard checks를 추가한다.
 
-- [ ] registry test를 E1~E46 catalog 기준으로 변경한다.
-- [ ] E43~E46 oracle 정의를 추가한다.
-- [ ] temporal/authority/evidence 최소 semantic guard를 구현한다.
-- [ ] 기존 E18/E37 등 강한 oracle 회귀 테스트를 유지한다.
-
-### Task 4: Runner를 manifest 기반 suite 실행으로 변경
+### Task 4: Manifest 기반 live runner
 
 **Files:**
-- Modify: `run_jdipt_full_regression_v4.py`
-- Test: `tests/test_regression_runner.py` 또는 신규 targeted test
+- Create: `scripts/run_eval_suite.py`
+- Test: `tests/test_eval_suite.py`
 
-**Interfaces:**
-- Adds CLI: `--suite core|full|legacy|all`
-- Keeps CLI: `--from-case`, `--to-case` targeted selection
-
-- [ ] `load_all_cases()`가 E1~E46 catalog를 로딩하도록 v0.2.3 eval 파일을 포함한다.
-- [ ] `--from-case/--to-case` 기본값을 None으로 바꾸고 지정 시 targeted 실행을 우선한다.
-- [ ] range 미지정 시 `--suite full`의 26건만 선택한다.
-- [ ] summary에 suite name과 selected case IDs를 기록한다.
+- [x] 기존 E1~E42 runner의 안정화된 Codex CLI 해석·plugin integrity·case execution 로직을 재사용한다.
+- [x] E1~E46 catalog를 세 eval 문서에서 로딩한다.
+- [x] `--suite core|full|legacy|all`을 제공한다.
+- [x] 기본 suite는 Full active 26으로 한다.
+- [x] `--from-case/--to-case` 지정 시 suite보다 targeted range를 우선한다.
+- [x] summary에 suite와 selected case ID를 기록한다.
 
 ### Task 5: Release Gate Core/Full 분리
 
@@ -87,35 +80,47 @@
 - Modify: `scripts/run_release_gate.py`
 - Modify: `tests/test_release_gate.py`
 
-**Interfaces:**
-- Gate B: Core 14 cases
-- Gate C: Full active 26 cases
+- [x] `CRITICAL_CASES`를 manifest Core 14로 교체한다.
+- [x] Gate B를 Core stability로 정의한다.
+- [x] E37만 2회 반복하여 실제 Core 호출은 15회로 제한한다.
+- [x] Gate C를 Full active 26으로 정의한다.
+- [x] Full acceptance 산술을 manifest case 수에서 계산한다.
+- [x] Full H1 기대치는 E2/E3 특수형식을 제외한 24/26으로 계산한다.
 
-- [ ] `CRITICAL_CASES` 하드코딩을 manifest Core로 대체한다.
-- [ ] E37만 2회 실행하도록 repeat 정책을 축소한다.
-- [ ] Gate C acceptance를 process 26/26, environment 0/26, H1 24/26, hygiene/url/oracle 26/26으로 변경한다.
-- [ ] 테스트의 실행 횟수는 하드코딩 숫자가 아니라 suite/repeat에서 계산한다.
+### Task 6: Repo validator 경계 유지
 
-### Task 6: Repo validator와 문서 동기화
+초기 계획의 `validate_repo.py` 직접 확장은 구현 과정에서 조정했다.
+
+**결정:** 기존 `validate_repo.py`의 E1~E42 static registry 계약을 변경하지 않는다. 대신:
+
+- `scripts/validate_authority_temporal_contract.py`가 E43~E46, suite manifest, oracle extension을 fail-closed 검증한다.
+- `scripts/run_release_gate.py`의 Gate A가 기존 validator와 신규 validator를 모두 실행한다.
+
+이 방식은 기존 검증기를 대규모로 변경하지 않으면서 v0.2.3 계약을 추가한다.
+
+### Task 7: 문서 동기화
 
 **Files:**
-- Modify: `scripts/validate_repo.py`
 - Modify: `docs/architecture.md`
 - Modify: `docs/plugin-packaging.md`
-- Modify: PR #9 body
+- Create: `docs/evaluation-suites.md`
+- Update: v0.2.3 spec/plan
 
-- [ ] machine oracle catalog E1~E46 및 suite manifest 존재를 validator가 확인하도록 한다.
-- [ ] architecture에 Core/Full/Legacy tier를 기록한다.
-- [ ] 과거 v0.2.2 42/42 기록은 historical result로 보존하되 candidate 실행 방식은 14/26으로 설명한다.
-- [ ] PR 본문을 새 평가 구조와 검증 명령으로 갱신한다.
+- [x] Core/Full/Legacy/Catalog 구조를 문서화한다.
+- [x] v0.2.2 42/42는 historical validation으로 남긴다.
+- [x] candidate의 기본 live full은 26건임을 구분한다.
+- [x] Legacy case가 삭제가 아니라 재현·진단용으로 보존됨을 설명한다.
 
-### Task 7: Verification
+### Task 8: Fresh verification
+
+최종 PASS는 실제 PR 브랜치 checkout과 설치된 runtime이 일치하는 사용자 환경에서 실행한 결과만 인정한다.
 
 - [ ] `python scripts/validate_repo.py`
 - [ ] `python scripts/validate_authority_temporal_contract.py`
 - [ ] `python -m pytest -q`
-- [ ] `python scripts/run_release_gate.py` — installed runtime sync 후 Gate A 확인
-- [ ] `python run_jdipt_full_regression_v4.py --suite core`
-- [ ] `python run_jdipt_full_regression_v4.py --suite full`
+- [ ] `python scripts/plugin_integrity.py`
+- [ ] `python scripts/run_eval_suite.py --suite core`
+- [ ] `python scripts/run_eval_suite.py --suite full`
+- [ ] 필요시 `python scripts/run_release_gate.py --full`
 
-전체 live 검증은 설치 runtime을 현재 PR branch와 동기화한 환경에서만 PASS로 인정한다.
+현재 assistant 실행환경에서는 저장소 전체 checkout 기반 검증을 실행할 수 없으므로 이 항목은 완료 표시하지 않는다.
