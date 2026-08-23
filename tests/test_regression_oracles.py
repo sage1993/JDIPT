@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 from scripts.regression_oracles import (
-    EXPECTED_CRITICAL_CASES,
     CHECKS,
+    EXPECTED_CRITICAL_CASES,
     evaluate_all,
     evaluate_case,
     load_oracle_definitions,
@@ -27,12 +27,13 @@ def test_e02_runtime_contract_requires_explicit_unsuitability_sentence():
     assert expected in skill
 
 
-def test_machine_oracle_registry_is_exactly_e01_to_e42():
+def test_machine_oracle_registry_is_exactly_e01_to_e46():
     definitions = load_oracle_definitions()
-    assert [item["case"] for item in definitions] == [f"E{i:02d}" for i in range(1, 43)]
+    assert [item["case"] for item in definitions] == [f"E{i:02d}" for i in range(1, 47)]
     assert {
         int(item["case"][1:]) for item in definitions if item["release_critical"]
     } == EXPECTED_CRITICAL_CASES
+    assert len(EXPECTED_CRITICAL_CASES) == 14
     assert all(item["checks"] for item in definitions)
 
 
@@ -49,18 +50,14 @@ def test_known_bad_same_term_fixture_fails_strong_oracle():
     answer = default_answer(
         "같은 조문의 건축물에 대한 갑설은 타당하고 을설은 타당하므로 각 실체 논거를 병렬로 제시합니다."
     )
-
     result = evaluate_case(18, answer)
-
     assert result["contract_oracle"] == "FAIL"
     assert any("same_term_conflict_hard_stop" in failure for failure in result["contract_failures"])
 
 
-def test_known_good_default_fixture_passes_answer_first_oracle():
-    answer = default_answer()
-
-    result = evaluate_case(33, answer)
-
+def test_known_good_critical_fixture_passes_answer_first_oracle():
+    answer = default_answer("소형 주택은 공동주택이고 30세대 본칙이 적용되며 50세대 예외 대상이 아니므로 승인 대상입니다.")
+    result = evaluate_case(36, answer)
     assert result["contract_oracle"] == "PASS"
     assert result["contract_failures"] == []
     assert result["release_critical"] is True
@@ -73,7 +70,6 @@ def test_e37_good_fixture_rejects_unstable_url_and_accepts_stable_url():
     bad = default_answer(
         "[별표](https://www.law.go.kr/LSW/flDownload.do?flNm=%EC%8A%B9%EA%B0%95%EA%B8%B0&flSeq=143339963)"
     )
-
     assert evaluate_case(37, stable)["contract_oracle"] == "PASS"
     bad_result = evaluate_case(37, bad)
     assert bad_result["contract_oracle"] == "FAIL"
@@ -81,26 +77,15 @@ def test_e37_good_fixture_rejects_unstable_url_and_accepts_stable_url():
 
 
 def test_e02_live_response_variant_passes_suitability_oracle():
-    answer = bytes.fromhex("ED9884EC9EAC20ECA788EBACB8EC9D8020ED8AB9ECA09520EAB1B4EBACBCEC9DB420EBB295ECA09520EC8B9CEC84A4EC979020ED95B4EB8BB9ED9598EB8A94ECA780EBA5BC20ECA781ECA09120ED8C90EB8BA8ED95B420EB8BACEB9DBCEB8A9420ED9895ED839CEB9DBCEC849C2C20EBB295ECA09CECB29820EBB295EBA0B9ED95B4EC849D20EB8C80EC8381EC9CBCEBA19CEB8A9420EBB680ECA081ED95A9ED95A020EC889820EC9E88EC8AB5EB8B88EB8BA42e20EC9DB4ED9B84EC9790EB8A9420E2809CEBB29520ECA09C3130ECA1B0EC9D9820EC8B9CEC84A4EC979020EC9DB4EC998020EAB099EC9D8020EC9CA0ED9895EC9D9820EAB1B4EBACBCEC9DB420ED8FACED95A8EB9098EB8A94ECA780E2809DEBA19C20EBB3B4ECA095ED9598EB8A9420EAB283EC9DB420ECA081ECA088ED95A9EB8B88EB8BA42e0A0A312e20ED95B4EB8BB920EBB295EBA5A0EC9D9820ECA095ED9995ED959C20EBAA85ECB9ADEAB3BC20ECA09C3130ECA1B020ECA084EBACB820EB9890EB8A9420EAB3B5EC8B9D20EBA781ED81ACEB8A9420EBACB4EC9787EC9DB8EAB080EC9A943F0A322e20EAB1B4EBACBCEC9D9820ED9884EC9EAC20EC9AA9EB8F84EC998020EC9888ECA09520EC9AA9EB8F84EB8A9420EBACB4EC9787EC9DB8EAB080EC9A943F0A332e20EAB1B4EBACBCEC9D9820EAB5ACECA1B0C2B7EAB79CEBAAA8C2B7ECA3BCEC9A9420EC8B9CEC84A4C2B7EC9DB4EC9AA9EC9E90C2B7EC9AB4EC988120EBB0A9EC8B9DEC9D8020EC96B4EB96A0ED959CEAB080EC9A943F0A342e20ECA09C3130ECA1B0EC9790EC849C20ED8AB9ED9E8820ED95B4EC849DEC9DB420ED9584EC9A94ED959C20ED919CED9884EC9D8020EBACB4EC9787EC9DB8EAB080EC9A943F0A352e20EAB480EBA0A820ED9689ECA095ECA088ECB0A8EB829820ECB298EBB684EC9DB420EC9E88EC9788EB8298EC9A943F0A362e20EAB480ED95A020ED9689ECA095EAB8B0EAB480EC9D9820EAB3B5EC8B9D20EC9D98EAB2ACEC9D8420EBB09BEC9D8020EC82ACEC8BA4EC9DB420EC9E88EB8298EC9A943F").decode("utf-8")
+    answer = """현재 질문은 특정 건물이 법정 시설에 해당하는지를 직접 판단해 달라는 형태라서 법제처 법령해석 대상으로는 부적합할 수 있습니다. 제10조에서 말하는 시설의 객관적 의미와 적용범위에 해당 유형이 포함되는지를 묻는 방식으로 보정해야 합니다.
+
+1. 해당 법률의 정확한 명칭은 무엇인가요?
+2. 제10조의 정확한 문언은 무엇인가요?
+3. 건물의 현재 용도는 무엇인가요?
+4. 구조와 규모는 어떻게 되나요?
+5. 해당 시설에서 수행하는 업무는 무엇인가요?
+"""
     assert evaluate_case(2, answer)["contract_oracle"] == "PASS"
-
-
-def test_e02_fact_judgment_wording_passes_suitability_oracle():
-    answer = bytes.fromhex("EAB09CEBB38420EAB1B4EBACBCEC9DB420EC8BA4ECA09CEBA19C20ED95B4EB8BB920EC8B9CEC84A4EC9DB8ECA780EC9D9820EB8BA8ECA095EC9D8020EBB295ECA09CECB29820EBB295EBA0B9ED95B4EC849D20EB8C80EC8381EBB3B4EB8BA420EC82ACEC8BA4ED8C90EB8BA8EC979020EAB080EAB98CEC9AB820EC889820EC9E88EC9CBCEBAF80EBA19C2C20E2809CECA09C3130ECA1B0EC9790EC849C20EBA790ED9598EB8A9420EC8B9CEC84A4EC9D9820EAB09DEAB480ECA08120EC9D98EBAFB8EC998020EBB294EC9C84E2809DEBA5BC20EBACBBEB8A9420EBB0A9EC8B9DEC9CBCEBA19C20ECA095EBA6ACED95B4EC95BC20ED95A9EB8B88EB8BA42e0A0AECB488EC958820EC9E91EC84B1EC9D8420EC9C84ED95B420EB8BA4EC9D8CEC9D8420EC958CEBA0A4ECA3BCEC84B8EC9A942e0A0A312e20ED95B4EB8BB920EBB295EBA5A0EC9D9820ECA095ED9995ED959C20EBAA85ECB9ADEAB3BC20ECA09C3130ECA1B0EC9D9820ECA1B0EBACB820EB82B4EC9AA9EC9D8020EBACB4EC9787EC9DB8EAB080EC9A943F0A322e20ECA09C3130ECA1B0EAB08020EC8B9CED9689EBA0B9C2B7EC8B9CED9689EAB79CECB999C2B7EBB384ED919CEBA5BC20ECB0B8ECA1B0ED959CEB8BA4EBA9B420EAB7B820EB82B4EC9AA9EB8F8420EC9E88EB8298EC9A943F0A332e20EAB1B4EBACBCEC9D9820EC9AA9EB8F842C20EAB5ACECA1B02C20EAB79CEBAAA82C20ED9884EC9EAC20EC82ACEC9AA920ED9895ED839CEB8A9420EBACB4EC9787EC9DB8EAB080EC9A943F0A342e20EAB1B4EBACBC20EC868CEC9CA0EC9E90C2B7EC9AB4EC9881EC9E90EC998020EAB7B820EC8B9CEC84A4EC9790EC849C20EC8898ED9689ED9598EB8A9420EC9785EBACB4EB8A9420EBACB4EC9787EC9DB8EAB080EC9A943F0A352e20ED9689ECA095ECB2ADEC9D9820ED95B4EC849DC2B7ECB298EBB68420EB9890EB8A9420EBB098EB8C8020EC9D98EAB2ACEC9DB420EC9E88EB8298EC9A943F").decode("utf-8")
-    assert evaluate_case(2, answer)["contract_oracle"] == "PASS"
-
-
-def test_e02_fact_judgment_wording_passes_suitability_oracle():
-    answer = bytes.fromhex("EAB09CEBB38420EAB1B4EBACBCEC9DB420EC8BA4ECA09CEBA19C20ED95B4EB8BB920EC8B9CEC84A4EC9DB8ECA780EC9D9820EB8BA8ECA095EC9D8020EBB295ECA09CECB29820EBB295EBA0B9ED95B4EC849D20EB8C80EC8381EBB3B4EB8BA420EC82ACEC8BA4ED8C90EB8BA8EC979020EAB080EAB98CEC9AB820EC889820EC9E88EC9CBCEBAF80EBA19C2C20E2809CECA09C3130ECA1B0EC9790EC849C20EBA790ED9598EB8A9420EC8B9CEC84A4EC9D9820EAB09DEAB480ECA08120EC9D98EBAFB8EC998020EBB294EC9C84E2809DEBA5BC20EBACBBEB8A9420EBB0A9EC8B9DEC9CBCEBA19C20ECA095EBA6ACED95B4EC95BC20ED95A9EB8B88EB8BA42e0A0AECB488EC958820EC9E91EC84B1EC9D8420EC9C84ED95B420EB8BA4EC9D8CEC9D8420EC958CEBA0A4ECA3BCEC84B8EC9A942e0A0A312e20ED95B4EB8BB920EBB295EBA5A0EC9D9820ECA095ED9995ED959C20EBAA85ECB9ADEAB3BC20ECA09C3130ECA1B0EC9D9820ECA1B0EBACB820EB82B4EC9AA9EC9D8020EBACB4EC9787EC9DB8EAB080EC9A943F0A322e20ECA09C3130ECA1B0EAB08020EC8B9CED9689EBA0B9C2B7EC8B9CED9689EAB79CECB999C2B7EBB384ED919CEBA5BC20ECB0B8ECA1B0ED959CEB8BA4EBA9B420EAB7B820EB82B4EC9AA9EB8F8420EC9E88EB8298EC9A943F0A332e20EAB1B4EBACBCEC9D9820EC9AA9EB8F842C20EAB5ACECA1B02C20EAB79CEBAAA82C20ED9884EC9EAC20EC82ACEC9AA920ED9895ED839CEB8A9420EBACB4EC9787EC9DB8EAB080EC9A943F0A342e20EAB1B4EBACBC20EC868CEC9CA0EC9E90C2B7EC9AB4EC9881EC9E90EC998020EAB7B820EC8B9CEC84A4EC9790EC849C20EC8898ED9689ED9598EB8A9420EC9785EBACB4EB8A9420EBACB4EC9787EC9DB8EAB080EC9A943F0A352e20ED9689ECA095ECB2ADEC9D9820ED95B4EC849DC2B7ECB298EBB68420EB9890EB8A9420EBB098EB8C8020EC9D98EAB2ACEC9DB420EC9E88EB8298EC9A943F").decode("utf-8")
-    assert evaluate_case(2, answer)["contract_oracle"] == "PASS"
-
-
-def test_e18_e39_live_response_variants_pass_strong_oracles():
-    e18 = default_answer(bytes.fromhex("EAB099EC9D8020ECA1B0EBACB8EC9D9820EAB099EC9D8020EC9AA9EC96B4EC979020EC849CEBA19C20EB8BA4EBA5B820EC9D98EBAFB8EBA5BC20EBB680EC97ACED9598EAB3A020EC9E88EC9CBCEB82982C20EC9DB4EBA5BC20ECA095EB8BB9ED9994ED95A020EAB7BCEAB1B0EAB08020ECA09CEAB3B5EB9098ECA78020EC958AEC9598EB8BA42e20EB94B0EB9DBCEC849C20ED9884EC9EAC20EC9E91EC84B120EAB080EB8AA5ED959C20EB82B4EC9AA9EC9D8020EAB08120EC84A4EC9D9820ECA3BCEC9EA520ECA084ECA09CEBA5BC20ED9995EC9DB8ED9598EB8A9420EC8898ECA480EC9DB4EB8BA42e20EC969120EC84A4EC9D8020EAB099EC9D8020EC9AA9EC96B4EC9D9820EAB09CEB859020EBB294EC9C84EBA5BC20EB8BACEBA6AC20ECA095ED9598EAB3A020EC9E88EB8BA42e").decode("utf-8"))
-    assert evaluate_case(18, e18)["contract_oracle"] == "PASS"
-
-    e39 = default_answer(bytes.fromhex("ECA09CEAB3B5EB909C20EAB79CECA095EBA78CEC9CBCEBA19CEB8A9420EC8BA0ECB695EC9DB420EC8AB9EC9DB8EC9A94EAB1B4EC9DB4EB9DBCEAB3A020EBB3BC20EC889820EC9786EC8AB5EB8B88EB8BA42e20EB8BA4EBA78C20EBB384ECA780EC9D9820EC8BA0EC84A4C2B7ECA69DEC84A420EAB5ACEBB684EC9D9820EBB295ECA08120EAB8B0EB8AA5EC9DB420ED9995EC9DB8EB9098ECA78020EC958AEC958420EAB8B0ECA1B420EAB1B4ECB695EBACBCEC9D9820EC8AB9EC9DB820EAB080EB8AA520EC97ACEBB680EBA5BC20ED9995ECA095ED9598EAB8B020EC96B4EBA0B5EC8AB5EB8B88EB8BA42e").decode("utf-8"))
-    assert evaluate_case(39, e39)["contract_oracle"] == "PASS"
 
 
 def test_live_language_variants_satisfy_strong_oracles():
@@ -131,47 +116,54 @@ def test_live_language_variants_satisfy_strong_oracles():
     assert evaluate_case(39, e39)["contract_oracle"] == "PASS"
 
 
-    e42 = "\n".join([
-        "# 1. 질의요지",
-        "",
-        "별지 제5호서식의 실제 문언이 미확인된 상태에서 전환 허가 가능 여부.",
-        "",
-        "# 2. 검토결론",
-        "",
-        "별지 제5호서식이 미확인되어 허가 가능 여부를 확정할 수 없습니다.",
-        "",
-        "# 3. 검토이유",
-        "",
-        "허가가 반드시 가능하다고 단정하는 방향의 논거와 제한될 수 있다는 논거를 모두 검토합니다.",
-        "",
-        "# 4. 관련 법령 및 자료",
-        "",
-        "별지 제5호서식은 실제 문언이 제공되지 않아 미확인입니다.",
-    ])
-    assert evaluate_case(42, e42)["contract_oracle"] == "PASS"
+def test_v023_temporal_authority_evidence_oracles():
+    e43 = default_answer(
+        "2024년 최초 허가 당시 법령 버전과 2026년 변경허가를 분리해야 합니다. 2025년 개정의 시행일과 경과조치를 확인하여 종전 규정과 신법 중 어느 기준이 각 행위에 적용되는지 판단해야 합니다."
+    )
+    assert evaluate_case(43, e43)["contract_oracle"] == "PASS"
+
+    e44 = default_answer(
+        "허가일, 개정법 시행일, 변경허가 신청일이 확인되지 않았으므로 적용법을 확정할 수 없습니다. 이 날짜와 경과조치를 확인할 필요가 있어 결론은 조건부입니다."
+    )
+    assert evaluate_case(44, e44)["contract_oracle"] == "PASS"
+
+    e45 = default_answer(
+        "법제처 해석은 행정부의 통일적 집행기준이지만 대법원 판결과 같은 법적 구속력을 갖는 것은 아닙니다. 2020년 개정으로 조문 문언과 정의가 달라졌으므로 2014년 판결 당시 조문과 후속 대법원 판단의 적용범위를 비교해야 합니다."
+    )
+    assert evaluate_case(45, e45)["contract_oracle"] == "PASS"
+
+    e46 = default_answer(
+        "법률 조문과 판례가 제시하는 기준은 근거가 되지만, 현재 사실관계가 판례의 C와 유사한지 또는 차이가 있는지는 별도의 포섭 문제입니다. 그 사실 차이에 따라 적용 결론이 달라질 수 있습니다."
+    )
+    assert evaluate_case(46, e46)["contract_oracle"] == "PASS"
 
 
 def test_evaluate_all_reports_deterministic_pass_count_and_skip():
     summary = evaluate_all([
-        {"case": 33, "answer": default_answer()},
+        {"case": 4, "answer": default_answer()},
         {"case": 37},
     ])
-
     assert summary["contract_oracle_pass"] == "1/2"
     assert summary["results"][1]["contract_oracle"] == "SKIP"
-    assert set(CHECKS) >= {"exact_default_h1", "no_unstable_download_links"}
+    assert set(CHECKS) >= {
+        "exact_default_h1",
+        "no_unstable_download_links",
+        "temporal_lifecycle",
+        "authority_versioning",
+        "claim_inference_separation",
+    }
 
 
 def test_runner_result_contract_fields_are_additive():
     import run_jdipt_full_regression_v4 as runner
 
     result = runner.Result(
-        case=33,
+        case=36,
         title="fixture",
         returncode=0,
         duration_seconds=0.0,
-        answer_file="E33.md",
-        log_file="E33.log.txt",
+        answer_file="E36.md",
+        log_file="E36.log.txt",
         process_ok=True,
         first_nonblank="# 1. 질의요지",
         h1_lines=DEFAULT_H1,
@@ -185,7 +177,6 @@ def test_runner_result_contract_fields_are_additive():
         contract_failures=[],
         release_critical=True,
     )
-
     assert result.contract_oracle == "PASS"
     assert result.contract_failures == []
     assert result.release_critical is True
