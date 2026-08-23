@@ -1,4 +1,4 @@
-"""Validate JDIPT authority, temporal, and claim-level evidence contracts."""
+"""Validate JDIPT authority, temporal, claim-evidence, and active-suite contracts."""
 
 from __future__ import annotations
 
@@ -50,6 +50,16 @@ CONTRACTS: dict[Path, tuple[str, ...]] = {
         '"full_cases"',
         '"legacy_cases"',
         '"E42": "E41"',
+    ),
+    EVALS / "v0.2.3-machine-oracles.json": (
+        '"E43"',
+        '"E44"',
+        '"E45"',
+        '"E46"',
+        '"temporal_lifecycle"',
+        '"temporal_unknown"',
+        '"authority_versioning"',
+        '"claim_inference_separation"',
     ),
 }
 
