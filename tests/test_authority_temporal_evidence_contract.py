@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from scripts.run_release_gate import AUTHORITY_TEMPORAL_VALIDATOR, CommandResult, deterministic_gate
+
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = ROOT / "skills" / "law-interpretation-request"
 REFERENCES = SKILL_ROOT / "references"
@@ -85,3 +87,16 @@ def test_v022_fail_closed_contracts_are_preserved():
         "URL provenance Gate",
     ):
         assert marker in source_policy
+
+
+def test_deterministic_release_gate_runs_v023_contract_validator():
+    commands: list[list[str]] = []
+
+    def runner(command):
+        commands.append(list(command))
+        return CommandResult(0, "")
+
+    result = deterministic_gate(command_runner=runner)
+
+    assert result.passed
+    assert any(str(AUTHORITY_TEMPORAL_VALIDATOR) in command for command in commands)
