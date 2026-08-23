@@ -43,7 +43,13 @@ CONTRACTS: dict[Path, tuple[str, ...]] = {
         "URL provenance Gate",
     ),
     EVALS / "v0.2.3-authority-temporal-evidence.md": tuple(
-        f"E{i}." for i in range(43, 49)
+        f"E{i}." for i in range(43, 47)
+    ),
+    EVALS / "suite-manifest.json": (
+        '"core_cases"',
+        '"full_cases"',
+        '"legacy_cases"',
+        '"E42": "E41"',
     ),
 }
 
@@ -71,7 +77,8 @@ def main() -> int:
         return 1
     print("PASS")
     print("authority_temporal_evidence_contract=v0.2.3-candidate")
-    print("behavior_spec=E43-E48")
+    print("behavior_spec=E43-E46")
+    print("live_suites=core14/full26")
     return 0
 
 
