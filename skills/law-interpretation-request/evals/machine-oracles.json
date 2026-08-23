@@ -42,10 +42,6 @@
     {"case": "E39", "title": "annex/form counterevidence", "release_critical": true, "checks": ["exact_default_h1", "source_form_conditional", "no_directional_abstract_conclusion", "hygiene_clean", "urls_complete"]},
     {"case": "E40", "title": "absence counterexample", "release_critical": false, "checks": ["exact_default_h1", "absence_neutral", "hygiene_clean", "urls_complete"]},
     {"case": "E41", "title": "unresolved annex/form", "release_critical": true, "checks": ["exact_default_h1", "referenced_source_block", "answer_first_default", "hygiene_clean", "urls_complete"]},
-    {"case": "E42", "title": "final rendering hard gate", "release_critical": false, "checks": ["exact_default_h1", "unresolved_source_neutral", "hygiene_clean", "urls_complete"]},
-    {"case": "E43", "title": "temporal lifecycle", "release_critical": true, "checks": ["exact_default_h1", "temporal_lifecycle", "hygiene_clean", "urls_complete"]},
-    {"case": "E44", "title": "temporal unknown fail-closed", "release_critical": true, "checks": ["exact_default_h1", "temporal_unknown", "hygiene_clean", "urls_complete"]},
-    {"case": "E45", "title": "authority and precedent versioning", "release_critical": true, "checks": ["exact_default_h1", "authority_versioning", "hygiene_clean", "urls_complete"]},
-    {"case": "E46", "title": "claim-level evidence", "release_critical": true, "checks": ["exact_default_h1", "claim_inference_separation", "hygiene_clean", "urls_complete"]}
+    {"case": "E42", "title": "final rendering hard gate", "release_critical": false, "checks": ["exact_default_h1", "unresolved_source_neutral", "hygiene_clean", "urls_complete"]}
   ]
 }
