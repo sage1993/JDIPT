@@ -1,0 +1,3 @@
+- [「주택건설기준 등에 관한 규정」 현행 본문](https://www.law.go.kr/lsInfoP.do?lsiSeq=287405)
+- [법제처 24-0428](https://www.moleg.go.kr/lawinfo/nwLwAnInfo.mo?cs_seq=439864&currentPage=1&keyField=&keyWord=&mid=&sort=date)
+- [blank identifier query example](https://www.law.go.kr/LSW/lsInfoP.do?id=&seq=123)
