@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
+from scripts.eval_suite import suite_case_ids
 from scripts.regression_checks import (
     check_h1,
     check_output_hygiene,
@@ -17,7 +18,7 @@ from scripts.regression_checks import (
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ORACLE_PATH = ROOT / "skills" / "law-interpretation-request" / "evals" / "machine-oracles.json"
-EXPECTED_CRITICAL_CASES = {1, 2, 3, 13, 18, 25, 31, 33, 36, 37, 39, 40, 41, 42}
+EXPECTED_CRITICAL_CASES = suite_case_ids("core")
 
 
 def _pass() -> tuple[bool, str]:
@@ -195,6 +196,50 @@ def _unresolved_source_neutral(answer: str, case: int) -> tuple[bool, str]:
     return _no_directional_conclusion(answer, case)
 
 
+def _temporal_lifecycle(answer: str, case: int) -> tuple[bool, str]:
+    if not _contains_any(answer, ("최초 허가", "허가 당시", "2024")):
+        return _fail("initial permit reference date was not separated")
+    if "변경허가" not in answer:
+        return _fail("later modification-permit event was not separated")
+    if not _contains_any(answer, ("시행일", "경과조치")):
+        return _fail("effective date/transitional provision check is missing")
+    if not _contains_any(answer, ("종전", "신법", "개정", "법령 버전")):
+        return _fail("old/new law version relationship is missing")
+    return _pass()
+
+
+def _temporal_unknown(answer: str, case: int) -> tuple[bool, str]:
+    if not _contains(answer, "허가일", "시행일") or "변경허가" not in answer:
+        return _fail("material dates were not identified")
+    if not _contains_any(answer, ("확인 필요", "확인해야", "확정할 수 없", "조건부")):
+        return _fail("missing dates did not lower conclusion strength")
+    return _pass()
+
+
+def _authority_versioning(answer: str, case: int) -> tuple[bool, str]:
+    if not _contains(answer, "법제처", "대법원"):
+        return _fail("authority comparison is incomplete")
+    if not _contains_any(answer, ("구속력", "법원을 구속", "사법적", "행정부")):
+        return _fail("legal function/binding effect distinction is missing")
+    if not _contains_any(answer, ("개정", "조문 버전", "문언", "정의")):
+        return _fail("precedent-to-current-text version check is missing")
+    forbidden = ("법제처가 공식 해석했으므로 법원도", "법제처 해석이 법원을 구속")
+    if _contains_any(answer, forbidden):
+        return _fail("government interpretation was treated as binding on the court")
+    return _pass()
+
+
+def _claim_inference_separation(answer: str, case: int) -> tuple[bool, str]:
+    if not _contains_any(answer, ("조문", "법률")) or "판례" not in answer:
+        return _fail("source propositions are not identified")
+    if not _contains_any(answer, ("사실관계", "유사", "포섭", "같은지", "차이")):
+        return _fail("fact-to-rule analytical step is missing")
+    forbidden = ("판례가 귀하의 경우에도", "판례가 이 사안에도 B가 적용된다고 판시")
+    if _contains_any(answer, forbidden):
+        return _fail("analytical inference was misrepresented as a source holding")
+    return _pass()
+
+
 def _hygiene(answer: str, case: int) -> tuple[bool, str]:
     ok, problems = check_output_hygiene(answer)
     return (True, "") if ok else _fail("; ".join(problems))
@@ -226,6 +271,10 @@ CHECKS: dict[str, Callable[[str, int], tuple[bool, str]]] = {
     "absence_neutral": _absence_neutral,
     "referenced_source_block": _referenced_source_block,
     "unresolved_source_neutral": _unresolved_source_neutral,
+    "temporal_lifecycle": _temporal_lifecycle,
+    "temporal_unknown": _temporal_unknown,
+    "authority_versioning": _authority_versioning,
+    "claim_inference_separation": _claim_inference_separation,
     "moleg_submission_note": lambda answer, case: (
         _pass() if "※ 제출 전 확인" in answer else _fail("missing submission confirmation note")
     ),
@@ -249,8 +298,8 @@ def load_oracle_definitions(path: Path | None = None) -> list[dict[str, Any]]:
 
 
 def validate_oracle_definitions(definitions: list[dict[str, Any]]) -> None:
-    if len(definitions) != 42:
-        raise ValueError(f"expected 42 oracle definitions, found {len(definitions)}")
+    if len(definitions) != 46:
+        raise ValueError(f"expected 46 oracle definitions, found {len(definitions)}")
     numbers: list[int] = []
     for definition in definitions:
         case_id = definition.get("case")
@@ -267,8 +316,8 @@ def validate_oracle_definitions(definitions: list[dict[str, Any]]) -> None:
             raise ValueError(f"E{number:02d} has unknown checks: {unknown}")
         if not isinstance(definition.get("release_critical"), bool):
             raise ValueError(f"E{number:02d} release_critical must be boolean")
-    if sorted(numbers) != list(range(1, 43)):
-        raise ValueError(f"oracle cases must be exactly E01-E42, found {numbers}")
+    if sorted(numbers) != list(range(1, 47)):
+        raise ValueError(f"oracle cases must be exactly E01-E46, found {numbers}")
     actual_critical = {
         int(str(d["case"])[1:]) for d in definitions if d["release_critical"]
     }
