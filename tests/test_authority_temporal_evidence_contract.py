@@ -74,9 +74,11 @@ def test_source_policy_separates_source_claim_and_inference():
     )
 
 
-def test_v023_eval_spec_covers_e43_to_e48():
+def test_v023_eval_spec_covers_e43_to_e46_only():
     text = _read(EVALS / "v0.2.3-authority-temporal-evidence.md")
-    _require(text, tuple(f"E{i}." for i in range(43, 49)))
+    _require(text, tuple(f"E{i}." for i in range(43, 47)))
+    assert "## E47." not in text
+    assert "## E48." not in text
 
 
 def test_v022_fail_closed_contracts_are_preserved():
