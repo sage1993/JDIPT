@@ -1,16 +1,21 @@
 # Plugin packaging
 
+현재 기준 버전: **v0.2.2**
+
 ## 기준
 
-JDIPT는 OpenAI의 현재 Codex Plugin 패키징 및 Marketplace 사양을 기준으로 저장소 루트 자체를 하나의 Plugin 패키지로 관리한다.
+JDIPT는 저장소 루트 자체를 하나의 Codex Plugin 패키지로 관리합니다.
 
-공식 참고:
+Plugin 진입점:
 
-- https://github.com/openai/codex/tree/main/codex-rs/skills/src/assets/samples/plugin-creator
-- https://developers.openai.com/codex/mcp
-- https://help.openai.com/en/articles/20001256-plugins-in-chatgpt-and-codex
+- `.codex-plugin/plugin.json`
+- `.agents/plugins/marketplace.json`
 
-Plugin 진입점은 `.codex-plugin/plugin.json`이며, repo/team Marketplace 진입점은 `.agents/plugins/marketplace.json`이다.
+Skill 단일 원본:
+
+- `skills/law-interpretation-request/`
+
+같은 Skill을 `.agents/skills/`나 별도 배포 폴더에 복제하지 않습니다.
 
 ## 현재 패키지 구조
 
@@ -28,53 +33,49 @@ JDIPT/
 │     ├─ references/
 │     └─ evals/
 ├─ config/
-│  └─ codex.example.toml
 ├─ docs/
-│  ├─ installation.md
-│  └─ plugin-packaging.md
 ├─ scripts/
+├─ tests/
+├─ run_jdipt_full_regression_v4.py
 ├─ AGENTS.md
 ├─ README.md
 └─ package.json
 ```
 
-`skills/law-interpretation-request/`가 Plugin에 포함되는 Skill의 단일 원본이다. 같은 Skill을 `.agents/skills/`나 별도 배포 폴더에 복제하지 않는다.
-
 ## Plugin Manifest
 
-`.codex-plugin/plugin.json`은 다음 역할을 담당한다.
+`.codex-plugin/plugin.json` 계약:
 
 - Plugin ID: `jdipt`
-- Plugin 버전: `package.json`과 동일한 버전
-- Plugin 표시명과 설명
-- `skills: "./skills/"`를 통한 Skill 등록
-- 기본 프롬프트와 설치 화면 메타데이터
+- version: `0.2.2`
+- `package.json` version과 일치
+- `skills: "./skills/"`
+- 표시명/설명/default prompt 제공
 
-Manifest의 Plugin 내부 경로는 Plugin 루트 기준 상대경로로 유지한다.
+현재 `package.json`과 Plugin manifest는 모두 `0.2.2`입니다.
 
 ## Skill 호출 정책
 
-`law-interpretation-request`는 v0.2.0부터 **explicit-only** Skill로 운영한다.
+`law-interpretation-request`는 v0.2.0부터 계속 **explicit-only**입니다.
 
 ```yaml
 policy:
   allow_implicit_invocation: false
 ```
 
-일반 법령 질문에 자동 선택되는 것을 요구하지 않으며, 사용자가 필요할 때 `$law-interpretation-request`로 직접 호출한다. 설치 및 release gate에서도 자동 Skill activation을 검증하지 않는다.
+일반 법령 질문에 자동 선택되는 것을 요구하지 않으며 사용자가 필요할 때 `$law-interpretation-request`로 직접 호출합니다.
+
+자동 Skill activation은 v0.2.2 release gate에 포함하지 않습니다.
 
 ## Repo Marketplace
 
-`.agents/plugins/marketplace.json`은 JDIPT를 repo/team Marketplace로 노출한다.
+`.agents/plugins/marketplace.json`은 JDIPT를 repo/team Marketplace로 노출합니다.
 
-현재 계약:
+핵심 계약:
 
 ```json
 {
   "name": "sage1993",
-  "interface": {
-    "displayName": "sage1993 Plugins"
-  },
   "plugins": [
     {
       "name": "jdipt",
@@ -92,13 +93,7 @@ policy:
 }
 ```
 
-Codex Marketplace 로더는 local source의 `.` 또는 `./`를 Marketplace 루트로 해석한다. 따라서 현재처럼 저장소 루트가 Plugin 루트인 구조에서는 `source.path = "."`를 사용한다.
-
-이 방식은 `skills/`를 `plugins/jdipt/skills/`에 복제하거나 대규모 이동하지 않고도 단일 원본을 유지할 수 있다는 장점이 있다.
-
-## 설치
-
-GitHub 저장소 접근 권한이 있는 사용자는 다음과 같이 Marketplace와 Plugin을 설치한다.
+저장소는 현재 **public**입니다. 따라서 공개 Git source로 Marketplace를 등록할 수 있습니다.
 
 ```bash
 codex plugin marketplace add sage1993/JDIPT
@@ -106,100 +101,122 @@ codex plugin add jdipt@sage1993
 codex plugin list
 ```
 
-로컬 clone을 직접 Marketplace로 등록하는 경우:
+로컬 clone:
 
 ```bash
-cd JDIPT
 codex plugin marketplace add .
 codex plugin add jdipt@sage1993
-codex plugin list
 ```
-
-설치 후 Skill 및 MCP 변경사항을 확실히 반영하려면 새 Codex thread에서 `$law-interpretation-request`를 명시 호출해 검증한다.
-
-상세 절차와 E26 Smoke Test 조건은 [`installation.md`](installation.md)를 참조한다.
-
-현재 저장소가 private인 동안 Git source 설치는 저장소 읽기 권한과 Git 인증이 있는 사용자에게만 가능하다. 불특정 사용자 대상 공개 배포에는 public 저장소 또는 별도의 접근 가능한 Git remote가 필요하다.
 
 ## Korean Law MCP 경계
 
-현재 Plugin 패키지는 **Skill-first 패키지**로 유지하고 `korean-law-mcp`를 Plugin 안에 vendor하지 않는다.
+Plugin은 **Skill-first**로 유지하며 `korean-law-mcp` 소스를 vendor하지 않습니다.
 
-`korean-law-mcp`는 다음 이유로 외부 의존성으로 유지한다.
-
-1. 업스트림 소스와 릴리스 책임을 분리한다.
-2. `LAW_OC` 같은 비밀값을 Plugin 패키지에 포함하지 않는다.
-3. 현재 업스트림은 로컬 STDIO 실행을 기본으로 하므로 Codex 로컬 환경과 ChatGPT 웹의 MCP 연결 방식을 분리해서 다룬다.
-
-### Codex 로컬
-
-Codex CLI, IDE extension, ChatGPT desktop의 로컬 Codex host에서는 `config/codex.example.toml`을 참고하여 `korean-law-mcp`를 별도로 연결할 수 있다.
-
-실제 API 키는 설정 파일에 기록하지 않고 OS 환경변수 `LAW_OC`로 설정하며, Codex 설정은 `env_vars = ["LAW_OC"]`로 해당 값을 전달한다.
-
-### ChatGPT 웹 / 공개 Plugin
-
-ChatGPT 웹은 로컬 Codex MCP 설정을 읽지 않는다. 공개 Plugin에서 MCP 기반 도구를 함께 제공하려면 OpenAI Plugin에서 사용할 수 있는 원격/등록 MCP 연결을 별도로 구성하고, 실제 등록 ID가 발급된 뒤 `.app.json` 및 manifest의 `apps` 필드를 추가한다.
-
-등록되지 않은 App ID나 확인되지 않은 MCP URL을 저장소에 임의로 넣지 않는다.
-
-따라서 현재 공개 패키징 단계에서는:
+현재 구분:
 
 - Skill 패키징: 포함
 - Codex Marketplace manifest: 포함
-- 로컬 Codex용 `korean-law-mcp`: 선택적 외부 연결
-- ChatGPT 웹용 등록 MCP App: 미구현, 후속 검증 대상
+- 로컬 Codex용 `korean-law-mcp@4.12.1`: 선택적 외부 연결
+- ChatGPT 웹용 등록 MCP App: 미구현, v0.3 후속 대상
 
-으로 구분한다.
+이 구조를 유지하는 이유:
+
+1. 업스트림 소스·릴리스 책임 분리
+2. `LAW_OC` 같은 비밀값을 Plugin 패키지에 포함하지 않음
+3. 로컬 STDIO MCP와 ChatGPT 웹의 연결 방식을 분리
+4. 업스트림 보안·기능 업데이트를 별도 의존성 변경으로 관리
+
+## v0.2.2 Runtime 계약
+
+Plugin runtime에는 다음이 포함됩니다.
+
+- `SKILL.md`
+- `agents/openai.yaml`
+- `references/*.md`
+
+v0.2.2에서는 저장소 runtime과 실제 설치본의 SHA-256 일치를 release precondition으로 검사합니다.
+
+```bash
+python scripts/plugin_integrity.py
+```
+
+불일치 시 행동 regression을 시작하지 않습니다.
+
+## v0.2.2 Source / Rendering 계약
+
+패키징 자체와 별개로 설치본 Skill은 다음 안정성 계약을 갖습니다.
+
+- 본문이 결론에 중요한 별표·별지서식을 직접 참조하면 실제 원문 확인 또는 unresolved 상태 유지
+- unresolved critical reference가 있으면 확정 결론 BLOCK
+- 기본 응답 exact 4 H1 Final Rendering Gate
+- 빈 critical query parameter 차단
+- invalid percent escape 차단
+- `law.go.kr/LSW/flDownload.do + flNm` 불안정 직접링크 차단
+- same-run verified official URL 우선
 
 ## 개발 및 검증
 
-변경 후 최소 정적 검증:
+최소 결정론적 검증:
 
 ```bash
 python scripts/validate_repo.py
+python -m pytest -q
+python scripts/plugin_integrity.py
 ```
 
-기존 검증 스크립트는 다음을 확인한다.
-
-- `.codex-plugin/plugin.json` 존재 및 JSON 파싱
-- Plugin 이름 `jdipt`
-- Plugin 버전과 `package.json` 버전 일치
-- `skills` 경로가 `./skills/`
-- `skills/law-interpretation-request/SKILL.md` 존재
-- `.agents/skills/law-interpretation-request` 중복본 부재
-- Plugin 표시명과 기본 프롬프트 존재
-- `agents/openai.yaml`의 `allow_implicit_invocation: false`
-- `LAW_OC` 실제 비밀값 미포함
-- `config/codex.example.toml`이 `LAW_OC`를 `env_vars`로 전달
-
-Marketplace에 대해서는 추가로 다음 계약을 확인한다.
-
-- `.agents/plugins/marketplace.json` 존재
-- Marketplace 이름 `sage1993`
-- Plugin entry 이름 `jdipt`
-- local source path `.`
-- `policy.installation = AVAILABLE`
-- `policy.authentication = ON_INSTALL`
-- `category = Productivity`
-
-정적 검증과 실제 Codex 설치는 별개다. E26은 새 설치 환경에서 v0.2.0 Plugin을 실제 설치하고 `$law-interpretation-request`를 명시 호출했을 때 Skill이 정상 적용되는 경우에 PASS로 판정한다.
-
-## v0.1.0 공개 검증 상태
-
-JDIPT v0.1.0 공개를 위해 다음 실제 검증을 완료했다.
-
-- 신규 설치 환경 Plugin smoke test: PASS
-- E10~E25 실제 에이전트 회귀평가: PASS
-- E26 신규 설치 후 자동 Skill 적용: PASS
-- `korean-law-mcp` 실제 조회 E2E: PASS
-
-v0.1.0의 자동 적용 검증은 historical record이며 v0.2.0의 호출 정책에는 승계하지 않는다.
-
-공개 release gate는 GitHub Actions 대신 다음 수동 검증 절차를 사용한다.
+Release orchestration:
 
 ```bash
-python scripts/validate_repo.py
-npm ci
-npm run mcp -- --help
+python scripts/run_release_gate.py
+python scripts/run_release_gate.py --critical-only --codex <codex-cli>
+python scripts/run_release_gate.py --full --codex <codex-cli>
 ```
+
+`--full`은 결정론적 gate → critical stability → E1–E42 full regression → package gate 순으로 fail-closed 실행합니다.
+
+## v0.2.2 검증 상태
+
+최종 검증:
+
+- `validate_repo`: PASS
+- pytest: 34 passed
+- installed runtime SHA: MATCH
+- Critical Suite: PASS
+- E25: 3/3
+- E37: 3/3
+- Full E1–E42 process: 42/42
+- environment: 0/42
+- H1: 40/42 (`E2/E3 = SKIP_SPECIAL_FORMAT`)
+- hygiene: 42/42
+- URL: 42/42
+- contract oracle: 42/42
+- `npm audit --omit=dev`: 0 vulnerabilities
+- real-law smoke: PASS
+- model: `gpt-5.6-luna`
+
+상세 증거: [`validation/v0.2.2-source-rendering.md`](validation/v0.2.2-source-rendering.md)
+
+## 배포 체크리스트
+
+- [ ] `.codex-plugin/plugin.json` / `package.json` version 일치
+- [ ] Plugin name `jdipt`
+- [ ] Marketplace name `sage1993`
+- [ ] `source.path = "."`
+- [ ] `policy.installation = AVAILABLE`
+- [ ] `policy.authentication = ON_INSTALL`
+- [ ] `category = Productivity`
+- [ ] `allow_implicit_invocation = false`
+- [ ] tracked secret 없음
+- [ ] `python scripts/validate_repo.py`
+- [ ] `python -m pytest -q`
+- [ ] installed runtime integrity PASS
+- [ ] Critical stability PASS
+- [ ] Full E1–E42 PASS
+- [ ] `npm ci`
+- [ ] `npm audit --omit=dev`
+- [ ] `npm run mcp -- --help`
+- [ ] real-law smoke PASS
+
+## 후속
+
+ChatGPT 웹에서 MCP 도구까지 제공하려면 실제 등록 ID를 확보한 뒤 `.app.json` 및 manifest `apps` 연결을 별도 작업으로 진행합니다. 확인되지 않은 App ID나 MCP URL을 저장소에 임의로 추가하지 않습니다.
