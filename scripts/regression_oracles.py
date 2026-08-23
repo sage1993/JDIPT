@@ -17,7 +17,9 @@ from scripts.regression_checks import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_ORACLE_PATH = ROOT / "skills" / "law-interpretation-request" / "evals" / "machine-oracles.json"
+EVAL_ROOT = ROOT / "skills" / "law-interpretation-request" / "evals"
+DEFAULT_ORACLE_PATH = EVAL_ROOT / "machine-oracles.json"
+DEFAULT_EXTENSION_ORACLE_PATH = EVAL_ROOT / "v0.2.3-machine-oracles.json"
 EXPECTED_CRITICAL_CASES = suite_case_ids("core")
 
 
@@ -287,12 +289,22 @@ CHECKS: dict[str, Callable[[str, int], tuple[bool, str]]] = {
 }
 
 
-def load_oracle_definitions(path: Path | None = None) -> list[dict[str, Any]]:
-    source = path or DEFAULT_ORACLE_PATH
+def _load_cases(source: Path) -> list[dict[str, Any]]:
     data = json.loads(source.read_text(encoding="utf-8"))
     definitions = data.get("cases")
     if not isinstance(definitions, list):
-        raise ValueError("machine-oracles.json must contain a cases list")
+        raise ValueError(f"{source.name} must contain a cases list")
+    return definitions
+
+
+def load_oracle_definitions(path: Path | None = None) -> list[dict[str, Any]]:
+    if path is not None:
+        definitions = _load_cases(path)
+    else:
+        definitions = [
+            *_load_cases(DEFAULT_ORACLE_PATH),
+            *_load_cases(DEFAULT_EXTENSION_ORACLE_PATH),
+        ]
     validate_oracle_definitions(definitions)
     return definitions
 
