@@ -1,4 +1,4 @@
-"""Fail-closed local release gate orchestration for JDIPT v0.2.2."""
+"""Fail-closed local release gate orchestration for JDIPT."""
 
 from __future__ import annotations
 
@@ -13,12 +13,14 @@ from typing import Callable, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "run_jdipt_full_regression_v4.py"
+AUTHORITY_TEMPORAL_VALIDATOR = ROOT / "scripts" / "validate_authority_temporal_contract.py"
 PYTHON_FILES = [
     RUNNER,
     ROOT / "scripts" / "regression_checks.py",
     ROOT / "scripts" / "regression_oracles.py",
     ROOT / "scripts" / "plugin_integrity.py",
     ROOT / "scripts" / "run_release_gate.py",
+    AUTHORITY_TEMPORAL_VALIDATOR,
 ]
 CRITICAL_CASES = (2, 3, 13, 18, 25, 31, 36, 37, 39, 40, 41, 42)
 REPEAT_CASES = {25: 3, 37: 3}
@@ -67,6 +69,7 @@ def deterministic_gate(
 ) -> GateResult:
     commands = [
         [sys.executable, str(ROOT / "scripts" / "validate_repo.py")],
+        [sys.executable, str(AUTHORITY_TEMPORAL_VALIDATOR)],
         [sys.executable, "-m", "pytest", "-q"],
         *[[sys.executable, "-m", "py_compile", str(path)] for path in PYTHON_FILES],
         ["git", "diff", "--check"],
@@ -212,7 +215,7 @@ def orchestrate(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run JDIPT v0.2.2 release gates in fixed order.")
+    parser = argparse.ArgumentParser(description="Run JDIPT release gates in fixed order.")
     parser.add_argument("--critical-only", action="store_true", help="Run Gate A then the critical stability suite only.")
     parser.add_argument("--full", action="store_true", help="Run Gate A, critical stability, full regression, and package gate.")
     parser.add_argument("--codex", default=None)
