@@ -5,7 +5,16 @@ import os
 import subprocess
 import sys
 
-from scripts.run_release_gate import CommandResult, GateResult, _single_case_pass, critical_stability_gate, orchestrate
+from scripts.run_release_gate import (
+    CRITICAL_CASES,
+    FULL_CASES,
+    REPEAT_CASES,
+    CommandResult,
+    GateResult,
+    _single_case_pass,
+    critical_stability_gate,
+    orchestrate,
+)
 
 
 def _case_output(h1: str) -> str:
@@ -37,23 +46,30 @@ def test_regression_runner_stdout_is_utf8_safe_when_captured():
     assert "—" in result.stdout
 
 
-
-
-def test_runner_command_propagates_explicit_model():
+def test_runner_command_propagates_explicit_model_and_suite():
     from scripts.run_release_gate import _runner_command
 
     command = _runner_command(
         codex="codex",
         installed_skill_root=None,
         model="gpt-5.6-sol",
+        suite="core",
     )
 
     assert command[command.index("--model") + 1] == "gpt-5.6-sol"
+    assert command[command.index("--suite") + 1] == "core"
+
+
+def test_suite_sizes_are_reduced_and_core_is_subset():
+    assert len(CRITICAL_CASES) == 14
+    assert len(FULL_CASES) == 26
+    assert set(CRITICAL_CASES) <= set(FULL_CASES)
+
 
 def test_critical_case_requires_h1_pass_except_special_cases():
-    assert _single_case_pass(_case_output("PASS"), 25)
+    assert _single_case_pass(_case_output("PASS"), 36)
     assert _single_case_pass(_case_output("SKIP_SPECIAL_FORMAT"), 2)
-    assert not _single_case_pass(_case_output("FAIL"), 25)
+    assert not _single_case_pass(_case_output("FAIL"), 36)
     assert not _single_case_pass(_case_output("PASS"), 2)
 
 
@@ -73,15 +89,16 @@ def test_critical_attempts_use_unique_output_directories():
         commands.append(command)
         case = int(command[command.index("--from-case") + 1])
         h1 = "SKIP_SPECIAL_FORMAT" if case in {2, 3} else "PASS"
-        output = _case_output(h1)
-        return CommandResult(0, output)
+        return CommandResult(0, _case_output(h1))
 
     result = critical_stability_gate(command_runner=runner)
 
     assert result.passed
     output_dirs = [command[command.index("--output-dir") + 1] for command in commands]
-    assert len(output_dirs) == 16
-    assert len(set(output_dirs)) == 16
+    expected_attempts = sum(REPEAT_CASES.get(case, 1) for case in CRITICAL_CASES)
+    assert len(output_dirs) == expected_attempts
+    assert len(set(output_dirs)) == expected_attempts
+    assert expected_attempts == 15
 
 
 def test_gate_a_failure_stops_before_critical_and_full():
