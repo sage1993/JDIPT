@@ -1,5 +1,15 @@
 # JDIPT Repository Instructions
 
+## Windows UTF-8 tool I/O
+
+Repository Markdown/YAML/text files are UTF-8. On Windows PowerShell 5.1, never read repository text with bare `Get-Content` or `Select-String`.
+
+- Use `Get-Content -Raw -Encoding UTF8 <path>` for full-file reads.
+- Use `Select-String -Encoding UTF8 ...` when reading/searching UTF-8 repository text.
+- When reading multiple Skill/reference files, specify `-Encoding UTF8` on every `Get-Content` call.
+- If PowerShell output is still mojibake, read the file through Python with `Path(...).read_text(encoding="utf-8")`.
+- Treat mojibake in Skill/reference content as an environment failure; do not continue legal reasoning from corrupted instructions.
+
 ## 목적
 이 저장소는 대한민국 법령해석요청 업무용 ChatGPT/Codex Plugin, Skill, `korean-law-mcp` 연동 설정을 관리한다.
 

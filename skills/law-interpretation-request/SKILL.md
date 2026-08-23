@@ -7,6 +7,29 @@ description: Use whenever 사용자가 대한민국 법령·시행령·시행규
 
 대한민국 법령의 객관적 의미와 적용범위를 체계적으로 검토하고, 실무자가 제출·검토하기 쉬운 법령해석요청 문안을 작성한다. 기본 언어는 한국어이며 공적·간결한 법률검토 문체를 사용한다. **모든 사용자용 최종 출력은 Markdown으로 작성한다.**
 
+## ASCII execution contract
+
+This block is intentionally ASCII-only so its critical rules remain readable even if Windows PowerShell 5.1 misdecodes BOM-less UTF-8 Korean Markdown.
+
+- Abstract or fictional fixtures are closed-world inputs. Use only rules, definitions, facts, and source text actually supplied by the user.
+- In an abstract fixture, an explicitly unknown status for a named requirement is itself a supplied premise. For example, if requirements are A, B, C and A/B are satisfied while C is unknown, treat `C = unknown/needs confirmation` as the state to analyze. Do not switch to clarification questions merely to learn C's content or satisfaction. Use the default four-H1 review and give a conditional conclusion based on C remaining unresolved.
+- If the fixture itself contains enough premises to perform the requested logical or legal relationship review, do not stop to ask for a real statute name, article text, URL, actor, or real-world facts.
+- A self-contained legal inference is also an abstract fixture even when it does not use labels such as `virtual`, `A/B/P/Q`, or a real statute name. If the user supplies legal premises and a proposed conclusion and asks whether the conclusion follows, analyze that inferential gap from the supplied premises. Do not ask for real statute names, article numbers, facts, or authorities unless the user asks for real-world application or source verification.
+- Do not invent missing definitions, requirements, procedures, legal effects, annex/form text, examples, or hypothetical wording. When a referenced form's legal function is itself the unresolved issue, you may identify neutral analytic categories (for example, procedural versus substantive function) only as unresolved possibilities; do not select one or invent form wording.
+- If competing views assign different scopes to the same legal term without a supplied definition or verified source, identify that concept inconsistency first. Do not manufacture substantive arguments by assuming both conflicting meanings.
+- Absence of a prohibition, restriction, exclusion, or listed category does not establish permission, inclusion, approval eligibility, or application.
+- **Same-term conflict hard stop:** if competing views assign different scopes to the same term in the same provision and no supplied/verified definition justifies the difference, do not build substantive arguments on both conflicting meanings. Identify the concept inconsistency first and keep the conclusion unresolved until one common meaning criterion is supplied or verified.
+- If a referenced annex/form can affect classification or outcome and its actual wording or legal function is unresolved, keep the conclusion neutral: the result cannot be determined from the supplied premises. Do not say `possible`, `likely`, `open`, `natural`, `reasonable`, or equivalent directional language.
+- Do not classify an unresolved annex/form as merely procedural, administrative, illustrative, exhaustive, or substantive without verified wording, function, delegation, and relation to the superior rule.
+- In abstract fixtures, do not create extra approval requirements, change procedures, registration steps, use-change concepts, organizational/facility/personnel requirements, transitional rules, exceptions, or workaround paths unless supplied.
+- Default completed output uses exactly four H1 headings: `# 1. 질의요지`, `# 2. 검토결론`, `# 3. 검토이유`, `# 4. 관련 법령 및 자료`.
+- Explicit MOLEG request mode uses exactly three H1 headings: `# 1. 질의요지`, `# 2. 해석대상 법령조문 및 관련 법령`, `# 3. 대립되는 의견 및 이유`, followed by a non-H1 `※ 제출 전 확인`.
+- URLs with empty query-parameter values are incomplete even if an official tool returned them. Examples include `...?gubun=`, `...?id=&seq=123`, and `...?lsiSeq=`. Do not output such a URL unless a complete replacement URL was independently verified in the current run. Otherwise omit the link or write `[공식 링크 확인 필요]`.
+- Every percent sign in a final URL must begin a valid percent escape: `%` followed by exactly two hexadecimal digits. A URL containing `%` followed by anything else is malformed and must not be output. Do not repair it by guessing; use only a complete URL re-verified in the current run, otherwise omit the link or write `[공식 링크 확인 필요]`.
+- Immediately before sending the final answer, re-check premise provenance and rendering. If any decisive premise is not traceable to the fixture or a source actually verified in the current run, delete it and re-render.
+
+- MOLEG suitability correction takes precedence over clarification when both apply. If a request directly asks whether a specific real-world object satisfies a legal category, or whether an existing disposition is illegal, first state in one concise sentence that this direct factual/illegality determination may be unsuitable for a MOLEG statutory-interpretation request. Then, if statute text or essential facts are still missing, ask only 3-7 necessary questions and stop. Do not draft the request in that response. Explain that the eventual question should be reframed as the objective meaning, scope, or requirements of the governing provision.
+
 ## Fail-closed Hard Gates
 
 다음 세 Gate는 선택사항이 아니라 최종 출력 전 필수 중단조건이다.
@@ -25,7 +48,7 @@ description: Use whenever 사용자가 대한민국 법령·시행령·시행규
 
 1. 사용자의 질문·사실관계·요구사항을 분석해 요청 목적과 제출/사용 맥락을 확인한다.
 2. 먼저 `references/eligibility-checklist.md`로 법령해석 대상 적합성을 점검한다.
-3. **법률 실체결론이나 초안을 작성하는 데 필수적인 정보가 없으면 필요한 것만 3~7개 질문하고 그 응답에서는 초안 작성을 중단한다.** 정보 부족 상태에서 기본 4단 초안, 법제처 원문형 초안 또는 권고 보정 초안을 임의로 덧붙이지 않는다. 이미 충분한 정보가 있으면 질문하지 않는다. 다만 A/B/P/Q 같은 추상 논리 시나리오나 가상 법령 fixture의 타당성 검토가 목적이고 제공된 추상 전제 자체를 검토하는 것이 요청의 목적이라면 구체 법령명을 요구하지 말고 추상 상태에서 검증한다. **이 경우 추상 시나리오 자체가 검토대상이므로 정보 부족으로 보지 않으며, 사용자가 별도 형식을 지시하지 않았다면 최종 사용자 출력은 기본 4단 H1 형식을 사용한다. 다만 Abstract Fixture Closed-World Hard Gate에 따라 제공되지 않은 정의·요건·절차를 일반론으로 보충해서는 안 된다.**
+3. **법률 실체결론이나 초안을 작성하는 데 필수적인 정보가 없으면 필요한 것만 3~7개 질문하고 그 응답에서는 초안 작성을 중단한다.** 정보 부족 상태에서 기본 4단 초안, 법제처 원문형 초안 또는 권고 보정 초안을 임의로 덧붙이지 않는다. 이미 충분한 정보가 있으면 질문하지 않는다. 다만 A/B/P/Q 같은 추상 논리 시나리오나 가상 법령 fixture의 타당성 검토가 목적이고 제공된 추상 전제 자체를 검토하는 것이 요청의 목적이라면 구체 법령명을 요구하지 말고 추상 상태에서 검증한다. **특히 추상 fixture에서 사용자가 어떤 요건의 상태를 명시적으로 `정보 없음`, `미확인`, `확인 필요`라고 제시한 경우, 그 미확인 상태 자체를 제공된 전제로 취급한다. 이를 필수정보 누락으로 다시 분류해 질문 단계로 전환하지 않고, `충족 / 불충족 / 확인 필요` 중 `확인 필요` 상태를 유지한 채 기본 4단 형식에서 조건부 결론을 작성한다.** **이 경우 추상 시나리오 자체가 검토대상이므로 정보 부족으로 보지 않으며, 사용자가 별도 형식을 지시하지 않았다면 최종 사용자 출력은 기본 4단 H1 형식을 사용한다. 다만 Abstract Fixture Closed-World Hard Gate에 따라 제공되지 않은 정의·요건·절차를 일반론으로 보충해서는 안 된다.**
 4. 법령·판례·해석례를 인용해야 하면 `references/source-policy.md`에 따라 **공식자료와 현행성을 우선 확인**하고, Korean Law MCP가 사용 가능하면 아래 `MCP 조사 절차`를 따른다.
 5. `references/legal-issue-mapping.md`의 **법적 쟁점 매핑 Gate**에 따라 법적 대상·행위, 법적 정의·분류, 적용 규범 지도, 규정 관계, 사실관계 대입과 **문제 발생 지점**을 내부적으로 특정한다. 둘 이상의 규정이 관련되면 동일 사항의 중복 규율인지, 일반/특별 관계인지, 누적 적용인지, **규율 공백**인지, 서로 다른 규율대상인지 구분한다.
    - 매핑 후 실체결론을 확정하기 전에 Source Completeness / Counterevidence Gate를 적용하여 결론을 제한할 가능성이 있는 관련 하위법령·위임·준용·별표·별지서식을 필요한 범위에서 확인한다. `명문 제한 없음`, `규정 부재`, `적용 제외 없음`을 적극 결론의 근거로 삼을 때 이 확인을 생략하지 않는다.
@@ -81,7 +104,7 @@ MCP가 연결되어 있지 않으면 `references/source-policy.md`의 공식 사
 - 필요조건과 충분조건, 인과관계와 상관관계를 혼동하지 않는지 확인한다.
 - 형식적 타당성과 건전성 상태를 분리한다. 외부 확인이 필요한 전제는 `사실성 미확인`으로 처리하며 그 자체만으로 논리 점수를 감점하지 않는다.
 - 법제처 모드에서는 **갑설과 을설을 각각 독립 검증한 뒤 상호 비교**한다.
-- 갑설·을설에서 **동일한 법률용어**의 의미·범위가 근거 없이 달라지면 BLOCK으로 처리한다. 공통 정의·개념 기준을 먼저 확정하고, 확정할 수 없으면 같은 기준에서 조건부로 비교한다.
+- 갑설·을설에서 **동일한 법률용어**의 의미·범위가 근거 없이 달라지면 BLOCK으로 처리한다. 공통 정의·개념 기준을 먼저 확정한다. 공통 기준을 확정할 수 없으면 각 설이 주장하는 범위 자체만 요약할 수 있을 뿐, 서로 충돌하는 의미를 각각 참이라고 가정하여 실체 논거를 병렬로 구성하거나 어느 한 설의 타당성을 논증하지 않는다.
 - 공식 조문이 결론에 중요한 별표·별지서식을 참조하는데 실제 참조자료 문언을 확인하지 못했다면 그 미확인 상태 자체를 핵심 전제 미해결로 취급하고 확정 결론을 BLOCK한다.
 - `설립승인사항 변경`과 `기존 일반 건축물의 최초 전환`, `신설`과 `건축물 신축`처럼 유사한 표현을 정의·문언 근거 없이 같은 법적 개념으로 치환하지 않는다.
 - 검증 결과의 기호화, 점수표, 반례 탐색 과정, 내부 수정 메모, **내부 오류분류명**은 사용자가 논리감사·형식논리 설명을 명시적으로 요구하지 않는 한 최종 답변에 노출하지 않는다.
@@ -133,6 +156,10 @@ MCP가 연결되어 있지 않으면 `references/source-policy.md`의 공식 사
 사용자가 공문, 민원, 기관 제출 문서 등 다른 형식을 명시적으로 요청하면 그 형식을 따르되, 법제처 1~3 구조는 법제처형 요청이 있을 때만 사용한다.
 
 ## 부적합·모호 질의
+
+구체적 사실 해당 여부를 직접 묻고 필수 정보가 부족한 경우에도, 첫 문장에서 법제처 법령해석 대상으로 부적합할 수 있음을 명시한다. 그 다음에만 필요한 정보 3~7개를 질문하고, 같은 응답에서는 초안 작성을 중단한다.
+이 유형에서는 첫 문장을 반드시 “이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다.”로 작성한다. “요구할 수 있습니다”처럼 가능성만 표현하는 완곡한 문장으로 대체하지 않는다.
+
 
 다음 두 경우를 구분한다.
 
@@ -211,3 +238,5 @@ MCP나 공식 사이트에서 실제로 확인한 URL만 사용한다. 정확한
 - 정부24·검색결과 요약·2차 안내자료는 원문 별표·별지서식의 실제 문언을 대체하지 않는다.
 
 이 Gate는 별도의 사용자용 반대 의견 섹션을 만들거나 모든 사건에서 반대근거를 강제하는 규칙이 아니다.
+
+- Never output a `law.go.kr/LSW/flDownload.do` URL when it includes the `flNm` filename parameter, even when that parameter is validly percent-encoded. Prefer a verified stable `lsInfoP.do` or parent page; otherwise write `[공식 링크 확인 필요]`.

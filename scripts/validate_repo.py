@@ -23,6 +23,11 @@ ELIGIBILITY = SKILL.parent / "references" / "eligibility-checklist.md"
 EVAL_SCENARIOS = SKILL.parent / "evals" / "scenarios.md"
 EVAL_EXPECTED = SKILL.parent / "evals" / "expected-behavior.md"
 EVAL_V022 = SKILL.parent / "evals" / "v0.2.2-regressions.md"
+REGRESSION_CHECKS = ROOT / "scripts" / "regression_checks.py"
+REGRESSION_ORACLES = ROOT / "scripts" / "regression_oracles.py"
+PLUGIN_INTEGRITY = ROOT / "scripts" / "plugin_integrity.py"
+RELEASE_GATE = ROOT / "scripts" / "run_release_gate.py"
+MACHINE_ORACLES = SKILL.parent / "evals" / "machine-oracles.json"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
 
 REQUIRED_REFERENCES = {
@@ -90,6 +95,13 @@ REQUIRED_V022_SKILL_MARKERS = {
     "건축물 신축",
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
+    "MOLEG suitability correction takes precedence over clarification",
+    "Every percent sign in a final URL must begin a valid percent escape",
+    "URLs with empty query-parameter values are incomplete",
+    "A self-contained legal inference is also an abstract fixture",
+    "미확인 상태 자체를 제공된 전제로 취급한다",
+    "Same-term conflict hard stop",
+    "ASCII execution contract",
     "모든 사용자용 최종 출력은 Markdown",
     "정식 요청서라는 표현이 없어도 일반적인 대한민국 법령 해석·적용 질문이면 사용한다",
     "기본 출력 모드 — 별도 형식 지시가 없을 때",
@@ -112,6 +124,7 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "정보 부족으로 질문만 하고 중단",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
+    "※ 제출 전 확인",
     "사용자가 별도 형식을 명시하지 않으면",
     "기본 4단 법률검토형",
     "A/B/P/Q 같은 추상 법적 논리 시나리오",
@@ -147,6 +160,7 @@ REQUIRED_RENDERING_HARD_GATE_MARKERS = {
     "# 4. 관련 법령 및 자료",
 }
 REQUIRED_ISSUE_MAPPING_MARKERS = {
+    "`확인 필요`는 분석 실패나 자동 질문 전환 신호가 아니라",
     "법적 쟁점 매핑 Gate",
     "주체",
     "행위",
@@ -172,12 +186,20 @@ REQUIRED_COUNTEREVIDENCE_ISSUE_MAPPING_MARKERS = {
     "단순 절차·서식상 분류",
 }
 REQUIRED_ELIGIBILITY_MARKERS = {
+    "형식상 부적합 + 정보 부족 동시 발생",
+    "자족적 법적 논증의 추상 fixture 처리",
+    "추상 fixture의 `확인 필요` 상태",
     "정보 부족과 형식상 부적합을 구분",
     "필수 정보 부족",
     "그 응답에서는 초안 작성을 중단",
+    "추상 fixture 우선 판정",
+    "추상 fixture 우선 판정",
     "형식상 부적합하지만 보정 가능",
 }
 REQUIRED_SOURCE_LINK_MARKERS = {
+    "percent-encoding 무결성 Hard Gate",
+    "빈 query parameter URL Hard Gate",
+    "개정연혁·시행일 정확성 Gate",
     "본문의 자료명 자체에 Markdown 인라인 하이퍼링크를 기본",
     "[표시 텍스트](실제로 확인한 공식 URL)",
     "원문 접근은 본문 인라인 링크를 우선",
@@ -185,6 +207,9 @@ REQUIRED_SOURCE_LINK_MARKERS = {
     "URL provenance Gate",
     "현재 실행 중 실제로 관찰·확인한 URL만",
     "식별자가 비어 있는 URL",
+    "law.go.kr/LSW/flDownload.do",
+    "flDownload.do + flNm",
+    "flNm",
     "끝이 `=`로 끝나는 미완성 query URL",
 }
 REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS = {
@@ -211,11 +236,22 @@ REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS = {
     "실제 문언을 끝내 확인하지 못했으면",
 }
 REQUIRED_AGENT_CONFIG_MARKERS = {
+    "법제처 질의로서 부적합할 수 있음을 먼저 한 문장으로 설명",
+    "모든 `%`는 뒤에 16진수 두 자리",
+    "값이 빈 query parameter",
+    "자족적 법적 논증의 타당성을 묻는 경우",
+    "미확인 상태 자체를 제공된 전제로 보세요",
+    "WINDOWS UTF-8 IO:",
     "allow_implicit_invocation: false",
     "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
     "기본 4단 법률검토형",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
+    "실체 논거를 각각 전개하지 않는다",
+    "동일 용어 상충 전제 Hard Stop",
+    "추상 fixture 방향성 결론 BLOCK",
+    "방향성을 암시하는 표현",
+    "별지의 실제 문언과 그 법적 기능 확인 필요",
     "P → Q",
     "P ∨ Q",
     "¬P",
@@ -286,7 +322,7 @@ REQUIRED_LOGIC_REGRESSION_MARKERS = {
     "추상 기호만 제시한 논리 테스트",
     "임의로 대응시키거나 만들어내지 않는다",
     "가능한 해석 전부",
-    "동일 조문의 동일 용어 `건축물`의 의미가 양 설에서 달라졌다는 점을 BLOCK으로 탐지",
+    "동일 조문의 동일 용어 `건축물`의 의미가 양 설에서 충돌한다는 점을 Hard Stop으로 탐지",
     "추가 질문 없이 기본 4단 Markdown 형식을 사용",
     "내부 기호·분류명은 기본 출력에 노출하지 않는다",
 }
@@ -433,6 +469,26 @@ def is_placeholder(value: str) -> bool:
 
 
 def validate_tracked_secrets() -> None:
+    required_regression_files = (
+        REGRESSION_CHECKS,
+        REGRESSION_ORACLES,
+        PLUGIN_INTEGRITY,
+        RELEASE_GATE,
+        MACHINE_ORACLES,
+    )
+    missing_regression_files = [str(path) for path in required_regression_files if not path.is_file()]
+    if missing_regression_files:
+        fail(f"regression gate files missing: {missing_regression_files}")
+    try:
+        machine_oracles = json.loads(MACHINE_ORACLES.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"machine-oracles.json invalid: {exc}")
+    oracle_cases = machine_oracles.get("cases") if isinstance(machine_oracles, dict) else None
+    if not isinstance(oracle_cases, list) or [item.get("case") for item in oracle_cases] != [f"E{i:02d}" for i in range(1, 43)]:
+        fail("machine-oracles.json must contain ordered E01-E42 cases")
+    if any(not isinstance(item.get("checks"), list) or not item.get("checks") for item in oracle_cases):
+        fail("machine-oracles.json cases must have non-empty checks")
+
     tracked_files = read_tracked_files()
     for relative, file_text in tracked_files:
         if relative == "scripts/validate_repo.py":
