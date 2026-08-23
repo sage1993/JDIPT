@@ -11,9 +11,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Sequence
 
-from scripts.eval_suite import ordered_suite_case_ids
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.eval_suite import ordered_suite_case_ids  # noqa: E402
+
 RUNNER = ROOT / "scripts" / "run_eval_suite.py"
 LEGACY_RUNNER = ROOT / "run_jdipt_full_regression_v4.py"
 AUTHORITY_TEMPORAL_VALIDATOR = ROOT / "scripts" / "validate_authority_temporal_contract.py"
