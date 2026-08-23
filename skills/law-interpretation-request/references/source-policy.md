@@ -133,3 +133,38 @@
 - 잠정 결론을 실제로 제한하는지
 
 별표·별지서식에 제한적으로 보이는 문구가 있다는 이유만으로 상위법에 없는 실체 제한을 자동으로 만들지 않는다. 반대로 본문에 명시적 제한이 없다는 이유만으로 해당 자료의 법적 기능과 위임관계 확인을 생략하지 않는다. 발견된 자료가 실제로 결론을 제한하는지 확인할 수 없으면 그 불확실성을 조건부 결론 또는 `확인 필요`로 관리하고, 존재하지 않는 반대근거를 생성하지 않는다.
+
+## 개정연혁·시행일 정확성 Gate
+
+현행 조문을 확인한 사실과 **해당 문언이 언제 도입되었는지**를 확인한 사실은 구분한다.
+
+- 용어 변경일, 신설일, 시행일, 개정 시점 등 연혁을 최종 답변에 적으려면 현재 조문 페이지만으로 추정하지 않고 국가법령정보센터의 제정·개정문 또는 연혁 자료에서 실제 변경 시점을 확인한다.
+- 현재 조문에 표시된 최신 법령 전체의 시행일을 특정 조문·용어의 변경일로 오인하지 않는다.
+- 사용자의 질문과 결론에 불필요한 개정연혁은 정확히 확인하지 못했으면 생략한다.
+- Golden Case나 과거 법령해석례가 구 용어를 사용하는 경우, 현행 용어와의 관계는 확인된 개정연혁 범위에서만 설명한다.
+
+## 빈 query parameter URL Hard Gate
+
+공식 도구·공식 페이지에서 반환된 문자열이라도 query parameter의 값이 비어 있는 URL은 사용자 최종 출력에 그대로 사용하지 않는다.
+
+- 예: `...?gubun=`, `...?id=&seq=123`, `...?lsiSeq=`처럼 `=` 뒤 값이 비어 있는 parameter가 하나라도 있으면 미완성 URL로 취급한다.
+- 현재 실행에서 빈 parameter를 제거한 정규 URL 자체를 다시 확인하지 않았다면 임의로 URL을 수정해 출력하지 않는다.
+- 같은 자료를 가리키는 완전한 공식 페이지 URL이 현재 실행에서 확인되었다면 그 URL을 사용한다.
+- 완전한 대체 URL을 확인하지 못했으면 링크를 생략하고 `[공식 링크 확인 필요]`로 처리한다.
+- Final Rendering Gate에서 모든 Markdown URL의 query string을 검사하여 값이 빈 parameter가 남아 있으면 해당 링크를 제거하거나 확인된 완전 URL로 다시 렌더링한다.
+
+## percent-encoding 무결성 Hard Gate
+
+최종 Markdown URL의 percent-encoding도 완전성 검사 대상이다.
+
+- URL 안의 모든 `%`는 반드시 뒤에 16진수 두 자리(`0-9`, `A-F`, `a-f`)가 이어지는 정상 percent escape여야 한다.
+- 예: `%EC%8A%B9`은 정상이나 `%EC%승`, `%G1`, `%` 단독은 비정상이다.
+- 공식 검색결과나 도구 응답에서 얻은 URL이라도 최종 출력 과정에서 문자열이 손상되었으면 사용하지 않는다.
+- 손상된 URL을 추측하여 복원하지 않는다. 현재 실행에서 동일 자료의 완전한 공식 URL을 다시 확인한 경우에만 교체한다.
+- 완전한 URL을 다시 확인하지 못하면 링크를 생략하거나 `[공식 링크 확인 필요]`로 처리한다.
+- Final Rendering Gate에서는 빈 query parameter 검사와 함께 invalid percent escape도 검사한다.
+
+## Stable source-link class
+
+- `law.go.kr/LSW/flDownload.do` combined with `flNm` is unstable for user-facing source provenance and is forbidden even when `flNm` is validly percent-encoded. Use a verified `lsInfoP.do` or stable parent page instead.
+Stable source policy forbids the class `flDownload.do + flNm`.
