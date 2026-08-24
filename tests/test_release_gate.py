@@ -66,6 +66,10 @@ def test_suite_sizes_are_reduced_and_core_is_subset():
     assert set(CRITICAL_CASES) <= set(FULL_CASES)
 
 
+def test_release_critical_instability_cases_have_required_repeats():
+    assert REPEAT_CASES == {37: 2, 44: 3, 45: 3}
+
+
 def test_critical_case_requires_h1_pass_except_special_cases():
     assert _single_case_pass(_case_output("PASS"), 36)
     assert _single_case_pass(_case_output("SKIP_SPECIAL_FORMAT"), 2)
@@ -98,7 +102,7 @@ def test_critical_attempts_use_unique_output_directories():
     expected_attempts = sum(REPEAT_CASES.get(case, 1) for case in CRITICAL_CASES)
     assert len(output_dirs) == expected_attempts
     assert len(set(output_dirs)) == expected_attempts
-    assert expected_attempts == 15
+    assert expected_attempts == 19
 
 
 def test_gate_a_failure_stops_before_critical_and_full():
