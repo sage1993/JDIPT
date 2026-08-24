@@ -2,6 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
+AGENT_CONFIG = ROOT / "skills" / "law-interpretation-request" / "agents" / "openai.yaml"
 REFERENCES = ROOT / "skills" / "law-interpretation-request" / "references"
 
 
@@ -21,6 +22,14 @@ def test_analyzable_general_review_with_missing_material_facts_uses_four_h1():
     marker = "검토 가능한 법적 쟁점이 특정되어 있으면 자료 부족만으로 질문-only 모드로 전환하지 않는다"
     assert marker in skill
     assert marker in request_format
+
+
+def test_temporal_lifecycle_without_named_statute_stays_in_general_review_mode():
+    agent_config = _read(AGENT_CONFIG)
+    assert "과거 허가와 후속 변경허가" in agent_config
+    assert "법령명이 특정되지 않았더라도 질문-only로 전환하지 마세요" in agent_config
+    assert "기본 4단 법률검토형" in agent_config
+    assert "확인 필요" in agent_config
 
 
 def test_same_term_conflict_is_completed_conditional_review_not_question_only():
