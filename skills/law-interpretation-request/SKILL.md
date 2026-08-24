@@ -24,11 +24,16 @@ This block is intentionally ASCII-only so its critical rules remain readable eve
 - In abstract fixtures, do not create extra approval requirements, change procedures, registration steps, use-change concepts, organizational/facility/personnel requirements, transitional rules, exceptions, or workaround paths unless supplied.
 - Default completed output uses exactly four H1 headings: `# 1. 질의요지`, `# 2. 검토결론`, `# 3. 검토이유`, `# 4. 관련 법령 및 자료`.
 - Explicit MOLEG request mode uses exactly three H1 headings: `# 1. 질의요지`, `# 2. 해석대상 법령조문 및 관련 법령`, `# 3. 대립되는 의견 및 이유`, followed by a non-H1 `※ 제출 전 확인`.
+- Response mode routing happens before suitability correction or clarification. Distinguish general legal-review mode, explicit MOLEG request mode, question-only mode, and abstract-fixture mode before deciding the output path.
+- General legal-review mode must not be converted into MOLEG suitability correction merely because the user asks about a concrete permit, disposition, building, or other real-world object. If the legal issue can be identified but decisive facts, dates, historical text, or transitional provisions remain unresolved, use the default four-H1 review and lower the conclusion conditionally.
+- MOLEG suitability correction applies only in explicit MOLEG request mode: the user must ask for a MOLEG statutory-interpretation request, MOLEG submission, a question to MOLEG, or the MOLEG 1-3 structure. In that mode, factual/illegality suitability correction may take precedence over drafting.
+- Question-only mode is reserved for inputs so incomplete that the legal issue, target rule, or object of review cannot meaningfully be identified. Missing material facts that prevent a definitive conclusion do not by themselves trigger question-only mode in a general legal review.
+- A same-term conflict hard stop is a completed conditional legal review, not a clarification-only state. Identify the unresolved common meaning criterion, keep substantive superiority unresolved, and render the result in the default four-H1 format.
 - URLs with empty query-parameter values are incomplete even if an official tool returned them. Examples include `...?gubun=`, `...?id=&seq=123`, and `...?lsiSeq=`. Do not output such a URL unless a complete replacement URL was independently verified in the current run. Otherwise omit the link or write `[공식 링크 확인 필요]`.
 - Every percent sign in a final URL must begin a valid percent escape: `%` followed by exactly two hexadecimal digits. A URL containing `%` followed by anything else is malformed and must not be output. Do not repair it by guessing; use only a complete URL re-verified in the current run, otherwise omit the link or write `[공식 링크 확인 필요]`.
 - Immediately before sending the final answer, re-check premise provenance and rendering. If any decisive premise is not traceable to the fixture or a source actually verified in the current run, delete it and re-render.
 
-- MOLEG suitability correction takes precedence over clarification when both apply. If a request directly asks whether a specific real-world object satisfies a legal category, or whether an existing disposition is illegal, first state in one concise sentence that this direct factual/illegality determination may be unsuitable for a MOLEG statutory-interpretation request. Then, if statute text or essential facts are still missing, ask only 3-7 necessary questions and stop. Do not draft the request in that response. Explain that the eventual question should be reframed as the objective meaning, scope, or requirements of the governing provision.
+- In explicit MOLEG request mode, suitability correction takes precedence over clarification when both apply. If that MOLEG request directly asks whether a specific real-world object satisfies a legal category, or whether an existing disposition is illegal, first state in one concise sentence that this direct factual/illegality determination may be unsuitable for a MOLEG statutory-interpretation request. Then, if statute text or essential facts are still missing, ask only 3-7 necessary questions and stop. Do not draft the request in that response. Explain that the eventual question should be reframed as the objective meaning, scope, or requirements of the governing provision.
 
 ## Fail-closed Hard Gates
 
@@ -36,7 +41,7 @@ This block is intentionally ASCII-only so its critical rules remain readable eve
 
 1. **Referenced Source Resolution Hard Gate:** 공식 조문이 결론에 영향을 줄 수 있는 별표·별지서식·부표·부록 등을 직접 참조하면, 그 참조자료의 실제 문언을 확인하거나 `참조자료 확인 실패` 상태로 남겨 조건부 결론으로 낮추기 전에는 확정 결론을 내리지 않는다. 참조 존재만 확인하거나 정부24·검색요약 같은 대체자료만 본 것은 resolution 완료가 아니다.
 2. **Abstract Fixture Closed-World Hard Gate:** 사용자가 가상 법률·가상 시행령·가상 시행규칙 등 추상 fixture만 제공한 경우에는 **사용자가 실제로 제공한 문언·정의·사실만 법적 전제로 사용한다.** `설립`, `신설`, `전환`, `허가`, `승인` 등의 의미를 통상적 의미·일반 법률상식으로 새 정의처럼 채우지 않고, fixture에 없는 `조직`, `시설`, `인력`, `운영체계`, `책임자`, `변경승인`, `등록`, `지정`, `용도변경` 등의 요건·절차를 새로 만들지 않는다. 최종 결론과 검토이유의 각 결정적 전제는 사용자 제공 fixture 또는 현재 실행에서 실제 확인한 자료에 추적 가능해야 하며, 추적되지 않는 전제는 삭제하고 `정의·요건 확인 필요` 또는 조건부 결론으로 낮춘다. 특히 제공되지 않은 별지서식 문언을 가정형 표현으로도 사실처럼 사용하지 않는다.
-3. **Final Rendering Hard Gate:** 정보 부족 질문만 하는 경우를 제외한 기본 모드 최종 답변은 첫 비공백 줄이 반드시 `# 1. 질의요지`여야 하고, 최상위 H1이 정확히 `# 1. 질의요지` → `# 2. 검토결론` → `# 3. 검토이유` → `# 4. 관련 법령 및 자료` 네 개여야 한다. 하나라도 어긋나면 초안을 폐기하고 다시 렌더링한 뒤 같은 검사를 재수행한다.
+3. **Final Rendering Hard Gate:** 아래에서 정의한 좁은 `질문-only 모드`를 제외한 기본 모드 최종 답변은 첫 비공백 줄이 반드시 `# 1. 질의요지`여야 하고, 최상위 H1이 정확히 `# 1. 질의요지` → `# 2. 검토결론` → `# 3. 검토이유` → `# 4. 관련 법령 및 자료` 네 개여야 한다. 결론에 필요한 사실·날짜·경과조치·공통 정의기준이 미확인이라는 이유만으로 이 Gate를 건너뛰지 않는다. 하나라도 어긋나면 초안을 폐기하고 다시 렌더링한 뒤 같은 검사를 재수행한다.
 
 ## 우선순위
 
@@ -46,9 +51,9 @@ This block is intentionally ASCII-only so its critical rules remain readable eve
 
 ## 작업 순서
 
-1. 사용자의 질문·사실관계·요구사항을 분석해 요청 목적과 제출/사용 맥락을 확인한다.
-2. 먼저 `references/eligibility-checklist.md`로 법령해석 대상 적합성을 점검한다.
-3. **법률 실체결론이나 초안을 작성하는 데 필수적인 정보가 없으면 필요한 것만 3~7개 질문하고 그 응답에서는 초안 작성을 중단한다.** 정보 부족 상태에서 기본 4단 초안, 법제처 원문형 초안 또는 권고 보정 초안을 임의로 덧붙이지 않는다. 이미 충분한 정보가 있으면 질문하지 않는다. 다만 A/B/P/Q 같은 추상 논리 시나리오나 가상 법령 fixture의 타당성 검토가 목적이고 제공된 추상 전제 자체를 검토하는 것이 요청의 목적이라면 구체 법령명을 요구하지 말고 추상 상태에서 검증한다. **특히 추상 fixture에서 사용자가 어떤 요건의 상태를 명시적으로 `정보 없음`, `미확인`, `확인 필요`라고 제시한 경우, 그 미확인 상태 자체를 제공된 전제로 취급한다. 이를 필수정보 누락으로 다시 분류해 질문 단계로 전환하지 않고, `충족 / 불충족 / 확인 필요` 중 `확인 필요` 상태를 유지한 채 기본 4단 형식에서 조건부 결론을 작성한다.** **이 경우 추상 시나리오 자체가 검토대상이므로 정보 부족으로 보지 않으며, 사용자가 별도 형식을 지시하지 않았다면 최종 사용자 출력은 기본 4단 H1 형식을 사용한다. 다만 Abstract Fixture Closed-World Hard Gate에 따라 제공되지 않은 정의·요건·절차를 일반론으로 보충해서는 안 된다.**
+1. 사용자의 질문·사실관계·요구사항을 분석해 요청 목적과 제출/사용 맥락을 확인하고, 먼저 **일반 법률검토형 / 명시적 법제처 모드 / 질문-only / 추상 fixture** 중 어느 응답 모드인지 분류한다.
+2. `references/eligibility-checklist.md`를 사용하되, 법제처 제출 적합성 보정은 **명시적 법제처 모드에만** 적용한다. 일반 법률검토형에서는 구체적 사실·처분이 포함되었다는 이유만으로 법제처 부적합 문구를 출력하거나 질문-only로 전환하지 않는다.
+3. 정보 부족 처리 전에 먼저 검토 가능한 법적 쟁점이 구성되는지 판단한다. **검토 가능한 법적 쟁점이 특정되어 있으면 자료 부족만으로 질문-only 모드로 전환하지 않는다.** 일반 법률검토형에서 확정 결론에 필요한 사실·적용 기준시점·개정 전후 조문·경과조치가 미확인인 경우에는 확인된 구조를 분석하고 `확인 필요` 또는 조건부 결론으로 낮춘 기본 4단 형식을 사용한다. **질문-only 모드는 법적 쟁점·대상·규정 중 무엇을 검토해야 하는지조차 구성할 수 없는 경우에만** 사용하며, 필요한 것만 3~7개 질문하고 그 응답에서는 초안 작성을 중단한다. A/B/P/Q 같은 추상 논리 시나리오나 가상 법령 fixture의 타당성 검토가 목적이고 제공된 추상 전제 자체를 검토할 수 있으면 구체 법령명을 요구하지 않는다. 특히 **동일 용어 충돌을 식별한 것 자체가 요청된 법적 관계 검토의 결과**인 경우에는 공통 정의가 미확인이라는 이유로 질문 단계로 전환하지 않고, 충돌 지점·미확인 전제·확정에 필요한 자료를 기본 4단 형식으로 설명한다. 추상 fixture에서 사용자가 어떤 요건의 상태를 `정보 없음`, `미확인`, `확인 필요`라고 제시한 경우에도 그 미확인 상태 자체를 제공된 전제로 취급한다.
 4. 법령·판례·해석례를 인용해야 하면 `references/source-policy.md`에 따라 **공식자료와 현행성을 우선 확인**하고, Korean Law MCP가 사용 가능하면 아래 `MCP 조사 절차`를 따른다.
 5. `references/legal-issue-mapping.md`의 **법적 쟁점 매핑 Gate**에 따라 법적 대상·행위, 법적 정의·분류, 적용 규범 지도, 규정 관계, 사실관계 대입과 **문제 발생 지점**을 내부적으로 특정한다. 둘 이상의 규정이 관련되면 동일 사항의 중복 규율인지, 일반/특별 관계인지, 누적 적용인지, **규율 공백**인지, 서로 다른 규율대상인지 구분한다.
    - 매핑 후 실체결론을 확정하기 전에 Source Completeness / Counterevidence Gate를 적용하여 결론을 제한할 가능성이 있는 관련 하위법령·위임·준용·별표·별지서식을 필요한 범위에서 확인한다. `명문 제한 없음`, `규정 부재`, `적용 제외 없음`을 적극 결론의 근거로 삼을 때 이 확인을 생략하지 않는다.
@@ -61,7 +66,7 @@ This block is intentionally ASCII-only so its critical rules remain readable eve
 10. 논리검증을 통과하거나 미해결 사항이 적절히 조건부 처리된 뒤 출처·현행성·인용을 최종 검증한다.
 11. 아래 `출력 모드 선택` 규칙으로 형식을 결정하고 Markdown 최종 문안을 작성한다. 내부 분석은 결론 확정 전에 세분화해서 수행하되, 사용자 출력은 결론 우선성과 논증 연결성을 위해 필요한 큰 항목만 사용한다.
 12. **최종 Rendering Hard Gate**에서 선택한 출력 모드의 H1 문자열·순서·개수, Answer-first, Output Hygiene, URL provenance를 내부적으로 다시 확인한다. 기본 모드에서는 첫 비공백 줄이 정확히 `# 1. 질의요지`인지까지 확인한다. 추상 fixture에서는 추가로 결론과 검토이유의 결정적 법적 전제가 fixture 문언에 추적되는지 확인한다. 하나라도 어긋나면 현재 초안을 사용자에게 보내지 말고 폐기한 뒤 올바른 구조와 전제 범위로 다시 렌더링하고, 재렌더링 결과에 대해 같은 검사를 처음부터 다시 수행한다.
-13. 말미에 번호 없는 `※ 제출 전 확인`을 붙인다. 단, 3단계에서 정보 부족으로 질문만 하고 중단하는 응답에는 초안용 주의문을 억지로 붙이지 않는다.
+13. 말미에 번호 없는 `※ 제출 전 확인`을 붙인다. 단, 3단계의 좁은 질문-only 모드로 질문만 하고 중단하는 응답에는 초안용 주의문을 억지로 붙이지 않는다.
 
 ## MCP 조사 절차
 
@@ -137,6 +142,8 @@ MCP가 연결되어 있지 않으면 `references/source-policy.md`의 공식 사
 - 검토이유 말미에서는 `따라서` 등의 방식으로 `# 2. 검토결론`과 동일한 결론을 다시 확인하여 논증의 종결점을 명확히 한다.
 - `# 4. 관련 법령 및 자료`에는 실제 검토에 사용한 법령·조문·판례·해석례·행정규칙·공문·첨부자료 등을 정리한다. 공식자료는 실제 확인한 원문 링크를 함께 제시한다. 추상 fixture에서는 제공되지 않은 정의·요건·절차를 `관련 자료`처럼 새로 열거하지 않는다.
 - 자료가 없거나 확인되지 않은 사항은 임의로 만들어 채우지 않고 `확인 필요`, `해당 없음`, `제공되지 않음` 등으로 표시한다.
+- 일반 법률검토형에서 결론을 좌우하는 자료가 미확인이어도 검토 가능한 법적 쟁점과 판단구조가 이미 특정되면 질문-only로 전환하지 않는다. 기본 4단 형식 안에서 미확인 사항과 조건부 결론을 제시한다.
+- 동일 용어 충돌 hard stop이 발생해도 기본 4단 형식을 유지하고, `# 2. 검토결론`에서 실체적 우열을 확정할 수 없음을 먼저 밝힌다.
 - 기본 모드에서 `# 1. 요청취지`, `# 2. 질의 배경 및 사실관계`, `# 3. 관련 법령 및 조문`, `# 4. 해석상 쟁점`, `# 5. 법률검토`, `# 6. 첨부자료`의 구 1~6 구조를 출력하지 않는다.
 
 ### 특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만
@@ -157,14 +164,16 @@ MCP가 연결되어 있지 않으면 `references/source-policy.md`의 공식 사
 
 ## 부적합·모호 질의
 
-구체적 사실 해당 여부를 직접 묻고 필수 정보가 부족한 경우에도, 첫 문장에서 법제처 법령해석 대상으로 부적합할 수 있음을 명시한다. 그 다음에만 필요한 정보 3~7개를 질문하고, 같은 응답에서는 초안 작성을 중단한다.
+법제처 제출 적합성 보정은 **명시적 법제처 모드에만** 적용한다. 일반 법률검토형 요청에서는 구체적 건축물·허가·처분 등 실세계 사실이 포함되었다는 이유만으로 `법제처 법령해석 대상으로 부적합`하다고 출력하지 않는다.
+
+명시적 법제처 모드에서 구체적 사실 해당 여부를 직접 묻고 필수 정보가 부족한 경우에는 첫 문장에서 법제처 법령해석 대상으로 부적합할 수 있음을 명시한다. 그 다음에만 필요한 정보 3~7개를 질문하고, 같은 응답에서는 초안 작성을 중단한다.
 이 유형에서는 첫 문장을 반드시 “이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다.”로 작성한다. “요구할 수 있습니다”처럼 가능성만 표현하는 완곡한 문장으로 대체하지 않는다.
 
+다음 세 경우를 구분한다.
 
-다음 두 경우를 구분한다.
-
-1. **필수 정보 부족:** 법령명·조문·핵심 사실 등 실체결론이나 초안 작성에 필요한 정보가 부족하면 3~7개의 필요한 질문만 하고 그 응답에서는 중단한다. 초안을 병행하지 않는다.
-2. **형식상 부적합하지만 보정 가능한 질의:** 사실과 법적 근거가 충분하지만 구체적 사실판단·처분 위법성 판단 등 법제처 제출 형식상 부적합한 경우에는 **설명 우선 병행형**으로 쓸 수 있다.
+1. **일반 법률검토형 + 미확인 자료:** 법적 쟁점과 판단구조가 특정되어 있으면 4단 형식으로 조건부 검토한다. 날짜·경과조치·조문 버전 등 미확인 사항은 결론의 조건으로 남긴다.
+2. **질문-only 필수 정보 부족:** 규정·쟁점·대상 자체를 구성할 수 없으면 3~7개의 필요한 질문만 하고 그 응답에서는 중단한다. 초안을 병행하지 않는다.
+3. **명시적 법제처 모드에서 형식상 부적합하지만 보정 가능한 질의:** 사실과 법적 근거가 충분하지만 구체적 사실판단·처분 위법성 판단 등 법제처 제출 형식상 부적합한 경우에는 설명 우선 병행형으로 쓸 수 있다.
 
 설명 우선 병행형:
 
