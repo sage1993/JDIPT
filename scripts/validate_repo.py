@@ -95,7 +95,7 @@ REQUIRED_V022_SKILL_MARKERS = {
     "건축물 신축",
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
-    "MOLEG suitability correction takes precedence over clarification",
+    "MOLEG suitability correction applies only in explicit MOLEG request mode",
     "Every percent sign in a final URL must begin a valid percent escape",
     "URLs with empty query-parameter values are incomplete",
     "A self-contained legal inference is also an abstract fixture",
@@ -121,13 +121,13 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "Output Hygiene check",
     "URL provenance check",
     "$law-interpretation-request",
-    "정보 부족으로 질문만 하고 중단",
+    "질문만 하고 그 응답에서는 중단한다",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "※ 제출 전 확인",
     "사용자가 별도 형식을 명시하지 않으면",
     "기본 4단 법률검토형",
-    "A/B/P/Q 같은 추상 법적 논리 시나리오",
+    "추상적인 A/B/P/Q 법적 논리 시나리오",
     "문자열과 순서 그대로",
     "# 1. 질의요지",
     "# 2. 검토결론",

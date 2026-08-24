@@ -55,6 +55,14 @@ def test_known_bad_same_term_fixture_fails_strong_oracle():
     assert any("same_term_conflict_hard_stop" in failure for failure in result["contract_failures"])
 
 
+def test_same_term_oracle_accepts_common_meaning_variant():
+    answer = default_answer(
+        "갑설은 부속시설을 포함하고 을설은 부속시설을 제외하여 동일한 법률용어의 범위를 다르게 정합니다. 공통 의미 기준이 확인되기 전에는 우열을 확정할 수 없습니다."
+    )
+    result = evaluate_case(18, answer)
+    assert result["contract_oracle"] == "PASS"
+    assert result["contract_failures"] == []
+
 def test_known_good_critical_fixture_passes_answer_first_oracle():
     answer = default_answer("소형 주택은 공동주택이고 30세대 본칙이 적용되며 50세대 예외 대상이 아니므로 승인 대상입니다.")
     result = evaluate_case(36, answer)
@@ -123,7 +131,7 @@ def test_v023_temporal_authority_evidence_oracles():
     assert evaluate_case(43, e43)["contract_oracle"] == "PASS"
 
     e44 = default_answer(
-        "허가일, 개정법 시행일, 변경허가 신청일이 확인되지 않았으므로 적용법을 확정할 수 없습니다. 이 날짜와 경과조치를 확인할 필요가 있어 결론은 조건부입니다."
+        "2024년 최초 허가 이후 기준이 개정되었고 변경허가를 준비하는 경우, 허가일·개정법 시행일·변경허가 신청일이 확인되지 않았으므로 적용법을 확정할 수 없습니다. 이 날짜와 경과조치를 확인할 필요가 있어 결론은 조건부입니다."
     )
     assert evaluate_case(44, e44)["contract_oracle"] == "PASS"
 

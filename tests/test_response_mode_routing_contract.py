@@ -46,3 +46,23 @@ def test_question_only_mode_is_reserved_for_unanalyzable_input():
     marker = "질문-only 모드는 법적 쟁점·대상·규정 중 무엇을 검토해야 하는지조차 구성할 수 없는 경우에만"
     assert marker in skill
     assert marker in request_format
+
+def test_agent_default_prompt_stays_within_codex_interface_limit():
+    prompt_line = next(line for line in _read(AGENT_CONFIG).splitlines() if line.startswith("  default_prompt:"))
+    prompt = prompt_line.split(": ", 1)[1].strip().strip('"')
+
+    assert len(prompt.encode('utf-8')) <= 1024
+
+def test_temporal_unknown_without_dates_stays_in_four_h1():
+    skill = _read(SKILL)
+
+    assert '건축허가 후 관련 법 변경과 강화기준의 변경허가 적용 여부' in skill
+    assert '질문-only가 아니라 기본 4단' in skill
+    assert '질문 목록만 출력하면 실패하므로 반드시 네 H1을 렌더링' in skill
+    assert 'always render the default four-H1 review immediately' in skill
+
+def test_authority_versioning_fixture_without_identifiers_stays_in_four_h1():
+    skill = _read(SKILL)
+
+    assert '법제처 해석례·대법원 판결·개정문언의 관계가 제공되면' in skill
+    assert '식별번호가 없어도 기본 4단 추상 검토' in skill

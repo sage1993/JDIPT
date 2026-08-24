@@ -8,7 +8,7 @@ def test_e44_accepts_neutral_fail_closed_wording_with_temporal_lifecycle():
 
 # 2. 검토결론
 
-허가일과 개정 기준의 시행일 및 변경허가 시점이 확인되기 전에는 강화 기준 적용 여부를 단정할 수 없습니다.
+허가일과 개정 기준의 시행일 및 변경허가 시점이 확인되기 전에는 강화 기준 적용 여부를 단정할 수는 없습니다.
 
 # 3. 검토이유
 

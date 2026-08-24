@@ -102,7 +102,7 @@ def _missing_premise(answer: str, case: int) -> tuple[bool, str]:
 
 def _same_term_conflict(answer: str, case: int) -> tuple[bool, str]:
     conflict_terms = ("충돌", "상충", "서로 다른 의미", "의미 자체", "전제 차이", "다르게 설정", "범위를 달리", "외연을 달리", "포함하는 의미", "제외하는 의미")
-    common_terms = ("공통 정의", "공통 기준", "개념 기준", "공통된 개념", "공통 해석 기준", "동일한 용어", "같은 용어", "용어의 범위", "공통 판단기준")
+    common_terms = ("공통 정의", "공통 기준", "공통 의미 기준", "개념 기준", "공통된 개념", "공통 해석 기준", "동일한 용어", "동일한 법률용어", "같은 용어", "용어의 범위", "공통 판단기준")
     premise_conflict = bool(re.search(r"갑설.{0,60}포함.{0,60}을설.{0,60}제외", answer, re.S))
     if not (_contains_any(answer, conflict_terms) or premise_conflict) or not _contains_any(answer, common_terms):
         return _fail("missing same-term conflict and common-definition hard stop")
@@ -161,7 +161,7 @@ def _no_directional_conclusion(answer: str, case: int) -> tuple[bool, str]:
     start = answer.find("# 2. 검토결론")
     end = answer.find("# 3. 검토이유", start + 1) if start >= 0 else -1
     conclusion = answer[start:end] if start >= 0 and end > start else answer
-    if not _contains_any(conclusion, ("조건부", "확인 필요", "확정할 수 없", "확정할 수는 없", "단정할 수 없", "확정하기 어렵")):
+    if not _contains_any(conclusion, ("조건부", "확인 필요", "확정할 수 없", "확정할 수는 없", "단정할 수 없", "단정할 수는 없", "확정하기 어렵")):
         return _fail("unresolved abstract fixture lacks a conditional/neutral conclusion")
     if _contains_any(conclusion, ("가능합니다", "불가능합니다", "반드시 가능", "반드시 불가")):
         return _fail("unresolved abstract fixture received a directional conclusion")

@@ -57,7 +57,7 @@ CONTRACTS: dict[Path, tuple[str, ...]] = {
         '"E45"',
         '"E46"',
         '"temporal_lifecycle"',
-        '"temporal_unknown"',
+        '"no_directional_abstract_conclusion"',
         '"authority_versioning"',
         '"claim_inference_separation"',
     ),
