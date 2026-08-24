@@ -32,7 +32,7 @@ PYTHON_FILES = [
 ]
 CRITICAL_CASES = tuple(ordered_suite_case_ids("core"))
 FULL_CASES = tuple(ordered_suite_case_ids("full"))
-REPEAT_CASES = {37: 2}
+REPEAT_CASES = {37: 2, 44: 3, 45: 3}
 DEFAULT_REGRESSION_MODEL = "gpt-5.6-luna"
 
 
