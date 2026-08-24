@@ -79,10 +79,38 @@ python scripts/run_release_gate.py --full
 
 ```text
 A. deterministic
-→ B. Core stability (14 cases, E37만 2회)
-→ C. Full active (26 cases)
+→ B. Core stability
+→ C. Full active (26 cases, single run must be 26/26)
 → D. package/static
 ```
+
+### Gate B 반복 정책
+
+LLM 출력 변동성이 실제로 관측된 release-critical case는 단일 성공으로 안정성이 입증된 것으로 보지 않는다.
+
+현재 반복 횟수는 `scripts/run_release_gate.py`의 `REPEAT_CASES`가 단일 원본이다.
+
+- E37: 2회
+- E44: 3회 — material date 미확인 상태에서 질문-only로 흔들리지 않는지 검증
+- E45: 3회 — 법제처 해석과 대법원 판결의 법적 기능·구속력 차이를 안정적으로 구분하는지 검증
+- 나머지 Core case: 1회
+
+따라서 현재 Gate B는 Core 14개에 대해 총 19회 LLM 실행을 수행한다. 각 실행은 process, 환경오류, H1 또는 특수 형식, hygiene, URL, contract oracle을 모두 통과해야 한다.
+
+### 최종 release acceptance
+
+Targeted 재실행 성공만으로 Full 실패를 덮지 않는다. Release-ready 판정에는 다음을 모두 요구한다.
+
+```text
+A deterministic: PASS
+B Core stability: PASS
+  - E44 3/3
+  - E45 3/3
+C Full active single run: 26/26
+D package/static: PASS
+```
+
+Oracle이 실제 의미상 동등한 표현을 놓친 false negative는 fixture를 추가하고 oracle을 수정한 뒤 기존 계약을 약화하지 않는 방식으로 처리한다. 반면 동일 입력에서 실제 계약 준수 여부가 달라지는 경우는 모델 변동성으로 보고 Gate B 반복 대상으로 관리한다.
 
 ## Legacy 정책
 
