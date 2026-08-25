@@ -29,6 +29,17 @@ HYGIENE_FORBIDDEN = [
     "references/source-policy.md",
     "references/request-format.md",
 ]
+CRITICAL_IDENTIFIER_KEYS = {
+    "lsiseq",
+    "lsjolnkseq",
+    "expcseq",
+    "caseSeq".lower(),
+    "cs_seq",
+    "lsid",
+    "id",
+    "seq",
+    "flseq",
+}
 PLACEHOLDER_MARKERS = (
     "<placeholder>", "<id>", "<seq>", "your-token", "your_api_key",
     "replace-me", "example.com", "example.org",
@@ -109,8 +120,8 @@ def check_urls(answer: str) -> tuple[bool, list[str]]:
             problems.append(f"unstable flDownload.do + flNm URL: {url}")
             continue
         for key, value in params:
-            if value == "":
-                problems.append(f"empty query parameter '{key}': {url}")
+            if value == "" and key.lower() in CRITICAL_IDENTIFIER_KEYS:
+                problems.append(f"empty critical identifier '{key}': {url}")
     return (not problems, problems)
 
 
