@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
 
 import run_jdipt_full_regression_v4 as legacy  # noqa: E402
 from scripts.eval_suite import ordered_suite_case_ids  # noqa: E402
+from scripts.regression_checks import detect_environment_error  # noqa: E402
 
 EVAL_DIR = ROOT / "skills" / "law-interpretation-request" / "evals"
 CATALOG_FILES = (
@@ -58,6 +59,20 @@ def select_case_ids(*, suite: str, from_case: int | None, to_case: int | None) -
     if not (1 <= from_case <= to_case <= 46):
         raise SystemExit("case range must satisfy 1 <= from-case <= to-case <= 46")
     return list(range(from_case, to_case + 1))
+
+
+def _promote_answer_environment_error(result: legacy.Result, out_dir: Path) -> None:
+    """Treat explicit Skill-unavailable final answers as runtime failures, not behavior samples."""
+    if result.environment_error is not None:
+        return
+    answer_path = out_dir / result.answer_file
+    if not answer_path.is_file():
+        return
+    detected = detect_environment_error(answer_path.read_text(encoding="utf-8"))
+    if detected is None:
+        return
+    result.environment_error = detected
+    result.process_ok = False
 
 
 def main() -> int:
@@ -139,6 +154,7 @@ def main() -> int:
             args.model,
             args.unsafe_bypass_sandbox,
         )
+        _promote_answer_environment_error(result, out_dir)
         results.append(result)
         status = "OK" if result.process_ok else ("ENV_ERROR" if result.environment_error else "ERROR")
         print(
