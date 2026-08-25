@@ -44,12 +44,20 @@ def test_detect_environment_error_reports_failed_skill_read(checks):
     assert checks.detect_environment_error(log_text) == "JDIPT SKILL.md could not be read during this case"
 
 
+def test_detect_environment_error_reports_explicit_skill_unavailable_response(checks):
+    log_text = (
+        "현재 세션에서 `$law-interpretation-request` 원문을 사용할 수 없고, "
+        "사건·법률 식별정보도 없어 실체 판단을 작성할 수 없습니다."
+    )
+
+    assert checks.detect_environment_error(log_text) == "JDIPT explicit Skill invocation was unavailable during this case"
 
 
 def test_detect_environment_error_reports_codex_usage_limit(checks):
     log_text = "ERROR: You've hit your usage limit. Upgrade to Pro or try again later."
 
     assert checks.detect_environment_error(log_text) == "Codex usage limit prevented regression execution"
+
 
 def test_check_urls_rejects_invalid_percent_escape(checks):
     answer = read_fixture("e37_invalid_percent.md")
