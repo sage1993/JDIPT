@@ -74,7 +74,7 @@ def test_authority_versioning_fixture_without_identifiers_stays_in_four_h1():
 def test_agent_prompt_hardens_temporal_unknown_rendering():
     agent_config = _read(AGENT_CONFIG)
 
-    assert "확인질문으로 시작하지 마세요" in agent_config
+    assert "확인질문으로 시작하지 말고" in agent_config
     for heading in (
         "# 1. 질의요지",
         "# 2. 검토결론",
@@ -82,12 +82,20 @@ def test_agent_prompt_hardens_temporal_unknown_rendering():
         "# 4. 관련 법령 및 자료",
     ):
         assert heading in agent_config
-    assert "최초 허가와 변경허가를 분리" in agent_config
-    assert "시행일·경과조치는 `확인 필요`" in agent_config
+    assert "최초 허가·변경허가를 분리" in agent_config
+    assert "시행일·경과조치·변경범위 미확인" in agent_config
 
 
 def test_agent_prompt_hardens_authority_legal_effect_distinction():
     agent_config = _read(AGENT_CONFIG)
 
-    assert "행정부 해석과 사법판단의 기능·구속력 차이" in agent_config
-    assert "구법·개정법 문언을 구분" in agent_config
+    assert "행정부 해석·사법판단의 기능·구속력 차이" in agent_config
+    assert "구법·개정법 문언" in agent_config
+
+
+def test_agent_prompt_rejects_blank_query_urls_and_internal_metadata():
+    agent_config = _read(AGENT_CONFIG)
+
+    assert "빈 query 값(`x=`)" in agent_config
+    assert "[공식 링크 확인 필요]" in agent_config
+    assert "Skill/Plugin 이름·상태·경로를 출력하지" in agent_config
