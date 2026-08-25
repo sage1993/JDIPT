@@ -39,6 +39,7 @@ PLACEHOLDER_MARKERS = (
 URL_RE = re.compile(r"https?://[^\s<>()\]]+", re.IGNORECASE)
 INVALID_PERCENT_RE = re.compile(r"%(?![0-9A-Fa-f]{2})")
 SKILL_READ_FAILURE = "JDIPT SKILL.md could not be read during this case"
+EXPLICIT_SKILL_UNAVAILABLE = "JDIPT explicit Skill invocation was unavailable during this case"
 
 
 def first_nonblank_line(answer: str) -> str | None:
@@ -142,12 +143,23 @@ def detect_skill_read_status(log_text: str) -> str:
 
 
 def detect_environment_error(log_text: str) -> str | None:
+    lower = log_text.lower()
     status = detect_skill_read_status(log_text)
     if status == "failure":
         return SKILL_READ_FAILURE
+    if re.search(
+        r"\$law-interpretation-request[^\n]{0,100}(?:사용할 수 없|이용할 수 없|접근할 수 없|unavailable|not available|cannot access|can't access)",
+        lower,
+    ):
+        return EXPLICIT_SKILL_UNAVAILABLE
+    if re.search(
+        r"(?:사용할 수 없|이용할 수 없|접근할 수 없|unavailable|not available|cannot access|can't access)[^\n]{0,100}\$law-interpretation-request",
+        lower,
+    ):
+        return EXPLICIT_SKILL_UNAVAILABLE
     if status == "success":
         return None
-    if "hit your usage limit" in log_text.lower():
+    if "hit your usage limit" in lower:
         return "Codex usage limit prevented regression execution"
     if any(marker in log_text for marker in (
         "apply deny-read ACLs", "Failed to create unified exec process", "helper_unknown_error"
