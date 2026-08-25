@@ -79,7 +79,7 @@ def test_check_urls_rejects_flNm_download_even_when_percent_encoded(checks):
     assert any("flNm" in problem or "flDownload" in problem or "download" in problem.lower() for problem in problems)
 
 
-def test_check_urls_allows_stable_law_page_and_blank_search_state(checks):
+def test_check_urls_allows_stable_law_page_and_rejects_blank_search_state(checks):
     answer = read_fixture("url_valid_law_page.md")
     stable_line = line_containing(answer, "lsInfoP.do?lsiSeq=287405")
     blank_search_state_line = line_containing(answer, "keyField=&keyWord=")
@@ -89,8 +89,9 @@ def test_check_urls_allows_stable_law_page_and_blank_search_state(checks):
 
     assert stable_ok is True
     assert stable_problems == []
-    assert blank_ok is True
-    assert blank_problems == []
+    assert blank_ok is False
+    assert blank_problems
+    assert any("empty" in problem.lower() or "blank" in problem.lower() for problem in blank_problems)
 
 
 def test_check_urls_rejects_critical_blank_identifier_query(checks):
