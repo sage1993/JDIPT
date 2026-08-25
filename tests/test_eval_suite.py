@@ -1,4 +1,5 @@
 from scripts.eval_suite import load_suite_manifest, suite_case_ids
+from scripts import run_eval_suite
 from scripts.run_eval_suite import load_catalog, select_case_ids
 
 
@@ -58,3 +59,8 @@ def test_runner_defaults_to_manifest_full_suite():
 def test_targeted_range_overrides_suite_selection():
     selected = select_case_ids(suite="core", from_case=43, to_case=46)
     assert selected == [43, 44, 45, 46]
+
+
+def test_consolidated_runner_requires_marketplace_plugin_identity():
+    assert run_eval_suite.REQUIRED_PLUGIN_ID == "jdipt@sage1993"
+    assert run_eval_suite.legacy.REQUIRED_PLUGIN_ID == "jdipt@sage1993"
