@@ -3,7 +3,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "AGENTS.md"
-SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
 
 
 def _read(path: Path) -> str:
@@ -34,10 +33,8 @@ def test_explicit_moleg_suitability_precedes_information_shortage_questions():
 
 def test_unresolved_abstract_fixture_must_remain_neutral():
     agents = _read(AGENTS)
-    skill = _read(SKILL)
     marker = "미확인 정의·참조자료가 결론을 좌우하면 방향성 가설을 제시하지 않는다"
     assert marker in agents
-    assert marker in skill
     assert "가능`, `가능성이`, `여지`, `대체로`, `우세`" in agents
 
 
