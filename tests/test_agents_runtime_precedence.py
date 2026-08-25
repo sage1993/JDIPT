@@ -1,0 +1,48 @@
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+AGENTS = ROOT / "AGENTS.md"
+SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
+
+
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def test_explicit_skill_invocation_reads_skill_before_mode_decision():
+    agents = _read(AGENTS)
+    assert "$law-interpretation-request" in agents
+    assert "응답 모드나 정보 부족 여부를 판단하기 전에" in agents
+    assert "SKILL.md를 먼저 읽는다" in agents
+
+
+def test_general_review_information_shortage_does_not_force_questions_only():
+    agents = _read(AGENTS)
+    assert "일반 법률검토형에서 법적 쟁점과 검토대상 행위·상태·관계가 식별되면" in agents
+    assert "질문-only로 전환하지 않는다" in agents
+    assert "법령명·조문·정확한 날짜·경과조치가 미확인" in agents
+    assert "조건부 결론" in agents
+    assert "법령명·조문·핵심 사실 등 실체결론 또는 초안 작성에 필수적인 정보가 부족하면 필요한 질문 3~7개만" not in agents
+
+
+def test_explicit_moleg_suitability_precedes_information_shortage_questions():
+    agents = _read(AGENTS)
+    assert "명시적 법제처 모드에서는 제출 적합성 보정이 정보 부족 질문보다 먼저" in agents
+    assert "이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다." in agents
+
+
+def test_unresolved_abstract_fixture_must_remain_neutral():
+    agents = _read(AGENTS)
+    skill = _read(SKILL)
+    marker = "미확인 정의·참조자료가 결론을 좌우하면 방향성 가설을 제시하지 않는다"
+    assert marker in agents
+    assert marker in skill
+    assert "가능`, `가능성이`, `여지`, `대체로`, `우세`" in agents
+
+
+def test_verified_unicode_url_is_not_manually_reencoded():
+    agents = _read(AGENTS)
+    assert "관찰한 URL 문자열을 그대로 사용" in agents
+    assert "직접 percent-encoding하거나 경로를 재조합하지 않는다" in agents
+    assert "혼합 인코딩 URL" in agents
