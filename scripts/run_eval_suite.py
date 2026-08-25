@@ -18,6 +18,9 @@ import run_jdipt_full_regression_v4 as legacy  # noqa: E402
 from scripts.eval_suite import ordered_suite_case_ids  # noqa: E402
 from scripts.regression_checks import detect_environment_error  # noqa: E402
 
+REQUIRED_PLUGIN_ID = "jdipt@sage1993"
+legacy.REQUIRED_PLUGIN_ID = REQUIRED_PLUGIN_ID
+
 EVAL_DIR = ROOT / "skills" / "law-interpretation-request" / "evals"
 CATALOG_FILES = (
     EVAL_DIR / "scenarios.md",
