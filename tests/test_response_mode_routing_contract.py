@@ -28,7 +28,7 @@ def test_temporal_lifecycle_without_named_statute_stays_in_general_review_mode()
     agent_config = _read(AGENT_CONFIG)
     assert "과거 허가와 후속 변경허가" in agent_config
     assert "법령명이 특정되지 않았더라도 질문-only로 전환하지 마세요" in agent_config
-    assert "기본 4단 법률검토형" in agent_config
+    assert "일반 법률검토형" in agent_config
     assert "확인 필요" in agent_config
 
 
@@ -74,9 +74,16 @@ def test_authority_versioning_fixture_without_identifiers_stays_in_four_h1():
 def test_agent_prompt_hardens_temporal_unknown_rendering():
     agent_config = _read(AGENT_CONFIG)
 
-    assert "첫 줄 `# 1. 질의요지`부터 네 H1" in agent_config
+    assert "확인질문으로 시작하지 마세요" in agent_config
+    for heading in (
+        "# 1. 질의요지",
+        "# 2. 검토결론",
+        "# 3. 검토이유",
+        "# 4. 관련 법령 및 자료",
+    ):
+        assert heading in agent_config
     assert "최초 허가와 변경허가를 분리" in agent_config
-    assert "시행일·경과조치는 확인 필요" in agent_config
+    assert "시행일·경과조치는 `확인 필요`" in agent_config
 
 
 def test_agent_prompt_hardens_authority_legal_effect_distinction():
