@@ -241,10 +241,12 @@ REQUIRED_AGENT_CONFIG_MARKERS = {
     "값이 빈 query parameter",
     "자족적 법적 논증의 타당성을 묻는 경우",
     "미확인 상태 자체를 제공된 전제로 보세요",
-    "WINDOWS UTF-8 IO:",
+    "모드를 먼저 확정하세요",
+    "과거 건축허가→법 개정→후속 변경허가",
+    "질문-only·확인질문으로 시작하지 말고",
+    "URL은 검증된 것만 쓰고 빈 query 값",
     "allow_implicit_invocation: false",
     "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
-    "기본 4단 법률검토형",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "실체 논거를 각각 전개하지 않는다",
