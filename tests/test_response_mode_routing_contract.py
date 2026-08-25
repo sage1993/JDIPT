@@ -26,9 +26,8 @@ def test_analyzable_general_review_with_missing_material_facts_uses_four_h1():
 
 def test_temporal_lifecycle_without_named_statute_stays_in_general_review_mode():
     agent_config = _read(AGENT_CONFIG)
-    assert "과거 허가와 후속 변경허가" in agent_config
-    assert "법령명이 특정되지 않았더라도 질문-only로 전환하지 마세요" in agent_config
-    assert "일반 법률검토형" in agent_config
+    assert "건축허가→법 개정→변경허가" in agent_config
+    assert "일반 법률검토형은 질문-only 금지" in agent_config
     assert "확인 필요" in agent_config
 
 
@@ -71,10 +70,19 @@ def test_authority_versioning_fixture_without_identifiers_stays_in_four_h1():
     assert "식별번호가 없어도 기본 4단 추상 검토" in skill
 
 
+def test_agent_prompt_routes_general_review_before_information_shortage():
+    agent_config = _read(AGENT_CONFIG)
+
+    assert "일반 법률검토형은 질문-only 금지" in agent_config
+    assert "`검토해줘`·`적용되는지`" in agent_config
+    assert "법적 사실·행위가 있으면" in agent_config
+    assert "`이 규정 해석 질의서 써줘`" in agent_config
+    assert "쟁점·사실·규정이 모두 없는 요청" in agent_config
+
+
 def test_agent_prompt_hardens_temporal_unknown_rendering():
     agent_config = _read(AGENT_CONFIG)
 
-    assert "확인질문으로 시작하지 말고" in agent_config
     for heading in (
         "# 1. 질의요지",
         "# 2. 검토결론",
@@ -83,19 +91,26 @@ def test_agent_prompt_hardens_temporal_unknown_rendering():
     ):
         assert heading in agent_config
     assert "최초 허가·변경허가를 분리" in agent_config
-    assert "시행일·경과조치·변경범위 미확인" in agent_config
+    assert "시행일·경과조치·변경범위" in agent_config
 
 
 def test_agent_prompt_hardens_authority_legal_effect_distinction():
     agent_config = _read(AGENT_CONFIG)
 
-    assert "행정부 해석·사법판단의 기능·구속력 차이" in agent_config
+    assert "법제처 해석례·대법원" in agent_config
+    assert "기능·구속력" in agent_config
     assert "구법·개정법 문언" in agent_config
 
 
-def test_agent_prompt_rejects_blank_query_urls_and_internal_metadata():
+def test_agent_prompt_rejects_only_materially_incomplete_urls():
     agent_config = _read(AGENT_CONFIG)
 
-    assert "빈 query 값(`x=`)" in agent_config
-    assert "[공식 링크 확인 필요]" in agent_config
-    assert "Skill/Plugin 이름·상태·경로를 출력하지" in agent_config
+    assert "URL 끝이 `=`" in agent_config
+    assert "핵심 식별자" in agent_config
+    assert "빈 query 값(`x=`)" not in agent_config
+
+
+def test_agent_prompt_hides_internal_metadata():
+    agent_config = _read(AGENT_CONFIG)
+
+    assert "내부 Skill/Plugin 정보" in agent_config
