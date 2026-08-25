@@ -33,6 +33,7 @@ PYTHON_FILES = [
 CRITICAL_CASES = tuple(ordered_suite_case_ids("core"))
 FULL_CASES = tuple(ordered_suite_case_ids("full"))
 REPEAT_CASES = {37: 2, 44: 3, 45: 3}
+MAX_ENVIRONMENT_RETRIES = 2
 DEFAULT_REGRESSION_MODEL = "gpt-5.6-luna"
 
 
@@ -140,6 +141,10 @@ def _single_case_pass(output: str, case_number: int) -> bool:
     return all(re.search(pattern, output) for pattern in expected)
 
 
+def _single_case_environment_error(output: str) -> bool:
+    return bool(re.search(r"environment_errors:\s*1/1", output))
+
+
 def critical_stability_gate(
     *,
     codex: str | None = None,
@@ -151,20 +156,34 @@ def critical_stability_gate(
     run_id = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     for case_number in CRITICAL_CASES:
         for attempt in range(1, REPEAT_CASES.get(case_number, 1) + 1):
-            output_dir = ROOT / "regression-results" / "core-stability" / run_id / f"E{case_number:02d}-attempt{attempt}"
-            result = command_runner(
-                _runner_command(
-                    codex=codex,
-                    installed_skill_root=installed_skill_root,
-                    from_case=case_number,
-                    to_case=case_number,
-                    output_dir=output_dir,
-                    model=model,
-                    suite="core",
+            env_retry = 0
+            while True:
+                suffix = f"E{case_number:02d}-attempt{attempt}"
+                if env_retry:
+                    suffix += f"-envretry{env_retry}"
+                output_dir = ROOT / "regression-results" / "core-stability" / run_id / suffix
+                result = command_runner(
+                    _runner_command(
+                        codex=codex,
+                        installed_skill_root=installed_skill_root,
+                        from_case=case_number,
+                        to_case=case_number,
+                        output_dir=output_dir,
+                        model=model,
+                        suite="core",
+                    )
                 )
-            )
-            if result.returncode != 0 or not _single_case_pass(result.output, case_number):
-                failures.append(f"E{case_number:02d} attempt {attempt}: critical output did not pass")
+                if _single_case_environment_error(result.output):
+                    if env_retry < MAX_ENVIRONMENT_RETRIES:
+                        env_retry += 1
+                        continue
+                    failures.append(
+                        f"E{case_number:02d} attempt {attempt}: environment retries exhausted"
+                    )
+                    break
+                if result.returncode != 0 or not _single_case_pass(result.output, case_number):
+                    failures.append(f"E{case_number:02d} attempt {attempt}: critical output did not pass")
+                break
     return GateResult("B: core stability", not failures, tuple(failures))
 
 
