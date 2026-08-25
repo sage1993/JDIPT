@@ -10,16 +10,12 @@ def test_output_marker_matches_current_moleg_routing_contract():
     assert "정보 부족으로 질문만 하고 중단" not in markers
 
 
-def test_agent_config_markers_match_current_runtime_prompt_contract():
+def test_agent_config_markers_are_stable_semantic_contracts():
     markers = validate_repo.REQUIRED_AGENT_CONFIG_MARKERS
 
     assert "모드를 먼저 확정하세요" in markers
-    assert "일반 법률검토형은 질문-only 금지" in markers
-    assert "`검토해줘`·`적용되는지`" in markers
-    assert "건축허가→법 개정→변경허가" in markers
-    assert "쟁점·사실·규정이 모두 없는 요청" in markers
-    assert "URL 끝이 `=`" in markers
-    assert "핵심 식별자" in markers
+    assert "과거 건축허가→법 개정→후속 변경허가" in markers
+    assert "질문-only·확인질문으로 시작하지 말고" in markers
+    assert "URL은 검증된 것만 쓰고 빈 query 값" in markers
     assert "WINDOWS UTF-8 IO:" not in markers
     assert "기본 4단 법률검토형" not in markers
-    assert "빈 query 값" not in markers
