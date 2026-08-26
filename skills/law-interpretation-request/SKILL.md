@@ -13,6 +13,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 
 - General legal-review mode comes first. General legal-review mode must not be converted into MOLEG suitability correction or question-only merely because material facts are missing. If a legal issue and object/action can be identified, missing statute names, exact dates, historical text, or transitional provisions do not justify question-only mode. Render the default four-H1 review and lower the conclusion conditionally.
 - Concrete temporal routing hard stop: if the user says a permit existed, the law or standard later changed, and a later modification/change permit is being prepared or requested, do not ask questions first. Separate the original permit and later change action, mark effective dates/transitional provisions/change scope as `확인 필요`, and always render the default four-H1 review immediately.
+- Temporal unknown neutrality hard stop: **조건부 결론은 확률적 우세 판단이 아니다**. If a permit date, amendment effective date, modification application/disposition date, transitional provision, or change scope that can alter old/new-law selection is unresolved, do not say one branch is more likely. Do not use `가능성이 크`, `가능성이 높`, `대체로`, `통상`, `원칙적으로 신법`, `적용될 것으로 보`. State the competing if/then branches neutrally and say **어느 분기가 성립하는지는 현재 판단할 수 없다** until the material dates/transitional provisions/change scope are verified.
 - Authority comparison hard stop: when 법제처 해석례 and 대법원 판결 are compared, explicitly distinguish 법제처 해석례 as 행정부의 공식 해석 from 대법원 판결 as 사법적 판단, and state that 법제처 해석례를 법원 확정판결과 같은 법적 구속력으로 취급하지 않는다. Compare the statutory versions and material wording before carrying an older interpretation forward.
 - Abstract or fictional fixtures are closed-world inputs. A self-contained legal inference is also an abstract fixture. Use only supplied premises and sources actually verified in the current run.
 - Same-term conflict hard stop: if competing views use the same legal term with different scopes without a supplied or verified common definition, identify the inconsistency and keep the substantive conclusion unresolved. 동일 용어 충돌을 식별한 것 자체가 요청된 법적 관계 검토의 결과일 수 있다.
@@ -36,6 +37,8 @@ This block is the runtime priority contract. Apply it before clarification, sour
 **검토 가능한 법적 쟁점이 특정되어 있으면 자료 부족만으로 질문-only 모드로 전환하지 않는다.** 법령명·정확한 날짜·개정 전후 문언·경과조치가 미확인이어도 확인된 구조를 분석하고 `확인 필요` 또는 조건부 결론으로 낮춘다.
 
 건축허가 후 관련 법 변경과 강화기준의 변경허가 적용 여부가 제시되면 법령명·허가일·시행일·신청일이 미확인해도 쟁점이 특정된 것이므로 **질문-only가 아니라 기본 4단** 형식으로 검토한다. 질문 목록만 출력하면 실패하므로 반드시 네 H1을 렌더링한다. **Temporal routing hard stop**에 따라 최초 허가와 변경허가를 분리하고 시행일·경과조치·변경범위를 `확인 필요`로 둔다.
+
+이 temporal unknown 상태에서 **조건부 결론은 확률적 우세 판단이 아니다**. 허가일·개정법 시행일·변경허가 신청/처분일·경과조치·변경범위 중 미확인 사항이 어느 법령 버전이 적용되는지를 바꿀 수 있으면 `가능성이 크`, `가능성이 높`, `대체로`, `통상`, `원칙적으로 신법`, `적용될 것으로 보` 같은 방향성 표현을 쓰지 않는다. `경과조치가 종전 규정 적용을 정하면 종전 기준`, `신법 적용요건이 충족되고 경과조치가 없으면 신법 기준`처럼 조건 분기를 대칭적으로 제시하고 **어느 분기가 성립하는지는 현재 판단할 수 없다**고 명시한다.
 
 ### 질문-only 모드
 
