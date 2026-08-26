@@ -63,6 +63,7 @@ def test_same_term_oracle_accepts_common_meaning_variant():
     assert result["contract_oracle"] == "PASS"
     assert result["contract_failures"] == []
 
+
 def test_known_good_critical_fixture_passes_answer_first_oracle():
     answer = default_answer("소형 주택은 공동주택이고 30세대 본칙이 적용되며 50세대 예외 대상이 아니므로 승인 대상입니다.")
     result = evaluate_case(36, answer)
@@ -122,6 +123,19 @@ def test_live_language_variants_satisfy_strong_oracles():
         "제공된 규정만으로는 신축이 승인요건이라고 볼 수 없습니다. 다만 별지의 신설·증설 구분의 법적 기능이 확인되지 않아 기존 건축물의 승인 가능 여부를 확정할 수는 없습니다."
     )
     assert evaluate_case(39, e39)["contract_oracle"] == "PASS"
+
+
+def test_e39_directional_support_or_adverse_language_fails():
+    supportive = default_answer(
+        "별지의 신설·증설 의미는 확인 필요하여 승인 여부를 확정할 수 없습니다. 다만 법률에 신축 제한이 없다는 점은 승인 가능성을 뒷받침합니다."
+    )
+    adverse = default_answer(
+        "별지의 신설·증설 의미는 확인 필요하여 승인 여부를 확정할 수 없습니다. 기존 건축물은 신설로 보기 어려워 승인받기 어렵습니다."
+    )
+    for answer in (supportive, adverse):
+        result = evaluate_case(39, answer)
+        assert result["contract_oracle"] == "FAIL"
+        assert any("no_directional_abstract_conclusion" in failure for failure in result["contract_failures"])
 
 
 def test_v023_temporal_authority_evidence_oracles():
