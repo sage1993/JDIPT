@@ -14,6 +14,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - General legal-review mode comes first. General legal-review mode must not be converted into MOLEG suitability correction or question-only merely because material facts are missing. If a legal issue and object/action can be identified, missing statute names, exact dates, historical text, or transitional provisions do not justify question-only mode. Render the default four-H1 review and lower the conclusion conditionally.
 - Concrete temporal routing hard stop: if the user says a permit existed, the law or standard later changed, and a later modification/change permit is being prepared or requested, do not ask questions first. Separate the original permit and later change action, mark effective dates/transitional provisions/change scope as `확인 필요`, and always render the default four-H1 review immediately.
 - Temporal unknown neutrality hard stop: **조건부 결론은 확률적 우세 판단이 아니다**. If a permit date, amendment effective date, modification application/disposition date, transitional provision, or change scope that can alter old/new-law selection is unresolved, do not say one branch is more likely. Do not use `가능성이 크`, `가능성이 높`, `대체로`, `통상`, `원칙적으로 신법`, `적용될 것으로 보`. State the competing if/then branches neutrally and say **어느 분기가 성립하는지는 현재 판단할 수 없다** until the material dates/transitional provisions/change scope are verified.
+- Abstract source-form neutrality hard stop: **미확인 `신설 / 증설` 의미는 승인 방향을 지지하거나 반박하는 근거가 아니다**. Until the meaning, legal function, delegation basis, and relationship to the parent rule are resolved, the outcome sentence is **현재 전제만으로 승인 가능 여부를 판단할 수 없다**. Do not use `승인 가능성을 뒷받침`, `승인 가능성이 높`, `승인받기 어렵`, `승인 가능성은 열려`.
 - Authority comparison hard stop: when 법제처 해석례 and 대법원 판결 are compared, explicitly distinguish 법제처 해석례 as 행정부의 공식 해석 from 대법원 판결 as 사법적 판단, and state that 법제처 해석례를 법원 확정판결과 같은 법적 구속력으로 취급하지 않는다. Compare the statutory versions and material wording before carrying an older interpretation forward.
 - Abstract or fictional fixtures are closed-world inputs. A self-contained legal inference is also an abstract fixture. Use only supplied premises and sources actually verified in the current run.
 - Same-term conflict hard stop: if competing views use the same legal term with different scopes without a supplied or verified common definition, identify the inconsistency and keep the substantive conclusion unresolved. 동일 용어 충돌을 식별한 것 자체가 요청된 법적 관계 검토의 결과일 수 있다.
@@ -24,6 +25,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - Explicit MOLEG request mode uses exactly three H1 headings: `# 1. 질의요지`, `# 2. 해석대상 법령조문 및 관련 법령`, `# 3. 대립되는 의견 및 이유`, followed by a non-H1 `※ 제출 전 확인`, **except when the E02 question-only precedence rule applies**.
 - URLs with empty query-parameter values are incomplete when the blank value is a critical identifier or the URL ends in `=`. Do not reject an otherwise verified official URL solely because a non-identifying optional parameter is blank.
 - Every percent sign in a final URL must begin a valid percent escape: `%` followed by exactly two hexadecimal digits.
+- `lsBylInfoPLinkR.do` + `lsNm` is an unstable user-facing annex-link class and must not be emitted. Use a verified identifier-based stable source page or `[공식 링크 확인 필요]`.
 - Do not output `$law-interpretation-request`, `@jdipt`, Skill/Plugin activation metadata, reference paths, or internal contract names.
 
 ## 응답 모드 라우팅
@@ -55,6 +57,8 @@ This block is the runtime priority contract. Apply it before clarification, sour
 ### 추상 fixture 모드
 
 가상 법령, A/B/P/Q, 동일 용어 충돌, 미확인 요건 상태, 자족적 법적 논증은 제공된 전제 자체를 검토대상으로 본다. 추상 fixture에서 `정보 없음`, `미확인`, `확인 필요`가 제공되면 **미확인 상태 자체를 제공된 전제로 취급한다**. 실제 법령명이나 사건번호가 없다는 이유로 질문-only로 전환하지 않는다.
+
+별지 신청유형이 `신설 / 증설`로만 제시되고 `신설`의 법적 의미·별지의 법적 기능·위임관계가 해결되지 않았다면 **미확인 `신설 / 증설` 의미는 승인 방향을 지지하거나 반박하는 근거가 아니다**. `# 2. 검토결론`은 **현재 전제만으로 승인 가능 여부를 판단할 수 없다**는 중립 문장으로 유지하고 `승인 가능성을 뒷받침`, `승인 가능성이 높`, `승인받기 어렵`, `승인 가능성은 열려` 같은 방향성 표현을 사용하지 않는다.
 
 법제처 해석례·대법원 판결·개정문언의 관계가 제공되면 사건번호·해석례 번호·법률명이 없어도 식별 가능한 추상 fixture로 보고 **식별번호가 없어도 기본 4단 추상 검토**를 작성한다.
 
@@ -91,7 +95,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 ## Fail-closed Hard Gates
 
 1. **Referenced Source Resolution Hard Gate**: 공식 조문이 결론에 영향을 줄 수 있는 별표·별지서식·부표·부록을 직접 참조하면 실제 문언을 확인한다. 확인하지 못하면 `참조자료 확인 실패`로 남기고 확정 결론을 내리지 않는다. 정부24·검색요약은 원문을 대체하지 않는다.
-2. **Abstract Fixture Closed-World Hard Gate**: 추상 fixture에서는 제공되지 않은 정의·요건·절차·법적 효과를 만들지 않는다. `설립승인사항 변경`과 `기존 일반 건축물의 최초 전환`, `신설`과 `건축물 신축`을 근거 없이 동일 개념으로 치환하지 않는다.
+2. **Abstract Fixture Closed-World Hard Gate**: 추상 fixture에서는 제공되지 않은 정의·요건·절차·법적 효과를 만들지 않는다. `설립승인사항 변경`과 `기존 일반 건축물의 최초 전환`, `신설`과 `건축물 신축`을 근거 없이 동일 개념으로 치환하지 않는다. 특히 `신설 / 증설` 관계가 미해결이면 현재 전제만으로 승인 가능 여부를 판단할 수 없다고 유지한다.
 3. **최종 Rendering Hard Gate**: 기본 모드의 **첫 비공백 줄**은 `# 1. 질의요지`여야 하며 네 H1의 문자열·순서·개수가 정확해야 한다. 어긋나면 초안을 **폐기**하고 재렌더링한다.
 
 ## 내부 논리검증 Gate
@@ -146,6 +150,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - 현재 실행에서 실제 확인한 완전한 URL만 사용하고 URL 패턴을 추측하지 않는다.
 - `URLs with empty query-parameter values are incomplete` 규칙은 **핵심 식별자가 비어 있거나 URL 끝이 `=`인 경우**에 적용한다.
 - `law.go.kr/LSW/flDownload.do` + `flNm` 링크는 사용하지 않는다.
+- **`lsBylInfoPLinkR.do` + `lsNm` 링크는 사용자 출력에 사용하지 않는다.** 안정적인 식별자 기반 원문 링크가 현재 실행에서 확인되지 않으면 `[공식 링크 확인 필요]`로 처리한다.
 - **Output Hygiene check**: 내부 Skill/Plugin 정보와 reference 경로를 출력하지 않는다.
 - **URL provenance check**: 최종 답변 직전에 각 URL의 실제 확인 여부를 검사한다.
 
@@ -157,6 +162,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 2. H1은 정확히 네 개이며 위 문자열과 순서 그대로다.
 3. `# 2. 검토결론`에 확정 또는 조건부 결론이 있다.
 4. Output Hygiene check와 URL provenance check를 통과한다.
+5. URL에 `lsBylInfoPLinkR.do` + `lsNm`이 있으면 해당 링크를 제거하거나 현재 실행에서 확인한 안정적인 식별자 기반 링크로 교체한다.
 
 하나라도 실패하면 **그 초안은 폐기**하고 올바른 구조로 다시 작성한다. **재렌더링한 결과**에도 같은 검사를 다시 적용한다.
 
