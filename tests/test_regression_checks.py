@@ -79,6 +79,20 @@ def test_check_urls_rejects_flNm_download_even_when_percent_encoded(checks):
     assert any("flNm" in problem or "flDownload" in problem or "download" in problem.lower() for problem in problems)
 
 
+def test_check_urls_rejects_named_annex_link_even_when_percent_encoding_is_valid(checks):
+    answer = (
+        "https://www.law.go.kr/lsBylInfoPLinkR.do?"
+        "lsiSeq=289011&lsNm=%EA%B1%B4%EC%B6%95%EB%AC%BC%EC%9D%98+%EC%84%A4%EB%B9%84%EA%B8%B0%EC%A4%80"
+        "&bylNo=0001&bylBrNo=02&bylCls=BE&bylEfYd=20260824&bylEfYdYn=Y"
+    )
+
+    ok, problems = checks.check_urls(answer)
+
+    assert ok is False
+    assert problems
+    assert any("lsBylInfoPLinkR" in problem or "lsNm" in problem or "annex" in problem.lower() for problem in problems)
+
+
 def test_check_urls_allows_stable_law_page_and_optional_blank_search_state(checks):
     answer = read_fixture("url_valid_law_page.md")
     stable_line = line_containing(answer, "lsInfoP.do?lsiSeq=287405")
