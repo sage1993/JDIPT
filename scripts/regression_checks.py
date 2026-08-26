@@ -112,12 +112,21 @@ def check_urls(answer: str) -> tuple[bool, list[str]]:
         except ValueError:
             problems.append(f"invalid URL: {url}")
             continue
+        is_law_go_kr = parsed.netloc.lower().endswith("law.go.kr")
+        has_lsnm = any(key.lower() == "lsnm" for key, _ in params)
         if (
-            parsed.netloc.lower().endswith("law.go.kr")
+            is_law_go_kr
             and parsed.path.lower().endswith("/fldownload.do")
             and any(key.lower() == "flnm" for key, _ in params)
         ):
             problems.append(f"unstable flDownload.do + flNm URL: {url}")
+            continue
+        if (
+            is_law_go_kr
+            and parsed.path.lower().endswith("/lsbylinfoplinkr.do")
+            and has_lsnm
+        ):
+            problems.append(f"unstable lsBylInfoPLinkR.do + lsNm annex URL: {url}")
             continue
         for key, value in params:
             if value == "" and key.lower() in CRITICAL_IDENTIFIER_KEYS:
