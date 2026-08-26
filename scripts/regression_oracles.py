@@ -163,7 +163,20 @@ def _no_directional_conclusion(answer: str, case: int) -> tuple[bool, str]:
     conclusion = answer[start:end] if start >= 0 and end > start else answer
     if not _contains_any(conclusion, ("조건부", "확인 필요", "확정할 수 없", "확정할 수는 없", "단정할 수 없", "단정할 수는 없", "확정하기 어렵")):
         return _fail("unresolved abstract fixture lacks a conditional/neutral conclusion")
-    if _contains_any(conclusion, ("가능합니다", "불가능합니다", "반드시 가능", "반드시 불가")):
+    forbidden = (
+        "가능합니다",
+        "불가능합니다",
+        "반드시 가능",
+        "반드시 불가",
+        "가능성을 뒷받침",
+        "가능성이 높",
+        "가능성이 크",
+        "가능성은 열려",
+        "승인받기 어렵",
+        "허가받기 어렵",
+        "적용받기 어렵",
+    )
+    if _contains_any(conclusion, forbidden):
         return _fail("unresolved abstract fixture received a directional conclusion")
     return _pass()
 
