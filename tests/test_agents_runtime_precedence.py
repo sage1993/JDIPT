@@ -3,6 +3,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "AGENTS.md"
+SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
+REQUEST_FORMAT = ROOT / "skills" / "law-interpretation-request" / "references" / "request-format.md"
+ELIGIBILITY = ROOT / "skills" / "law-interpretation-request" / "references" / "eligibility-checklist.md"
 
 
 def _read(path: Path) -> str:
@@ -29,6 +32,17 @@ def test_explicit_moleg_suitability_precedes_information_shortage_questions():
     agents = _read(AGENTS)
     assert "명시적 법제처 모드에서는 제출 적합성 보정이 정보 부족 질문보다 먼저" in agents
     assert "이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다." in agents
+
+
+def test_e02_question_only_overrides_moleg_three_h1_draft():
+    marker = "형식상 부적합 + 정보 부족이면 질문-only가 법제처 3-H1보다 우선"
+    stop_marker = "부적합 고지 후 필요한 질문 3~7개만 출력하고 즉시 중단"
+    no_h1_marker = "이 응답에는 H1 제목, 법제처 1~3 초안, `※ 제출 전 확인`, 출처 링크를 출력하지 않는다"
+    for path in (AGENTS, SKILL, REQUEST_FORMAT, ELIGIBILITY):
+        text = _read(path)
+        assert marker in text
+        assert stop_marker in text
+        assert no_h1_marker in text
 
 
 def test_unresolved_abstract_fixture_must_remain_neutral():
