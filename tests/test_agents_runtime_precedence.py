@@ -6,6 +6,7 @@ AGENTS = ROOT / "AGENTS.md"
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
 REQUEST_FORMAT = ROOT / "skills" / "law-interpretation-request" / "references" / "request-format.md"
 ELIGIBILITY = ROOT / "skills" / "law-interpretation-request" / "references" / "eligibility-checklist.md"
+INTERPRETATION = ROOT / "skills" / "law-interpretation-request" / "references" / "interpretation-principles.md"
 
 
 def _read(path: Path) -> str:
@@ -43,6 +44,17 @@ def test_e02_question_only_overrides_moleg_three_h1_draft():
         assert marker in text
         assert stop_marker in text
         assert no_h1_marker in text
+
+
+def test_e44_unknown_temporal_branching_is_neutral_not_probabilistic():
+    marker = "조건부 결론은 확률적 우세 판단이 아니다"
+    forbidden_marker = "`가능성이 크`, `가능성이 높`, `대체로`, `통상`, `원칙적으로 신법`, `적용될 것으로 보`"
+    branch_marker = "어느 분기가 성립하는지는 현재 판단할 수 없다"
+    for path in (AGENTS, SKILL, INTERPRETATION):
+        text = _read(path)
+        assert marker in text
+        assert forbidden_marker in text
+        assert branch_marker in text
 
 
 def test_unresolved_abstract_fixture_must_remain_neutral():
