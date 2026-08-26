@@ -202,4 +202,5 @@
 ## Stable source-link class
 
 - `law.go.kr/LSW/flDownload.do` combined with `flNm` is unstable for user-facing source provenance and is forbidden even when `flNm` is validly percent-encoded. Use a verified `lsInfoP.do` or stable parent page instead.
-Stable source policy forbids the class `flDownload.do + flNm`.
+- **`lsBylInfoPLinkR.do` + `lsNm` 링크는 사용자 출력에 사용하지 않는다.** 사람용 법령명 query는 재인코딩 과정에서 혼합 인코딩이 생기기 쉬우므로, 현재 실행에서 검증한 식별자 기반의 안정적인 상위 법령·별표 페이지를 사용하고 없으면 `[공식 링크 확인 필요]`로 처리한다.
+Stable source policy forbids the classes `flDownload.do + flNm` and `lsBylInfoPLinkR.do + lsNm`.
