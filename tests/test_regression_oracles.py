@@ -125,6 +125,15 @@ def test_live_language_variants_satisfy_strong_oracles():
     assert evaluate_case(39, e39)["contract_oracle"] == "PASS"
 
 
+def test_e39_live_neutral_judgment_language_passes():
+    answer = default_answer(
+        "현재 전제만으로는 승인 가능 여부를 판단할 수 없다. 별지 신청서의 신설·증설 의미와 법적 기능·위임근거가 제시되지 않아 기존 건축물을 활용한 설립승인의 허용 여부도 확정할 수 없다."
+    )
+    result = evaluate_case(39, answer)
+    assert result["contract_oracle"] == "PASS"
+    assert result["contract_failures"] == []
+
+
 def test_e39_directional_support_or_adverse_language_fails():
     supportive = default_answer(
         "별지의 신설·증설 의미는 확인 필요하여 승인 여부를 확정할 수 없습니다. 다만 법률에 신축 제한이 없다는 점은 승인 가능성을 뒷받침합니다."
