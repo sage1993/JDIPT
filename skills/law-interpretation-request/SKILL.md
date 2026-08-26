@@ -18,8 +18,9 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - Same-term conflict hard stop: if competing views use the same legal term with different scopes without a supplied or verified common definition, identify the inconsistency and keep the substantive conclusion unresolved. 동일 용어 충돌을 식별한 것 자체가 요청된 법적 관계 검토의 결과일 수 있다.
 - MOLEG suitability correction applies only in explicit MOLEG request mode.
 - Question-only mode is reserved for an input so incomplete that the legal issue, target rule, and object of review cannot meaningfully be identified. Missing material facts that prevent a definitive conclusion do not by themselves trigger question-only mode in a general legal review.
+- **E02 precedence:** 형식상 부적합 + 정보 부족이면 질문-only가 법제처 3-H1보다 우선한다. 부적합 고지 후 필요한 질문 3~7개만 출력하고 즉시 중단한다. 이 응답에는 H1 제목, 법제처 1~3 초안, `※ 제출 전 확인`, 출처 링크를 출력하지 않는다.
 - Default completed output uses exactly four H1 headings: `# 1. 질의요지`, `# 2. 검토결론`, `# 3. 검토이유`, `# 4. 관련 법령 및 자료`.
-- Explicit MOLEG request mode uses exactly three H1 headings: `# 1. 질의요지`, `# 2. 해석대상 법령조문 및 관련 법령`, `# 3. 대립되는 의견 및 이유`, followed by a non-H1 `※ 제출 전 확인`.
+- Explicit MOLEG request mode uses exactly three H1 headings: `# 1. 질의요지`, `# 2. 해석대상 법령조문 및 관련 법령`, `# 3. 대립되는 의견 및 이유`, followed by a non-H1 `※ 제출 전 확인`, **except when the E02 question-only precedence rule applies**.
 - URLs with empty query-parameter values are incomplete when the blank value is a critical identifier or the URL ends in `=`. Do not reject an otherwise verified official URL solely because a non-identifying optional parameter is blank.
 - Every percent sign in a final URL must begin a valid percent escape: `%` followed by exactly two hexadecimal digits.
 - Do not output `$law-interpretation-request`, `@jdipt`, Skill/Plugin activation metadata, reference paths, or internal contract names.
@@ -40,11 +41,13 @@ This block is the runtime priority contract. Apply it before clarification, sour
 
 **질문-only 모드는 법적 쟁점·대상·규정 중 무엇을 검토해야 하는지조차 구성할 수 없는 경우에만** 사용한다. 대표 예시는 `이 규정 해석 질의서 써줘`처럼 규정·쟁점·사실이 모두 특정되지 않은 요청이다. 이때 필요한 질문만 3~7개 하고 **질문만 하고 그 응답에서는 중단한다**. 그 응답에서는 초안을 작성하지 않는다.
 
+명시적 법제처 모드에서도 예외적으로 **구체적 사실판단·처분 위법성 판단을 직접 묻는 형식상 부적합 요청이면서 실제 보정 초안에 필요한 법령명·조문·핵심 사실이 부족하면**, **형식상 부적합 + 정보 부족이면 질문-only가 법제처 3-H1보다 우선**한다. 이 경우 **부적합 고지 후 필요한 질문 3~7개만 출력하고 즉시 중단**한다. **이 응답에는 H1 제목, 법제처 1~3 초안, `※ 제출 전 확인`, 출처 링크를 출력하지 않는다**.
+
 ### 명시적 법제처 모드
 
 사용자가 `법제처 법령해석요청서`, `법제처 제출용`, `법제처에 질의`, `질의요지·갑설·을설`을 명시적으로 요구할 때만 사용한다. 구체적 사실판단·처분 위법성 판단을 직접 요구하면 제출 적합성 문제를 먼저 설명하고 필요한 경우 질의를 객관적 법규범의 의미·범위로 보정한다.
 
-구체적 사실판단·처분 위법성 판단을 직접 요구하면서 필수 정보가 부족한 경우에는 **첫 문장에서 법제처 법령해석 대상으로 부적합할 수 있음을 명시한다**. 이 유형에서는 첫 문장을 반드시 “이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다.”로 작성한다.
+구체적 사실판단·처분 위법성 판단을 직접 요구하면서 필수 정보가 부족한 경우에는 **첫 문장에서 법제처 법령해석 대상으로 부적합할 수 있음을 명시한다**. 이 유형에서는 첫 문장을 반드시 “이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다.”로 작성한다. 이어서 위 E02 질문-only 우선 규칙을 적용하며, 정보가 충분해진 후에만 법제처 1~3 초안을 작성한다.
 
 ### 추상 fixture 모드
 
@@ -122,7 +125,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 
 ## 특수 출력 모드 — 사용자가 명시적으로 요청한 경우에만
 
-사용자가 명시적으로 `법제처 법령해석요청서` 등을 요구할 때만 다음 세 H1을 사용한다.
+사용자가 명시적으로 `법제처 법령해석요청서` 등을 요구할 때만 다음 세 H1을 사용한다. **형식상 부적합 + 정보 부족** 질문-only 예외가 성립하면 이 3-H1 구조를 만들지 않는다.
 
 ```markdown
 # 1. 질의요지
@@ -153,6 +156,8 @@ This block is the runtime priority contract. Apply it before clarification, sour
 4. Output Hygiene check와 URL provenance check를 통과한다.
 
 하나라도 실패하면 **그 초안은 폐기**하고 올바른 구조로 다시 작성한다. **재렌더링한 결과**에도 같은 검사를 다시 적용한다.
+
+위 **형식상 부적합 + 정보 부족** 질문-only 예외는 이 H1 Rendering Gate 대상이 아니다. 해당 예외에서는 H1 자체가 실패다.
 
 ## MCP 조사 절차
 
