@@ -101,10 +101,51 @@ def _missing_premise(answer: str, case: int) -> tuple[bool, str]:
 
 
 def _same_term_conflict(answer: str, case: int) -> tuple[bool, str]:
-    conflict_terms = ("충돌", "상충", "서로 다른 의미", "의미 자체", "전제 차이", "다르게 설정", "범위를 달리", "외연을 달리", "포함하는 의미", "제외하는 의미")
-    common_terms = ("공통 정의", "공통 기준", "공통 의미 기준", "개념 기준", "공통된 개념", "공통 해석 기준", "동일한 용어", "동일한 법률용어", "같은 용어", "용어의 범위", "공통 판단기준")
+    conflict_terms = (
+        "충돌",
+        "상충",
+        "서로 다른 의미",
+        "서로 다른 범위",
+        "의미 자체",
+        "전제 차이",
+        "다르게 설정",
+        "범위를 다르게",
+        "범위를 달리",
+        "범위가 다르",
+        "외연을 달리",
+        "포함하는 의미",
+        "제외하는 의미",
+    )
+    common_terms = (
+        "공통 정의",
+        "공통 기준",
+        "공통 의미 기준",
+        "개념 기준",
+        "공통된 개념",
+        "공통 해석 기준",
+        "동일한 용어",
+        "동일한 법률용어",
+        "같은 용어",
+        "용어의 범위",
+        "공통 판단기준",
+    )
+    hard_stop_terms = (
+        "판단할 수 없",
+        "판단하기 어렵",
+        "판단은 유보",
+        "판단을 유보",
+        "확정할 수 없",
+        "확정하기 어렵",
+        "우열을 정할 수 없",
+        "우열을 판단할 수 없",
+        "병렬로 구성할 수 없",
+        "실체 논거를 구성할 수 없",
+    )
     premise_conflict = bool(re.search(r"갑설.{0,60}포함.{0,60}을설.{0,60}제외", answer, re.S))
-    if not (_contains_any(answer, conflict_terms) or premise_conflict) or not _contains_any(answer, common_terms):
+    conflict_seen = _contains_any(answer, conflict_terms) or premise_conflict
+    common_seen = _contains_any(answer, common_terms)
+    hard_stop_seen = _contains_any(answer, hard_stop_terms)
+    if not (conflict_seen and common_seen and hard_stop_seen):
         return _fail("missing same-term conflict and common-definition hard stop")
     forbidden = ("갑설의 실체적 타당성", "을설의 실체적 타당성", "갑설은 타당", "을설은 타당")
     if _contains_any(answer, forbidden):
