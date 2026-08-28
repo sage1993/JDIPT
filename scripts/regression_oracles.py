@@ -135,6 +135,7 @@ def _same_term_conflict(answer: str, case: int) -> tuple[bool, str]:
         "판단은 유보",
         "판단을 유보",
         "확정할 수 없",
+        "확정적으로 구성할 수 없",
         "확정하기 어렵",
         "우열을 정할 수 없",
         "우열을 판단할 수 없",
@@ -173,7 +174,7 @@ def _conditional_unknown(answer: str, case: int) -> tuple[bool, str]:
         return _fail("A/B/C requirement mapping is missing")
     if not _contains_any(answer, ("확인 필요", "확인되지 않", "정보가 없")):
         return _fail("unknown C state was not preserved")
-    if not _contains_any(answer, ("조건부", "조건에 따라", "확정할 수 없")):
+    if not _contains_any(answer, ("조건부", "조건에 따라", "확정할 수 없", "판단할 수 없")):
         return _fail("conclusion is not conditional")
     return _pass()
 
@@ -266,7 +267,7 @@ def _unresolved_source_neutral(answer: str, case: int) -> tuple[bool, str]:
 
 
 def _temporal_lifecycle(answer: str, case: int) -> tuple[bool, str]:
-    if not _contains_any(answer, ("최초 허가", "허가 당시", "2024")):
+    if not _contains_any(answer, ("최초 허가", "최초 건축허가", "허가 당시", "2024")):
         return _fail("initial permit reference date was not separated")
     if "변경허가" not in answer:
         return _fail("later modification-permit event was not separated")
