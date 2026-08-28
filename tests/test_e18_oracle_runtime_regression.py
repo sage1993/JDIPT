@@ -34,3 +34,27 @@ def test_e18_20260827_runtime_response_passes_same_term_hard_stop_oracle():
 
     assert result["contract_oracle"] == "PASS"
     assert result["contract_failures"] == []
+
+
+def test_e18_same_term_conflict_without_hard_stop_still_fails():
+    answer = """# 1. 질의요지
+
+같은 조문의 건축물 범위를 검토한다.
+
+# 2. 검토결론
+
+갑설과 을설은 동일한 법률용어에 서로 다른 범위를 부여하며 공통 기준이 필요하다.
+
+# 3. 검토이유
+
+갑설과 을설의 논거를 각각 검토한다.
+
+# 4. 관련 법령 및 자료
+
+- 관련 조문: 확인 필요
+"""
+
+    result = evaluate_case(18, answer)
+
+    assert result["contract_oracle"] == "FAIL"
+    assert any("same_term_conflict_hard_stop" in failure for failure in result["contract_failures"])
