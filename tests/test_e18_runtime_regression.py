@@ -6,3 +6,65 @@ E18_RUNTIME_RESPONSE_20260829_ATTEMPT1 = "# 1. 질의요지\n\n같은 조문에�
 def test_e18_runtime_response_accepts_semantic_hard_stop_variant():
     result = evaluate_case(18, E18_RUNTIME_RESPONSE_20260829_ATTEMPT1)
     assert result['contract_oracle'] == 'PASS', result
+
+
+def test_e18_negated_substantive_phrase_is_not_treated_as_parallel_argument():
+    answer = """# 1. 질의요지
+
+갑설은 포함, 을설은 제외라는 전제를 둔다.
+
+# 2. 검토결론
+
+갑설의 실체적 타당성이나 을설의 실체적 타당성은 공통 정의가 없어 판단할 수 없다.
+
+# 3. 검토이유
+
+동일한 용어의 범위가 충돌하고 공통 기준이 제공되지 않았다.
+
+# 4. 관련 법령 및 자료
+
+확인 필요
+"""
+    result = evaluate_case(18, answer)
+    assert result['contract_oracle'] == 'PASS', result
+
+
+def test_e18_positive_substantive_phrase_remains_blocked():
+    answer = """# 1. 질의요지
+
+갑설은 포함, 을설은 제외라는 전제를 둔다.
+
+# 2. 검토결론
+
+갑설의 실체적 타당성은 인정된다.
+
+# 3. 검토이유
+
+동일한 용어의 범위가 충돌하고 공통 기준이 제공되지 않았다.
+
+# 4. 관련 법령 및 자료
+
+확인 필요
+"""
+    result = evaluate_case(18, answer)
+    assert result['contract_oracle'] == 'FAIL', result
+
+def test_e18_conclusion_reservation_counts_as_hard_stop():
+    answer = """# 1. 질의요지
+
+갑설은 포함, 을설은 제외라는 전제를 둔다.
+
+# 2. 검토결론
+
+같은 용어의 범위가 충돌하고 공통 정의가 없으므로 결론을 유보해야 한다.
+
+# 3. 검토이유
+
+양쪽 전제의 공통 기준은 확인 필요하다.
+
+# 4. 관련 법령 및 자료
+
+확인 필요
+"""
+    result = evaluate_case(18, answer)
+    assert result['contract_oracle'] == 'PASS', result

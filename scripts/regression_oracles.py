@@ -141,6 +141,7 @@ def _same_term_conflict(answer: str, case: int) -> tuple[bool, str]:
         "우열을 판단할 수 없",
         "병렬로 구성할 수 없",
         "실체 논거를 구성할 수 없",
+        "결론을 유보",
     )
     premise_conflict = bool(re.search(r"갑설.{0,60}포함.{0,60}을설.{0,60}제외", answer, re.S))
     conflict_seen = _contains_any(answer, conflict_terms) or premise_conflict
@@ -149,8 +150,13 @@ def _same_term_conflict(answer: str, case: int) -> tuple[bool, str]:
     if not (conflict_seen and common_seen and hard_stop_seen):
         return _fail("missing same-term conflict and common-definition hard stop")
     forbidden = ("갑설의 실체적 타당성", "을설의 실체적 타당성", "갑설은 타당", "을설은 타당")
-    if _contains_any(answer, forbidden):
-        return _fail("parallel substantive arguments were generated before common term resolution")
+    neutral_context = (
+        "판단할 수 없", "판단하기 어렵", "확정할 수 없", "확정하기 어렵",
+        "결론을 유보", "유보해야", "구성할 수 없", "근거가 부족",
+    )
+    for sentence in re.split(r"(?<=[.!?。！？])\s+|\n+", answer):
+        if _contains_any(sentence, forbidden) and not _contains_any(sentence, neutral_context):
+            return _fail("parallel substantive arguments were generated before common term resolution")
     return _pass()
 
 

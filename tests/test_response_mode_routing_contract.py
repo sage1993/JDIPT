@@ -148,3 +148,10 @@ def test_agent_prompt_hides_internal_metadata():
     agent_config = _read(AGENT_CONFIG)
 
     assert "내부 Skill/Plugin 정보" in agent_config
+
+
+def test_agent_prompt_rejects_all_empty_query_values():
+    agent_config = _read(AGENT_CONFIG)
+
+    assert "모든 빈 query값" in agent_config
+    assert "fmDt=&keyField=&keyWord=&toDt=" in agent_config
