@@ -4,7 +4,9 @@ JDIPT의 주요 변경사항을 기록합니다.
 
 ## [Unreleased]
 
-### v0.2.3 candidate — Authority, Temporal, and Evidence Contracts
+## [0.2.3] - 2026-08-30
+
+### Authority, Temporal, and Evidence Contracts
 
 PR #9에서 법령해석의 적용시점, 해석권위, 근거 추적 및 회귀검증 계약을 강화했습니다.
 
@@ -52,7 +54,7 @@ Merge commit: `244b04f1679f51b08d01a8b60a2f74357730ed3b`
 
 #### Compatibility / Non-goals
 
-- Plugin/package version은 아직 `0.2.2`이며 `v0.2.3` 태그는 생성하지 않음
+- Plugin/package version은 `0.2.3`으로 정합화하며, `v0.2.3` 태그는 병합 후 별도로 생성함
 - `korean-law-mcp@4.12.1` 유지
 - `allow_implicit_invocation: false` 및 explicit-only 정책 유지
 - 기본 4단 / 법제처 제출용 1–3 출력 계약 유지
