@@ -1,6 +1,6 @@
 {
   "name": "jdipt",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "대한민국 법령해석요청 업무용 Skills + Korean Law MCP integration",
   "license": "MIT",

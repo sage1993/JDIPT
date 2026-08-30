@@ -1,6 +1,6 @@
 # JDIPT Codex 설치 가이드
 
-현재 기준 버전: **v0.2.2**
+현재 기준 버전: **v0.2.3**
 
 ## 배포 모델
 
@@ -10,7 +10,7 @@ JDIPT 저장소는 저장소 루트 자체가 Codex Plugin이며 `.agents/plugin
 - Plugin 이름: `jdipt`
 - Plugin source: 저장소 루트 (`.`)
 - 공개 설치 ID: `jdipt@sage1993`
-- 버전: `0.2.2`
+- 버전: `0.2.3`
 - 저장소: public
 
 Skill 원본은 `skills/law-interpretation-request/` 한 곳에서 관리합니다.
@@ -65,7 +65,7 @@ codex plugin list
 
 이전 thread의 Skill 상태를 재사용하면 새 버전의 동작을 정확히 확인하기 어렵습니다.
 
-## v0.2.2 설치본 확인
+## v0.2.3 설치본 확인
 
 Windows PowerShell 예시:
 
@@ -81,7 +81,7 @@ Select-String -Path "$jdipt\skills\law-interpretation-request\agents\openai.yaml
 
 PASS 기준:
 
-- manifest version `0.2.2`
+- manifest version `0.2.3`
 - `SKILL.md` 존재
 - 기본 4단 출력 계약 존재
 - Final Rendering / Source Resolution hard gate 존재
@@ -127,7 +127,7 @@ $law-interpretation-request 기존 건축물 증축 시 대지 안의 공지 규
 
 PASS 조건:
 
-1. `codex plugin list`에서 JDIPT v0.2.2 설치 확인
+1. `codex plugin list`에서 JDIPT v0.2.3 설치 확인
 2. `allow_implicit_invocation: false`
 3. 명시 호출 시 Skill 적용
 4. 기본 출력이 정확한 4단 Markdown 구조
@@ -247,8 +247,8 @@ git status --short
 
 ## 배포 전 확인
 
-- [ ] `.codex-plugin/plugin.json` version `0.2.2`
-- [ ] `package.json` version `0.2.2`
+- [ ] `.codex-plugin/plugin.json` version `0.2.3`
+- [ ] `package.json` version `0.2.3`
 - [ ] Marketplace `sage1993`
 - [ ] Plugin `jdipt`
 - [ ] `source.path = "."`

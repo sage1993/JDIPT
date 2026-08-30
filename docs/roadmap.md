@@ -1,6 +1,6 @@
 # Roadmap
 
-현재 공개 버전: **v0.2.2**
+현재 공개 버전: **v0.2.3**
 
 ## v0.1 — Repository / Plugin foundation
 

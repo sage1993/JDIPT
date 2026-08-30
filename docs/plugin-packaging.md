@@ -1,6 +1,6 @@
 # Plugin packaging
 
-현재 공개 기준 버전은 **v0.2.2**다. 이 PR은 v0.2.3 candidate behavior를 개발하지만 package/plugin version은 아직 올리지 않는다.
+현재 공개 기준 버전은 **v0.2.3**다. v0.2.3은 authority, temporal, claim-level evidence 계약과 Core14/Full26 평가 체계를 포함한다.
 
 ## 패키지 기준
 
@@ -47,7 +47,7 @@ policy:
 - Codex 로컬은 `config/codex.example.toml`의 `env_vars = ["LAW_OC"]` 방식으로 전달한다.
 - ChatGPT 웹용 등록 MCP App은 별도 후속 작업이다.
 
-## v0.2.3 candidate 평가 구조
+## v0.2.3 평가 구조
 
 과거 E1~E42 fixture는 삭제하지 않고 catalog로 보존한다. 신규 E43~E46을 포함한 전체 catalog는 E1~E46이다.
 
@@ -127,7 +127,7 @@ v0.2.2 릴리스 당시에는 E1~E42 전체를 live regression으로 실행했�
 - contract oracle: 42/42
 - `npm audit --omit=dev`: 0 vulnerabilities
 
-이 42/42 수치는 **v0.2.2의 역사적 결과**이며 현재 candidate의 기본 실행 수를 의미하지 않는다.
+이 42/42 수치는 **v0.2.2의 역사적 결과**이며 현재 release의 기본 실행 수를 의미하지 않는다.
 
 ## 배포 체크리스트
 
