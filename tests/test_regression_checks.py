@@ -44,12 +44,20 @@ def test_detect_environment_error_reports_failed_skill_read(checks):
     assert checks.detect_environment_error(log_text) == "JDIPT SKILL.md could not be read during this case"
 
 
+def test_detect_environment_error_reports_explicit_skill_unavailable_response(checks):
+    log_text = (
+        "현재 세션에서 `$law-interpretation-request` 원문을 사용할 수 없고, "
+        "사건·법률 식별정보도 없어 실체 판단을 작성할 수 없습니다."
+    )
+
+    assert checks.detect_environment_error(log_text) == "JDIPT explicit Skill invocation was unavailable during this case"
 
 
 def test_detect_environment_error_reports_codex_usage_limit(checks):
     log_text = "ERROR: You've hit your usage limit. Upgrade to Pro or try again later."
 
     assert checks.detect_environment_error(log_text) == "Codex usage limit prevented regression execution"
+
 
 def test_check_urls_rejects_invalid_percent_escape(checks):
     answer = read_fixture("e37_invalid_percent.md")
@@ -71,7 +79,21 @@ def test_check_urls_rejects_flNm_download_even_when_percent_encoded(checks):
     assert any("flNm" in problem or "flDownload" in problem or "download" in problem.lower() for problem in problems)
 
 
-def test_check_urls_allows_stable_law_page_and_blank_search_state(checks):
+def test_check_urls_rejects_named_annex_link_even_when_percent_encoding_is_valid(checks):
+    answer = (
+        "https://www.law.go.kr/lsBylInfoPLinkR.do?"
+        "lsiSeq=289011&lsNm=%EA%B1%B4%EC%B6%95%EB%AC%BC%EC%9D%98+%EC%84%A4%EB%B9%84%EA%B8%B0%EC%A4%80"
+        "&bylNo=0001&bylBrNo=02&bylCls=BE&bylEfYd=20260824&bylEfYdYn=Y"
+    )
+
+    ok, problems = checks.check_urls(answer)
+
+    assert ok is False
+    assert problems
+    assert any("lsBylInfoPLinkR" in problem or "lsNm" in problem or "annex" in problem.lower() for problem in problems)
+
+
+def test_check_urls_allows_stable_law_page_and_optional_blank_search_state(checks):
     answer = read_fixture("url_valid_law_page.md")
     stable_line = line_containing(answer, "lsInfoP.do?lsiSeq=287405")
     blank_search_state_line = line_containing(answer, "keyField=&keyWord=")
@@ -83,6 +105,30 @@ def test_check_urls_allows_stable_law_page_and_blank_search_state(checks):
     assert stable_problems == []
     assert blank_ok is True
     assert blank_problems == []
+
+
+def test_check_urls_allows_e43_optional_blank_parameter_with_valid_identifier(checks):
+    answer = (
+        "https://law.go.kr/LSW/lsLinkCommonInfo.do?"
+        "ancYnChk=&chrClsCd=010202&lsJoLnkSeq=1026847027"
+    )
+
+    ok, problems = checks.check_urls(answer)
+
+    assert ok is True
+    assert problems == []
+
+
+def test_check_urls_rejects_url_ending_with_blank_parameter(checks):
+    answer = (
+        "https://www.moleg.go.kr/lawinfo/reglAnalysis/reglAnalysisInfo.mo?"
+        "caseSeq=2024000441&currentPage=1&toDt="
+    )
+
+    ok, problems = checks.check_urls(answer)
+
+    assert ok is False
+    assert any("ends with '='" in problem for problem in problems)
 
 
 def test_check_urls_rejects_critical_blank_identifier_query(checks):

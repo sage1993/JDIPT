@@ -95,7 +95,7 @@ REQUIRED_V022_SKILL_MARKERS = {
     "건축물 신축",
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
-    "MOLEG suitability correction takes precedence over clarification",
+    "MOLEG suitability correction applies only in explicit MOLEG request mode",
     "Every percent sign in a final URL must begin a valid percent escape",
     "URLs with empty query-parameter values are incomplete",
     "A self-contained legal inference is also an abstract fixture",
@@ -121,13 +121,13 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "Output Hygiene check",
     "URL provenance check",
     "$law-interpretation-request",
-    "정보 부족으로 질문만 하고 중단",
+    "질문만 하고 그 응답에서는 중단한다",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
     "※ 제출 전 확인",
     "사용자가 별도 형식을 명시하지 않으면",
     "기본 4단 법률검토형",
-    "A/B/P/Q 같은 추상 법적 논리 시나리오",
+    "추상적인 A/B/P/Q 법적 논리 시나리오",
     "문자열과 순서 그대로",
     "# 1. 질의요지",
     "# 2. 검토결론",
@@ -241,10 +241,12 @@ REQUIRED_AGENT_CONFIG_MARKERS = {
     "값이 빈 query parameter",
     "자족적 법적 논증의 타당성을 묻는 경우",
     "미확인 상태 자체를 제공된 전제로 보세요",
-    "WINDOWS UTF-8 IO:",
+    "모드를 먼저 확정하세요",
+    "과거 건축허가→법 개정→후속 변경허가",
+    "질문-only·확인질문으로 시작하지 말고",
+    "URL은 검증된 것만 쓰고 빈 query 값",
     "allow_implicit_invocation: false",
     "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
-    "기본 4단 법률검토형",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "실체 논거를 각각 전개하지 않는다",

@@ -5,45 +5,72 @@
 Repository Markdown/YAML/text files are UTF-8. On Windows PowerShell 5.1, never read repository text with bare `Get-Content` or `Select-String`.
 
 - Use `Get-Content -Raw -Encoding UTF8 <path>` for full-file reads.
-- Use `Select-String -Encoding UTF8 ...` when reading/searching UTF-8 repository text.
-- When reading multiple Skill/reference files, specify `-Encoding UTF8` on every `Get-Content` call.
-- If PowerShell output is still mojibake, read the file through Python with `Path(...).read_text(encoding="utf-8")`.
-- Treat mojibake in Skill/reference content as an environment failure; do not continue legal reasoning from corrupted instructions.
+- Use `Select-String -Encoding UTF8 ...` when searching repository text.
+- If output is still mojibake, use Python `Path(...).read_text(encoding="utf-8")`.
+- Treat mojibake in Skill/reference content as an environment failure.
 
 ## 목적
+
 이 저장소는 대한민국 법령해석요청 업무용 ChatGPT/Codex Plugin, Skill, `korean-law-mcp` 연동 설정을 관리한다.
 
 ## Plugin 패키징 원칙
+
 - 저장소 루트 자체가 JDIPT Plugin 패키지다.
 - `.codex-plugin/plugin.json`은 필수 진입점이며 Plugin ID는 `jdipt`로 유지한다.
-- Plugin에 포함되는 Skill의 단일 원본은 `skills/law-interpretation-request/`에서 관리한다.
+- Plugin에 포함되는 Skill의 단일 원본은 `skills/law-interpretation-request/`다.
 - 같은 Skill을 `.agents/skills/law-interpretation-request/`에 복제하지 않는다.
 - manifest의 `skills` 경로는 `./skills/`로 유지한다.
 - `.codex-plugin/plugin.json`의 `version`은 `package.json`의 `version`과 일치시킨다.
 - `korean-law-mcp` 소스를 JDIPT에 vendor하지 않는다.
-- 현재 Plugin은 Skill-first 패키지다. ChatGPT 웹용 MCP App은 실제 원격/등록 MCP 연결과 App ID가 확보된 뒤에만 `.app.json`과 manifest `apps` 필드를 추가한다.
-- 확인되지 않은 App ID, MCP URL, manifest 필드를 임의로 만들지 않는다.
-- 비밀값(`LAW_OC`, 토큰 등)은 절대 커밋하지 않는다. 로컬 Codex MCP는 OS 환경변수와 `env_vars = ["LAW_OC"]`를 사용한다.
-- `law-interpretation-request`는 **explicit-only Skill**로 유지한다. `skills/law-interpretation-request/agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
-- 일반 법령 질문에 자동 Skill 선택을 요구하지 않는다. 사용자가 필요할 때 `$law-interpretation-request`로 명시 호출하는 방식을 기본 운영 정책으로 한다.
+- 비밀값(`LAW_OC`, 토큰 등)은 커밋하지 않는다.
+- `law-interpretation-request`는 **explicit-only Skill**로 유지한다.
+- `skills/law-interpretation-request/agents/openai.yaml`의 `allow_implicit_invocation`은 `false`여야 한다.
+- 일반 법령 질문에 자동 Skill 선택을 release gate로 요구하지 않는다.
 
-## 법령해석 변경 원칙
-- 법령 데이터 조회 기능을 JDIPT 안에 중복 구현하지 않는다. 우선 `korean-law-mcp`의 공개 도구를 사용한다.
-- 업스트림 MCP의 내부 API에 직접 결합하지 말고 MCP 도구 인터페이스에 의존한다.
-- 기본 처리 순서는 **Legal Issue Mapping → Legal Interpretation → Logic Validation → Answer Rendering**으로 유지한다.
-- `skills/law-interpretation-request/references/legal-issue-mapping.md`에서 법적 대상·행위, 법적 정의·분류, 적용 규범의 역할, 규정 관계, 사실대입과 문제 발생 지점을 먼저 특정한다.
-- 관련 규정이 둘 이상이면 동일 사항의 중복 규율인지, 일반/특별 관계인지, 누적 적용인지, 원칙/예외인지, 적용 제외·준용인지, 규율 공백인지, 서로 다른 규율대상인지 구분한다.
-- 사실과 요건의 연결은 확인된 자료에 근거해 `충족`, `불충족`, `확인 필요`로 관리하고 확인되지 않은 사실을 임의로 보충하지 않는다.
-- 사용자가 가상 규정·정의·본칙·예외·사실을 문장으로 직접 제공한 경우에는 해당 검토 전제로 보존하고 이미 제공된 내용을 다시 없다고 요구하지 않는다.
-- `적용 여부가 쟁점이다`처럼 질문을 반복하는 수준에서 멈추지 않고, 서로 다른 결론을 가르는 실제 법적 연결부를 **문제 발생 지점**으로 특정한다.
+## Explicit Skill runtime precedence
+
+사용자 프롬프트에 `$law-interpretation-request`가 있으면 **응답 모드나 정보 부족 여부를 판단하기 전에** `skills/law-interpretation-request/SKILL.md`를 먼저 읽는다.
+
+- Skill을 읽기 전에 `자료가 부족하므로 질문만 하겠습니다`, `초안 작성을 보류하겠습니다` 같은 응답 경로를 결정하지 않는다.
+- Skill을 읽은 뒤 그 runtime priority contract에 따라 일반 법률검토형 / 명시적 법제처 모드 / 질문-only / 추상 fixture 모드를 판정한다.
+- Skill description이 skills context budget 때문에 축약되더라도 explicit invocation에서는 `SKILL.md를 먼저 읽는다`는 이 규칙을 따른다.
+- 필요한 reference는 모드 판정 후 읽는다.
+
+## 법령해석 처리 순서
+
+기본 처리 순서는 **Legal Issue Mapping → Legal Interpretation → Logic Validation → Answer Rendering**으로 유지한다.
+
+- `skills/law-interpretation-request/references/legal-issue-mapping.md`에서 법적 대상·행위·상태, 적용 규범의 역할, 사실대입과 문제 발생 지점을 먼저 특정한다.
+- 관련 규정이 둘 이상이면 동일 사항의 중복 규율, 일반/특별 관계, 누적 적용, 원칙/예외, 적용 제외·준용, 규율 공백, 서로 다른 규율대상을 구분한다.
+- 사실과 요건은 확인된 자료에 근거해 `충족`, `불충족`, `확인 필요`로 관리한다.
+- 제공되지 않은 사실·정의·요건을 임의로 보충하지 않는다.
 
 ### 정보 부족 처리
-- 법령명·조문·핵심 사실 등 실체결론 또는 초안 작성에 필수적인 정보가 부족하면 필요한 질문 3~7개만 하고 **그 응답에서는 초안 작성을 중단**한다.
-- 정보 부족 상태에서 기본 4단 초안, 법제처 원문형 초안, 권고 보정 초안을 함께 만들지 않는다.
-- 반대로 정보는 충분하지만 개별 사실판단·처분 위법성 판단처럼 법제처 제출 형식상 부적합한 경우에는 이유 설명과 보정 초안을 병행할 수 있다.
+
+정보 부족 처리는 **응답 모드 판정 뒤**에 수행한다.
+
+- 일반 법률검토형에서 법적 쟁점과 검토대상 행위·상태·관계가 식별되면 법령명·조문·정확한 날짜·경과조치가 미확인이라는 이유만으로 질문-only로 전환하지 않는다.
+- 위 경우에는 기본 4-H1 안에서 확인된 판단구조를 설명하고, 미확인 사항은 `확인 필요`로 표시하며 결론을 조건부 결론으로 낮춘다.
+- 과거 허가 → 법 개정 → 후속 변경허가처럼 적용 기준시점이 복수인 구조가 식별되면 날짜 미확인 자체를 질문-only 사유로 사용하지 않는다.
+- 이 temporal unknown 상태에서 **조건부 결론은 확률적 우세 판단이 아니다**. 허가일·개정법 시행일·변경허가 신청/처분일·경과조치 중 어느 하나라도 신·구법 선택을 좌우하는데 미확인이면 `가능성이 크`, `가능성이 높`, `대체로`, `통상`, `원칙적으로 신법`, `적용될 것으로 보` 같은 방향성 표현을 사용하지 않는다. `경과조치가 종전 규정 적용을 정하면 종전 기준`, `신법 적용요건이 충족되고 경과조치가 없으면 신법 기준`처럼 분기를 대칭적으로 제시하고 **어느 분기가 성립하는지는 현재 판단할 수 없다**고 명시한다.
+- 질문-only는 규정·쟁점·검토대상 자체를 구성할 수 없는 입력에 한정한다. 이 경우에만 필요한 질문 3~7개를 하고 그 응답에서는 초안을 중단한다.
+- **명시적 법제처 모드에서는 제출 적합성 보정이 정보 부족 질문보다 먼저**다. 구체적 사실 해당 여부나 처분 위법성을 법제처에 직접 묻는 요청이면 첫 문장에서 `이 요청은 법제처 법령해석 대상으로는 부적합할 수 있습니다.`라고 밝힌 뒤 필요한 질문을 한다.
+- **형식상 부적합 + 정보 부족이면 질문-only가 법제처 3-H1보다 우선**한다. 이 경우 **부적합 고지 후 필요한 질문 3~7개만 출력하고 즉시 중단**한다. **이 응답에는 H1 제목, 법제처 1~3 초안, `※ 제출 전 확인`, 출처 링크를 출력하지 않는다**. 후속 작성 방향은 일반 문장 한 줄로만 안내할 수 있다.
+
+### 추상 fixture fail-closed
+
+가상 법률·가상 시행령·가상 시행규칙, A/B/P/Q, 동일 용어 충돌, 미확인 별지·정의는 closed-world fixture로 취급한다.
+
+- 사용자가 제공한 규정·정의·사실만 법적 전제로 사용한다.
+- `설립`, `신설`, `전환`, `허가`, `승인` 등 정의되지 않은 용어를 통상적 의미로 새 법적 정의처럼 채우지 않는다.
+- fixture에 없는 시설·조직·책임자·운영기준·용도변경·등록·변경승인 등을 새 요건으로 만들지 않는다.
+- **미확인 정의·참조자료가 결론을 좌우하면 방향성 가설을 제시하지 않는다.** `가능`, `가능성이`, `여지`, `대체로`, `우세` 같은 표현으로 어느 방향을 암시하지 말고 `제공된 전제만으로는 확정할 수 없다`는 중립 결론을 유지한다.
+- **미확인 `신설 / 증설` 의미는 승인 방향을 지지하거나 반박하는 근거가 아니다.** 그 의미·법적 기능·위임관계가 해결되지 않은 동안 `# 2. 검토결론`에서는 **현재 전제만으로 승인 가능 여부를 판단할 수 없다**고만 결론내린다. `승인 가능성을 뒷받침`, `승인 가능성이 높`, `승인받기 어렵`, `승인 가능성은 열려` 같은 비대칭 평가 문구를 사용하지 않는다.
+- 별지·서식의 실제 문언이 제공되지 않았고 그 내용이 결론에 영향을 줄 수 있으면 참조자료 미확인 상태 자체로 확정 결론을 BLOCK한다.
 
 ### 기본 법률검토형
-- 별도 형식 지시가 없는 법령해석·검토 답변은 아래 **정확한 H1 4단 구조**를 사용한다.
+
+별도 형식 지시가 없는 법령해석·검토 답변은 아래 정확한 H1 4단 구조를 사용한다.
 
 ```markdown
 # 1. 질의요지
@@ -52,18 +79,15 @@ Repository Markdown/YAML/text files are UTF-8. On Windows PowerShell 5.1, never 
 # 4. 관련 법령 및 자료
 ```
 
-- `# 1. 질의요지` 이전에는 별도 서론·요약·검토대상 설명·Skill 호출문자열을 작성하지 않는다.
-- `# 1. 질의요지`에는 사용자가 무엇을 묻는지와 결론에 필요한 최소 사실만 정리한다. 제공되지 않은 사업목적·처분경위·기관입장 등을 사실처럼 추가하지 않는다.
-- `# 2. 검토결론`에서는 내부 분석과 논리검증으로 확정된 결론을 상세 검토이유보다 먼저 1~3문장으로 제시한다. 결론이 사실 전제에 따라 달라지면 조건부로 표시한다.
-- `# 3. 검토이유`에서는 법적 정의·분류, 본칙·예외·특례, 규정 관계, 사실관계 대입, 문제 발생 지점, 문언·체계·목적·연혁 등을 하나의 연결된 법률논증으로 작성한다.
-- **단일 쟁점**에서는 `법적 정의`, `적용 규정`, `사안 적용`, `문제 발생 지점`, `해석`, `결론`을 각각 별도 소제목으로 기계적으로 분리하지 않는다.
-- `# 3. 검토이유`의 하위 소제목은 서로 독립적으로 판단 가능한 복수의 법적 쟁점이 있을 때만 사용한다. 각 쟁점 내부에서는 다시 분석 단계별 소제목으로 과분할하지 않는다.
-- `# 3. 검토이유` 말미의 결론은 `# 2. 검토결론`과 실질적으로 일치해야 한다.
-- `# 4. 관련 법령 및 자료`에는 실제 논증에 사용한 법령·조문·판례·법령해석례·행정규칙·첨부자료만 정리한다.
-- 기본 모드에서 구 구조 `# 1. 요청취지` → `# 2. 질의 배경 및 사실관계` → `# 3. 관련 법령 및 조문` → `# 4. 해석상 쟁점` → `# 5. 법률검토` → `# 6. 첨부자료`를 사용하지 않는다.
+- `# 1. 질의요지` 이전에는 별도 서론·확인질문·Skill 호출문자열을 작성하지 않는다.
+- `# 2. 검토결론`은 상세 검토이유보다 먼저 제시한다.
+- 확정할 수 없는 사항은 기본 4단 안에서 조건부·중립 결론으로 처리한다.
+- 단일 쟁점은 분석 단계별 소제목으로 기계적으로 분리하지 않는다.
+- 하위 소제목은 서로 독립적인 복수 쟁점에만 사용한다.
 
 ### 법제처 제출용
-- `법제처 법령해석요청서`, `법제처 제출용`, `질의요지·갑설·을설` 등 전용 형식을 사용자가 명시적으로 요청한 경우에만 아래 정확한 H1 1~3 구조를 사용한다.
+
+사용자가 `법제처 법령해석요청서`, `법제처 제출용`, `질의요지·갑설·을설` 등을 명시적으로 요구할 때만 다음 구조를 사용한다. 단, 위 **형식상 부적합 + 정보 부족** 질문-only 예외가 성립하면 이 3-H1 구조를 만들지 않는다.
 
 ```markdown
 # 1. 질의요지
@@ -71,49 +95,44 @@ Repository Markdown/YAML/text files are UTF-8. On Windows PowerShell 5.1, never 
 # 3. 대립되는 의견 및 이유
 ```
 
-- `# 2. 질의배경`, `# 2. 관계 법령`, `# 3. 의견` 등으로 계약 제목을 바꾸지 않는다.
+- 제목을 임의로 바꾸지 않는다.
 - 4~8 항목은 생성하지 않는다.
 
 ### Output Hygiene 및 URL provenance
+
 - 모든 사용자용 최종 답변은 Markdown으로 작성한다.
-- `$law-interpretation-request`, `@jdipt`, `Skill activated`, `Plugin activated` 같은 호출·활성화 메타데이터를 최종 법률검토 문안에 노출하지 않는다.
-- Skill/reference 파일 경로, 내부 contract 이름, validator 메타데이터를 사용자가 구현 설명을 요구하지 않는 한 출력하지 않는다.
-- A/B/P/Q 같은 명칭을 사용자가 직접 제공한 경우 그 명칭을 일반 문장에서 다시 언급하는 것은 허용한다. 모델이 내부적으로 생성한 논리식·점수표·오류분류명은 사용자가 공개를 요구하지 않는 한 출력하지 않는다.
-- 법령·판례·법령해석례 등 공식자료는 **현재 실행에서 실제 확인한 완전한 공식 URL**이 있을 때만 링크한다.
-- URL 패턴을 추측하지 않는다. 식별자가 비어 있거나 끝이 `=`인 미완성 URL은 출력하지 않는다. 정확한 URL provenance를 확인하지 못하면 `[공식 링크 확인 필요]`로 처리한다.
-- 법적 결론보다 조문·출처 정확성을 우선한다.
-- 존재를 확인하지 않은 판례번호, 해석례번호, 법령 URL을 생성하지 않는다.
+- `$law-interpretation-request`, `@jdipt`, Skill/Plugin 활성화 메타데이터, reference 경로와 내부 validator 이름을 최종 법률검토 문안에 노출하지 않는다.
+- 공식자료 링크는 현재 실행에서 실제 확인한 완전한 공식 URL만 사용한다.
+- **도구·검색 결과에서 관찰한 URL 문자열을 그대로 사용**한다. 한글 경로 URL을 모델이 직접 percent-encoding하거나 경로를 재조합하지 않는다.
+- 관찰된 Unicode URL을 인코딩된 형태로 바꾸고 싶다면 그 변환 결과를 현재 실행에서 다시 검증해야 한다. 검증하지 못하면 원래 관찰한 URL을 그대로 쓰거나 `[공식 링크 확인 필요]`로 처리한다.
+- percent-encoded 조각과 원문 한글이 섞인 **혼합 인코딩 URL**을 출력하지 않는다.
+- URL 패턴을 추측하지 않는다. 핵심 식별자가 비어 있거나 URL 끝이 `=`이면 출력하지 않는다.
+- `law.go.kr/LSW/flDownload.do` + `flNm` 링크는 사용하지 않는다.
+- **`lsBylInfoPLinkR.do` + `lsNm` 링크는 사용자 출력에 사용하지 않는다.** 사람용 법령명 query 값을 재인코딩하는 과정에서 혼합 인코딩이 재발할 수 있으므로, 현재 실행에서 확인된 식별자 기반의 안정적인 상위 법령·별표 URL을 사용하고 없으면 `[공식 링크 확인 필요]`로 처리한다.
+- 존재를 확인하지 않은 판례번호·해석례번호·URL을 생성하지 않는다.
 
 ### 논리검증 및 Rendering Gate
-- 최종 법령해석 문안 생성 전 `skills/law-interpretation-request/references/logic-validation.md`의 내부 논리검증 Gate를 반드시 거친다.
-- 논리검증 중 원문·확인된 법적 근거에 없는 숨은 전제를 임의로 추가하지 않는다.
-- A/B/P/Q 같은 추상 논리 시나리오를 사용자가 제시하지 않은 특정 법률·판례·해석례·개정연혁·사실관계에 임의로 대응시키지 않는다.
-- `갑설 아니면 을설`처럼 선택지가 제시되면 가능한 해석을 모두 포괄한다는 전제 자체를 검증하고, 확인되지 않으면 제3의 가능성을 배제하지 않는다.
-- 갑설·을설에서 동일한 법률용어의 의미·범위가 근거 없이 달라지면 BLOCK으로 처리하고 공통 개념 기준을 먼저 확정한다.
-- Legal Issue Mapping의 내부 라벨·상태표와 논리검증 메모·기호화·점수표·오류분류명은 사용자가 분석표·논리감사·형식논리 설명을 요구하지 않는 한 사용자 출력에 노출하지 않는다.
-- 사용자에게 보내기 직전에 **최종 Rendering Gate**를 수행해 선택한 모드의 H1 문자열·순서, Answer-first, Output Hygiene, URL provenance를 다시 확인한다. 하나라도 어긋나면 보내기 전에 다시 렌더링한다.
+
+- 최종 문안 생성 전 `skills/law-interpretation-request/references/logic-validation.md`의 내부 논리검증 Gate를 수행한다.
+- 동일한 법률용어의 의미·범위가 갑설·을설 사이에서 근거 없이 달라지면 BLOCK한다.
+- 추상 fixture의 미확인 전제를 임의 보충하지 않는다.
+- 내부 기호화·점수표·오류분류명은 사용자가 명시적으로 요구하지 않는 한 출력하지 않는다.
+- 사용자에게 보내기 직전에 **최종 Rendering Gate**를 수행해 H1 문자열·순서·개수, Answer-first, Output Hygiene, URL provenance를 다시 확인한다.
+- 하나라도 어긋나면 초안을 폐기하고 재렌더링한다.
 
 ## 변경 후 검증
+
 최소한 다음을 실행한다.
 
 ```bash
 python scripts/validate_repo.py
+python scripts/validate_authority_temporal_contract.py
+python -m pytest -q
+python scripts/plugin_integrity.py
 ```
 
-`package.json`, Plugin manifest 또는 MCP 버전을 바꾼 경우에는 버전·경로 정합성을 함께 확인한다.
-
-`package.json` 또는 MCP 버전을 바꾼 경우 Node.js 환경에서 추가로 다음을 실행한다.
-
-```bash
-npm install
-npm run mcp -- --help
-```
-
-업스트림 도구명이 바뀌었으면 `skills/law-interpretation-request/SKILL.md`와 `docs/upstream-mcp.md`를 함께 갱신한다.
-논리검증 계약을 바꿨으면 `references/logic-validation.md`, `evals/scenarios.md`, `evals/expected-behavior.md`, `scripts/validate_repo.py`를 함께 갱신하고 **E10~E20을 새 컨텍스트에서 다시 실행**한다.
-Legal Issue Mapping 계약을 바꿨으면 `references/legal-issue-mapping.md`, `SKILL.md`, `references/interpretation-principles.md`, `references/case-patterns.md`, `evals/*`, `scripts/validate_repo.py`를 함께 검토한다.
-출력 형식·Output Hygiene·URL provenance를 바꿨으면 `SKILL.md`, `references/request-format.md`, `references/source-policy.md`, `evals/*`, `scripts/validate_repo.py`, `AGENTS.md`, `README.md`, `docs/architecture.md`를 함께 갱신한다.
-Skill 호출 정책을 바꿨으면 `agents/openai.yaml`, `evals/*`, `docs/installation.md`, `README.md`, `docs/roadmap.md`, `scripts/validate_repo.py`를 함께 갱신한다.
-행동 검증 전에는 실제 resolved Skill source가 v0.2.0인지 확인한다. 설치본이 stale하거나 버전을 확인할 수 없으면 v0.2.0 PASS/FAIL로 계산하지 않는다.
-이번 v0.2 계약은 E1~E38을 명시 호출로 검증하고, 특히 22-0351·17-0047·20-0604 Golden Case에서 법적 분류형·중복규율형·규율공백형을 서로 구분해야 한다.
-Plugin 패키징을 바꿨으면 `.codex-plugin/plugin.json`, `docs/plugin-packaging.md`, `README.md`, `docs/architecture.md`, `docs/roadmap.md`, `scripts/validate_repo.py`를 함께 검토한다.
+- 논리검증 계약을 바꾸면 `references/logic-validation.md`, `evals/*`, validator를 함께 검토한다.
+- Legal Issue Mapping 계약을 바꾸면 `references/legal-issue-mapping.md`, `SKILL.md`, `references/interpretation-principles.md`, `evals/*`를 함께 검토한다.
+- 출력 형식·Output Hygiene·URL provenance를 바꾸면 `SKILL.md`, `references/request-format.md`, `references/source-policy.md`, `evals/*`, `scripts/validate_repo.py`, `AGENTS.md`를 함께 검토한다.
+- Skill 호출 정책을 바꾸면 `agents/openai.yaml`, `evals/*`, 설치 문서와 validator를 함께 검토한다.
+- 행동 검증 전에는 repository와 실제 resolved installed Skill의 integrity가 일치해야 한다.

@@ -59,6 +59,29 @@ def compare_runtime_manifests(repo_root: Path, installed_root: Path) -> list[str
     return mismatches
 
 
+def _cache_skill_candidates(plugin_cache_root: Path) -> list[Path]:
+    """Return usable Skill roots from a marketplace/plugin cache, newest first."""
+
+    if not plugin_cache_root.is_dir():
+        return []
+
+    candidates: list[tuple[int, str, Path]] = []
+    roots = [plugin_cache_root]
+    roots.extend(path for path in plugin_cache_root.iterdir() if path.is_dir())
+    for root in roots:
+        skill = _skill_root(root)
+        if not (skill / "SKILL.md").is_file():
+            continue
+        try:
+            modified = root.stat().st_mtime_ns
+        except OSError:
+            modified = 0
+        candidates.append((modified, root.name, skill))
+
+    candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return [skill for _, _, skill in candidates]
+
+
 def resolve_installed_skill_root(explicit: Path | None = None) -> Path | None:
     candidates: list[Path] = []
     if explicit is not None:
@@ -66,16 +89,21 @@ def resolve_installed_skill_root(explicit: Path | None = None) -> Path | None:
     env_value = os.environ.get("JDIPT_INSTALLED_SKILL_ROOT")
     if env_value:
         candidates.append(Path(env_value))
+
     home = Path.home()
+    marketplace_cache = home / ".codex" / "plugins" / "cache" / "sage1993" / "jdipt"
+    candidates.extend(_cache_skill_candidates(marketplace_cache))
     candidates.extend(
         [
             home / ".codex" / "plugins" / "jdipt" / "skills" / "law-interpretation-request",
+            home / ".codex" / "plugins" / "jdipt@sage1993" / "skills" / "law-interpretation-request",
             home / ".codex" / "plugins" / "jdipt@jdipt-local" / "skills" / "law-interpretation-request",
         ]
     )
     for candidate in candidates:
-        if (_skill_root(candidate) / "SKILL.md").is_file():
-            return _skill_root(candidate)
+        skill = _skill_root(candidate)
+        if (skill / "SKILL.md").is_file():
+            return skill
     return None
 
 

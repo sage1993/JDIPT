@@ -1,0 +1,9 @@
+{
+  "version": "0.2.3-candidate",
+  "cases": [
+    {"case": "E43", "title": "temporal lifecycle", "release_critical": true, "checks": ["exact_default_h1", "temporal_lifecycle", "hygiene_clean", "urls_complete"]},
+    {"case": "E44", "title": "temporal unknown fail-closed", "release_critical": true, "checks": ["exact_default_h1", "temporal_lifecycle", "no_directional_abstract_conclusion", "hygiene_clean", "urls_complete"]},
+    {"case": "E45", "title": "authority and precedent versioning", "release_critical": true, "checks": ["exact_default_h1", "authority_versioning", "hygiene_clean", "urls_complete"]},
+    {"case": "E46", "title": "claim-level evidence", "release_critical": true, "checks": ["exact_default_h1", "claim_inference_separation", "hygiene_clean", "urls_complete"]}
+  ]
+}

@@ -30,7 +30,15 @@ HYGIENE_FORBIDDEN = [
     "references/request-format.md",
 ]
 CRITICAL_IDENTIFIER_KEYS = {
-    "lsiseq", "lsjolnkseq", "expcseq", "cs_seq", "lsid", "id", "seq", "flseq"
+    "lsiseq",
+    "lsjolnkseq",
+    "expcseq",
+    "caseSeq".lower(),
+    "cs_seq",
+    "lsid",
+    "id",
+    "seq",
+    "flseq",
 }
 PLACEHOLDER_MARKERS = (
     "<placeholder>", "<id>", "<seq>", "your-token", "your_api_key",
@@ -39,6 +47,7 @@ PLACEHOLDER_MARKERS = (
 URL_RE = re.compile(r"https?://[^\s<>()\]]+", re.IGNORECASE)
 INVALID_PERCENT_RE = re.compile(r"%(?![0-9A-Fa-f]{2})")
 SKILL_READ_FAILURE = "JDIPT SKILL.md could not be read during this case"
+EXPLICIT_SKILL_UNAVAILABLE = "JDIPT explicit Skill invocation was unavailable during this case"
 
 
 def first_nonblank_line(answer: str) -> str | None:
@@ -103,12 +112,21 @@ def check_urls(answer: str) -> tuple[bool, list[str]]:
         except ValueError:
             problems.append(f"invalid URL: {url}")
             continue
+        is_law_go_kr = parsed.netloc.lower().endswith("law.go.kr")
+        has_lsnm = any(key.lower() == "lsnm" for key, _ in params)
         if (
-            parsed.netloc.lower().endswith("law.go.kr")
+            is_law_go_kr
             and parsed.path.lower().endswith("/fldownload.do")
             and any(key.lower() == "flnm" for key, _ in params)
         ):
             problems.append(f"unstable flDownload.do + flNm URL: {url}")
+            continue
+        if (
+            is_law_go_kr
+            and parsed.path.lower().endswith("/lsbylinfoplinkr.do")
+            and has_lsnm
+        ):
+            problems.append(f"unstable lsBylInfoPLinkR.do + lsNm annex URL: {url}")
             continue
         for key, value in params:
             if value == "" and key.lower() in CRITICAL_IDENTIFIER_KEYS:
@@ -142,12 +160,23 @@ def detect_skill_read_status(log_text: str) -> str:
 
 
 def detect_environment_error(log_text: str) -> str | None:
+    lower = log_text.lower()
     status = detect_skill_read_status(log_text)
     if status == "failure":
         return SKILL_READ_FAILURE
+    if re.search(
+        r"\$law-interpretation-request[^\n]{0,100}(?:사용할 수 없|이용할 수 없|접근할 수 없|unavailable|not available|cannot access|can't access)",
+        lower,
+    ):
+        return EXPLICIT_SKILL_UNAVAILABLE
+    if re.search(
+        r"(?:사용할 수 없|이용할 수 없|접근할 수 없|unavailable|not available|cannot access|can't access)[^\n]{0,100}\$law-interpretation-request",
+        lower,
+    ):
+        return EXPLICIT_SKILL_UNAVAILABLE
     if status == "success":
         return None
-    if "hit your usage limit" in log_text.lower():
+    if "hit your usage limit" in lower:
         return "Codex usage limit prevented regression execution"
     if any(marker in log_text for marker in (
         "apply deny-read ACLs", "Failed to create unified exec process", "helper_unknown_error"

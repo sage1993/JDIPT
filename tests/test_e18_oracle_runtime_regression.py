@@ -1,0 +1,60 @@
+from __future__ import annotations
+
+from scripts.regression_oracles import evaluate_case
+
+
+E18_RUNTIME_RESPONSE_20260827 = """# 1. 질의요지
+
+동일 조문에서 사용된 “건축물”에 부속시설이 포함되는지 여부와 관련하여, 부속시설을 포함하는 갑설과 이를 제외하는 을설의 논거를 검토한다.
+
+# 2. 검토결론
+
+별도의 정의규정, 조문 문언, 관련 규정 또는 해석 근거가 제공되지 않았으므로, 현재 전제만으로는 갑설과 을설 중 어느 견해가 타당한지 판단할 수 없다.
+
+갑설과 을설은 동일한 법률용어인 “건축물”에 서로 다른 범위를 부여하고 있으므로, 그 범위를 정할 공통 기준이 먼저 확정되어야 한다.
+
+# 3. 검토이유
+
+갑설은 “건축물”의 범위에 부속시설이 포함된다는 전제를 취한다. 따라서 부속시설이 같은 조문상 “건축물”에 해당한다는 정의·문언·체계적 근거가 확인되는 경우에만 그 전제에 기초한 논거를 구성할 수 있다.
+
+을설은 같은 “건축물”에서 부속시설을 제외한다는 전제를 취한다. 따라서 부속시설이 별개의 개념이거나 해당 조문이 부속시설을 제외하는 범위를 전제로 한다는 근거가 확인되는 경우에만 그 전제에 기초한 논거를 구성할 수 있다.
+
+그러나 현재는 어느 전제도 뒷받침하는 별도 정의나 조문상 제한이 제공되지 않았다. 일반적인 용례만으로 “건축물”의 법적 범위를 확정하거나, 갑설·을설 중 한쪽의 해석을 우선할 수 없다. 그러므로 현 단계에서 작성할 수 있는 것은 양측의 주장 전제 요약까지이며, 실체적인 우열 또는 타당성 판단은 유보되어야 한다.
+
+# 4. 관련 법령 및 자료
+
+- 해당 “건축물” 용어가 사용된 실제 조문: 확인 필요
+- “건축물” 및 “부속시설”의 정의규정: 제공되지 않음
+- 부속시설의 포함·제외를 정하는 관련 규정, 별표·별지 또는 판례·해석례: 확인 필요
+"""
+
+
+def test_e18_20260827_runtime_response_passes_same_term_hard_stop_oracle():
+    result = evaluate_case(18, E18_RUNTIME_RESPONSE_20260827)
+
+    assert result["contract_oracle"] == "PASS"
+    assert result["contract_failures"] == []
+
+
+def test_e18_same_term_conflict_without_hard_stop_still_fails():
+    answer = """# 1. 질의요지
+
+같은 조문의 건축물 범위를 검토한다.
+
+# 2. 검토결론
+
+갑설과 을설은 동일한 법률용어에 서로 다른 범위를 부여하며 공통 기준이 필요하다.
+
+# 3. 검토이유
+
+갑설과 을설의 논거를 각각 검토한다.
+
+# 4. 관련 법령 및 자료
+
+- 관련 조문: 확인 필요
+"""
+
+    result = evaluate_case(18, answer)
+
+    assert result["contract_oracle"] == "FAIL"
+    assert any("same_term_conflict_hard_stop" in failure for failure in result["contract_failures"])
