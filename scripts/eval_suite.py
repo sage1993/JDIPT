@@ -20,6 +20,11 @@ def load_suite_manifest(path: Path | None = None) -> dict[str, Any]:
 
 def _case_set(data: dict[str, Any], key: str) -> set[int]:
     values = data.get(key)
+    ansim = data.get("ansim_cases")
+    expected_ansim = [f"ASH-{number:02d}" for number in range(1, 10)]
+    if ansim != expected_ansim:
+        raise ValueError("ansim_cases must be exactly ASH-01 through ASH-09")
+
     if not isinstance(values, list) or any(not isinstance(item, int) for item in values):
         raise ValueError(f"{key} must be a list of integers")
     if len(values) != len(set(values)):
@@ -74,6 +79,11 @@ def suite_case_ids(name: str, manifest: dict[str, Any] | None = None) -> set[int
     data = manifest if manifest is not None else load_suite_manifest()
     key = "catalog_cases" if name == "all" else f"{name}_cases"
     return set(data[key])
+
+
+def ansim_case_ids(manifest: dict[str, Any] | None = None) -> list[str]:
+    data = manifest if manifest is not None else load_suite_manifest()
+    return list(data["ansim_cases"])
 
 
 def ordered_suite_case_ids(name: str, manifest: dict[str, Any] | None = None) -> list[int]:

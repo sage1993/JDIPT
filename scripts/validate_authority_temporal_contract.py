@@ -49,6 +49,7 @@ CONTRACTS: dict[Path, tuple[str, ...]] = {
         '"core_cases"',
         '"full_cases"',
         '"legacy_cases"',
+        '"ansim_cases"',
         '"E42": "E41"',
     ),
     EVALS / "v0.2.3-machine-oracles.json": (
@@ -60,6 +61,28 @@ CONTRACTS: dict[Path, tuple[str, ...]] = {
         '"no_directional_abstract_conclusion"',
         '"authority_versioning"',
         '"claim_inference_separation"',
+    ),
+    EVALS / "v0.2.4-ansim-housing-oracle.json": (
+        '"contract": "ansim_housing_regression_oracle=v0.2.4-candidate"',
+        '"TEMPORAL_AUTHORITY"',
+        '"AUTHORITY_PRIORITY"',
+        '"SPECIAL_RULE_PRECEDENCE"',
+        '"EXCEPTION_SEMANTICS"',
+        '"EVIDENCE_GROUNDING"',
+        '"UNCERTAINTY_PRESERVATION"',
+        '"REPEALED_AS_CURRENT"',
+        '"GENERAL_350M"',
+        '"AUTO_350M"',
+        '"GENERAL_RULE_OVERRIDES_SPECIAL"',
+        '"ASSUMED_FACTS"',
+        '"ASH-01"',
+        '"ASH-09"',
+    ),
+    EVALS / "v0.2.4-ansim-housing-oracle.md": (
+        "ansim_housing_regression_oracle=v0.2.4-candidate",
+        "## ASH-01",
+        "## ASH-09",
+        "Global Hard Gates",
     ),
 }
 
@@ -86,9 +109,12 @@ def main() -> int:
             print(f"FAIL: {failure}")
         return 1
     print("PASS")
-    print("authority_temporal_evidence_contract=v0.2.3-candidate")
-    print("behavior_spec=E43-E46")
-    print("live_suites=core14/full26")
+    print("authority_temporal_evidence_contract=v0.2.4-candidate")
+    print("behavior_spec=E43-E46+ASH-01-ASH-09")
+    print("ansim_housing_regression_oracle=v0.2.4-candidate")
+    print("global_hard_gates=6")
+    print("critical_negative_markers=5")
+    print("live_suites=core14/full26/ansim9")
     return 0
 
 

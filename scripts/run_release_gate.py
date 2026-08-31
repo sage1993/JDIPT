@@ -111,6 +111,7 @@ def _runner_command(
     output_dir: Path | None = None,
     model: str | None = None,
     suite: str = "full",
+    repetitions: int | None = None,
 ) -> list[str]:
     command = [sys.executable, str(RUNNER), "--suite", suite]
     if codex:
@@ -125,6 +126,8 @@ def _runner_command(
         command.extend(["--to-case", str(to_case)])
     if output_dir is not None:
         command.extend(["--output-dir", str(output_dir)])
+    if repetitions is not None:
+        command.extend(["--repetitions", str(repetitions)])
     return command
 
 
@@ -217,6 +220,40 @@ def full_regression_gate(
         f"C: full active Evals ({total})",
         passed,
         () if passed else ("full active regression acceptance did not pass",),
+    )
+
+
+
+def ansim_regression_gate(
+    *,
+    repetitions: int,
+    codex: str | None = None,
+    installed_skill_root: Path | None = None,
+    model: str | None = None,
+    command_runner: Callable[[Sequence[str]], CommandResult] = run_command,
+) -> GateResult:
+    total = 9 if repetitions == 1 else 27
+    minimum_pass = 9 if repetitions == 1 else 26
+    result = command_runner(
+        _runner_command(
+            codex=codex,
+            installed_skill_root=installed_skill_root,
+            model=model,
+            suite="ansim",
+            repetitions=repetitions,
+        )
+    )
+    required = (
+        rf"process_ok:\s*{total}/{total}",
+        rf"contract_oracle_pass:\s*(?:{total}|{minimum_pass})/{total}",
+        r"critical_negative_markers:\s*0",
+        r"release_verdict:\s*PASS",
+    )
+    passed = result.returncode == 0 and all(re.search(pattern, result.output) for pattern in required)
+    return GateResult(
+        f"Ansim housing {'core' if repetitions == 1 else 'stability'}",
+        passed,
+        () if passed else ("ansim regression acceptance did not pass",),
     )
 
 

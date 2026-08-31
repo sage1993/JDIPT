@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import subprocess
+import sys
 from scripts.run_release_gate import AUTHORITY_TEMPORAL_VALIDATOR, CommandResult, deterministic_gate
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -79,6 +81,26 @@ def test_v023_eval_spec_covers_e43_to_e46_only():
     _require(text, tuple(f"E{i}." for i in range(43, 47)))
     assert "## E47." not in text
     assert "## E48." not in text
+
+
+
+def test_v024_validator_reports_ansim_contract_and_preserves_e43_e46():
+    completed = subprocess.run(
+        [sys.executable, str(AUTHORITY_TEMPORAL_VALIDATOR)],
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "authority_temporal_evidence_contract=v0.2.4-candidate" in completed.stdout
+    assert "behavior_spec=E43-E46+ASH-01-ASH-09" in completed.stdout
+    assert "ansim_housing_regression_oracle=v0.2.4-candidate" in completed.stdout
+    assert "global_hard_gates=6" in completed.stdout
+    assert "critical_negative_markers=5" in completed.stdout
+    assert "live_suites=core14/full26/ansim9" in completed.stdout
 
 
 def test_v022_fail_closed_contracts_are_preserved():

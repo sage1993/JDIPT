@@ -11,6 +11,7 @@ from scripts.run_release_gate import (
     REPEAT_CASES,
     CommandResult,
     GateResult,
+    ansim_regression_gate,
     _single_case_pass,
     critical_stability_gate,
     orchestrate,
@@ -181,6 +182,42 @@ def test_gate_b_failure_stops_before_full():
 
     assert calls == ["A", "B"]
     assert [result.name for result in results] == ["A", "B"]
+
+
+def test_ansim_core_gate_requires_9_of_9_and_zero_critical_markers():
+    def runner(command):
+        assert command[command.index("--suite") + 1] == "ansim"
+        assert command[command.index("--repetitions") + 1] == "1"
+        return CommandResult(
+            0,
+            "process_ok: 9/9\ncontract_oracle_pass: 9/9\ncritical_negative_markers: 0\nrelease_verdict: PASS\n",
+        )
+
+    assert ansim_regression_gate(repetitions=1, command_runner=runner).passed
+
+
+def test_ansim_stability_gate_allows_one_noncritical_failure():
+    def runner(command):
+        return CommandResult(
+            0,
+            "process_ok: 27/27\ncontract_oracle_pass: 26/27\ncritical_negative_markers: 0\nrelease_verdict: PASS\n",
+        )
+
+    assert ansim_regression_gate(repetitions=3, command_runner=runner).passed
+
+
+def test_ansim_stability_gate_fails_on_any_critical_marker():
+    def runner(command):
+        return CommandResult(
+            1,
+            "process_ok: 27/27\ncontract_oracle_pass: 26/27\ncritical_negative_markers: 1\nrelease_verdict: FAIL\n",
+        )
+
+    result = ansim_regression_gate(repetitions=3, command_runner=runner)
+
+    assert not result.passed
+    assert result.details == ("ansim regression acceptance did not pass",)
+
 
 
 def test_full_mode_runs_full_regression_exactly_once_after_a_and_b():

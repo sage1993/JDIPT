@@ -4,6 +4,14 @@ JDIPT의 주요 변경사항을 기록합니다.
 
 ## [Unreleased]
 
+
+### v0.2.4 candidate
+
+- ASH-01~ASH-09 안심주택 Oracle과 의미 기반 positive/negative marker evaluator 추가
+- 현행성·권위·특별규정·예외·근거·불확실성 Global Hard Gate 6종 추가
+- Core 9/9, Stability 27/27 process·26/27 oracle, Critical marker zero-tolerance release gate 추가
+- 기존 Core14/Full26 및 E43~E46 계약은 변경 없이 보존
+
 ## [0.2.3] - 2026-08-30
 
 ### Authority, Temporal, and Evidence Contracts

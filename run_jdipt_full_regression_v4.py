@@ -26,7 +26,7 @@ from scripts.regression_checks import (
 
 
 REQUIRED_PLUGIN_ID = "jdipt@jdipt-local"
-REQUIRED_PLUGIN_VERSION = "0.2.2"
+REQUIRED_PLUGIN_VERSION = "0.2.4"
 DEFAULT_REGRESSION_MODEL = "gpt-5.6-luna"
 
 

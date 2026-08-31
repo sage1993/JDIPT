@@ -9,6 +9,7 @@ JDIPT는 법적 계약 수와 실제 LLM 실행 수를 분리한다. 과거 regr
 | Suite | 케이스 수 | 용도 |
 |---|---:|---|
 | Core | 14 | 기능 PR의 핵심 fail-closed 안정성 검증 |
+| Ansim housing | 9 | ASH-01~ASH-09 독립 core/stability 회귀 |
 | Full active | 26 | 릴리스 전 실제 LLM 전체 회귀 |
 | Legacy | 20 | 과거 회귀 재현·진단용, 기본 실행 제외 |
 | Catalog | 46 | E1~E46 전체 fixture/oracle 추적 |
@@ -28,6 +29,21 @@ Core:
 ```powershell
 python scripts/run_eval_suite.py --suite core
 ```
+
+
+Ansim housing core:
+
+```powershell
+python scripts/run_eval_suite.py --suite ansim --repetitions 1
+```
+
+Ansim housing stability:
+
+```powershell
+python scripts/run_eval_suite.py --suite ansim --repetitions 3
+```
+
+각 attempt는 별도 디렉터리와 `codex exec --ephemeral` 대화로 실행된다. Stability는 process 27/27, oracle 26/27 이상이어야 하며 Critical marker가 한 건이라도 있으면 FAIL이다.
 
 Full active:
 

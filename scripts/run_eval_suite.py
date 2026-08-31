@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.ansim_housing_oracle import DEFAULT_ORACLE_PATH as ANSIM_ORACLE_PATH, build_ansim_summary, evaluate_ansim_case, load_ansim_oracle  # noqa: E402
 import run_jdipt_full_regression_v4 as legacy  # noqa: E402
 from scripts.eval_suite import ordered_suite_case_ids  # noqa: E402
 from scripts.regression_checks import detect_environment_error  # noqa: E402
@@ -51,6 +52,58 @@ def load_catalog() -> dict[int, legacy.Case]:
     return by_number
 
 
+def load_ansim_catalog() -> dict[str, legacy.Case]:
+    oracle = load_ansim_oracle(ANSIM_ORACLE_PATH)
+    return {
+        case["id"]: legacy.Case(
+            number=index,
+            title=f'{case["id"]} {case["severity"]}',
+            prompt=case["prompt"],
+            expected="; ".join(case.get("must", []) + case.get("must_markers", [])),
+            source_file=ANSIM_ORACLE_PATH.as_posix(),
+        )
+        for index, case in enumerate(oracle["cases"], start=1)
+    }
+
+
+def ansim_attempt_plan(repetitions: int) -> list[tuple[str, int]]:
+    if repetitions not in {1, 3}:
+        raise ValueError("repetitions must be 1 or 3")
+    return [(case_id, attempt) for case_id in load_ansim_catalog() for attempt in range(1, repetitions + 1)]
+
+
+
+def execute_ansim_attempts(
+    out_dir: Path,
+    catalog: dict[str, legacy.Case],
+    *,
+    repetitions: int,
+    run_case,
+    evaluate,
+) -> list[dict]:
+    results: list[dict] = []
+    for case_id, attempt in ansim_attempt_plan(repetitions):
+        attempt_dir = out_dir / case_id / f"run-{attempt:02d}"
+        attempt_dir.mkdir(parents=True, exist_ok=True)
+        raw = run_case(attempt_dir, catalog[case_id])
+        answer_path = attempt_dir / raw.answer_file
+        answer = answer_path.read_text(encoding="utf-8") if answer_path.is_file() else ""
+        evaluated = evaluate(case_id, answer, raw.process_ok)
+        evaluated.update(
+            {
+                "attempt": attempt,
+                "process_ok": raw.process_ok,
+                "environment_error": raw.environment_error,
+                "returncode": raw.returncode,
+                "duration_seconds": raw.duration_seconds,
+                "answer_file": answer_path.relative_to(out_dir).as_posix(),
+            }
+        )
+        results.append(evaluated)
+    return results
+
+
+
 def select_case_ids(*, suite: str, from_case: int | None, to_case: int | None) -> list[int]:
     if from_case is None and to_case is None:
         return ordered_suite_case_ids(suite)
@@ -78,9 +131,93 @@ def _promote_answer_environment_error(result: legacy.Result, out_dir: Path) -> N
     result.process_ok = False
 
 
+
+
+def _run_ansim_cli(args, root: Path) -> int:
+    catalog = load_ansim_catalog()
+    codex_cmd = legacy.resolve_codex_command(args.codex)
+    print("Resolved Codex CLI:", " ".join(codex_cmd))
+    legacy.validate_plugin(codex_cmd)
+
+    installed_root = legacy.resolve_installed_skill_root(args.installed_skill_root)
+    if installed_root is None:
+        print("INSTALLATION_INTEGRITY: FAIL")
+        print("installed runtime root could not be resolved")
+        return 4
+    mismatches = legacy.compare_runtime_manifests(root, installed_root)
+    if mismatches:
+        print("INSTALLATION_INTEGRITY: FAIL")
+        for mismatch in mismatches:
+            print("  " + mismatch)
+        return 4
+    print("INSTALLATION_INTEGRITY: PASS")
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_dir = args.output_dir.resolve() if args.output_dir else root / "regression-results" / f"ansim-v024-{timestamp}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    def runner(attempt_dir: Path, case: legacy.Case):
+        result = legacy.run_case(
+            root,
+            attempt_dir,
+            case,
+            args.timeout,
+            codex_cmd,
+            args.model,
+            args.unsafe_bypass_sandbox,
+        )
+        _promote_answer_environment_error(result, attempt_dir)
+        return result
+
+    def evaluator(case_id: str, answer: str, process_ok: bool):
+        return evaluate_ansim_case(
+            case_id,
+            answer,
+            process_ok=process_ok,
+            oracle_path=ANSIM_ORACLE_PATH,
+        )
+
+    results = execute_ansim_attempts(
+        out_dir,
+        catalog,
+        repetitions=args.repetitions,
+        run_case=runner,
+        evaluate=evaluator,
+    )
+    summary = build_ansim_summary(
+        results,
+        model=args.model,
+        plugin_version=legacy.REQUIRED_PLUGIN_VERSION,
+        repetitions=args.repetitions,
+    )
+    (out_dir / "summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    finding_lines = ["# Ansim Housing Oracle Findings", ""]
+    for result in results:
+        for finding in result["findings"]:
+            finding_lines.append(
+                f'- {result["case_id"]} run {result["attempt"]}: '
+                f'{finding["marker"]} — {finding["reason"]}'
+            )
+    if len(finding_lines) == 2:
+        finding_lines.append("- None")
+    (out_dir / "oracle-findings.md").write_text("\n".join(finding_lines) + "\n", encoding="utf-8")
+
+    print("=== ANSIM MACHINE-CHECK SUMMARY ===")
+    print(f"process_ok: {summary['process_success']}/{summary['case_count']}")
+    print(f"contract_oracle_pass: {summary['pass_count']}/{summary['case_count']}")
+    print(f"critical_negative_markers: {len(summary['critical_negative_markers'])}")
+    print(f"release_verdict: {summary['release_verdict']}")
+    print(f"Output: {out_dir}")
+    if summary["process_success"] != summary["case_count"]:
+        return 3
+    return 0 if summary["release_verdict"] == "PASS" else 1
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run JDIPT consolidated behavior evaluation suites.")
-    parser.add_argument("--suite", choices=("core", "full", "legacy", "all"), default="full")
+    parser.add_argument("--suite", choices=("core", "full", "legacy", "all", "ansim"), default="full")
     parser.add_argument("--codex", type=str, default=None)
     parser.add_argument("--model", type=str, default=DEFAULT_MODEL)
     parser.add_argument("--installed-skill-root", type=Path, default=None)
@@ -89,9 +226,12 @@ def main() -> int:
     parser.add_argument("--from-case", type=int, default=None, dest="from_case")
     parser.add_argument("--to-case", type=int, default=None, dest="to_case")
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument("--repetitions", type=int, choices=(1, 3), default=1)
     args = parser.parse_args()
 
     root = Path.cwd().resolve()
+    if args.suite == "ansim":
+        return _run_ansim_cli(args, root)
     catalog = load_catalog()
     selected_ids = select_case_ids(suite=args.suite, from_case=args.from_case, to_case=args.to_case)
     selected = [catalog[case_id] for case_id in selected_ids]
