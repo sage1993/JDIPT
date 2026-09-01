@@ -77,3 +77,15 @@ def test_distance_independence_is_not_hardcoded_to_1500_square_meters():
 
     assert "DISTANCE_NOT_REPLACED" in markers
     assert "UNCERTAINTY_PRESERVED" in markers
+
+
+def test_350m_exception_does_not_borrow_unrelated_designation_from_another_proposition():
+    answer = (
+        "역세권은 승강장 경계 250m가 원칙이며 통합심의를 거치면 350m까지 완화될 수 있습니다. "
+        "용도지역의 지정·변경은 별도 절차에 따라 검토합니다."
+    )
+
+    markers = detect_ansim_markers(answer)
+
+    assert "BASE_250M" in markers
+    assert "EXCEPTION_350M_REVIEW" not in markers
