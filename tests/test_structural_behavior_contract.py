@@ -94,6 +94,51 @@ def test_source_policy_maps_material_context_selectors_when_they_change_the_rule
     )
 
 
+def test_issue_mapping_binds_quantitative_rules_to_their_legal_function():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
+    _require(
+        text,
+        (
+            "Quantitative Rule Scope Binding Gate",
+            "정량기준",
+            "규율대상",
+            "법적 행위·단계",
+            "법적 기능",
+            "효과",
+            "일반 기준으로 승격",
+        ),
+    )
+
+
+def test_issue_mapping_preserves_compound_issue_coverage_before_rendering():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
+    _require(
+        text,
+        (
+            "Compound-Issue Coverage Gate",
+            "독립 판단요소",
+            "본칙",
+            "예외·특례",
+            "적용시점",
+            "확인 필요",
+            "최종 합성",
+        ),
+    )
+
+
+def test_skill_invokes_quantitative_scope_and_compound_issue_gates():
+    text = _read(SKILL_ROOT / "SKILL.md")
+    _require(
+        text,
+        (
+            "quantitative rule scope",
+            "compound-issue coverage",
+            "regulated subject",
+            "legal function",
+        ),
+    )
+
+
 def test_skill_blocks_material_proposition_omission_at_rendering():
     text = _read(SKILL_ROOT / "SKILL.md")
     _require(
@@ -112,6 +157,7 @@ def test_skill_blocks_material_proposition_omission_at_rendering():
 def test_new_structural_contracts_are_not_ansim_case_hardcodes():
     skill = _read(SKILL_ROOT / "SKILL.md")
     source_policy = _read(REFERENCES / "source-policy.md")
+    issue_mapping = _read(REFERENCES / "legal-issue-mapping.md")
 
     skill_contract = _section(
         skill,
@@ -123,8 +169,10 @@ def test_new_structural_contracts_are_not_ansim_case_hardcodes():
         "## Named-scheme Special Rule Completeness Gate",
         "## Source Completeness / Counterevidence Gate",
     )
+    issue_section = issue_mapping
 
     forbidden = ("안심주택", "250m", "350m", "300㎡", "200㎡", "1,000㎡", "1,500㎡")
     for token in forbidden:
         assert token not in skill_contract
         assert token not in source_section
+        assert token not in issue_section
