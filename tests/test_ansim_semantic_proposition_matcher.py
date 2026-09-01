@@ -50,3 +50,15 @@ def test_majority_exception_does_not_match_when_exception_is_denied():
 
     assert "MAJORITY_EXCEPTION" not in markers
     assert "SEPARATE_EXCEPTIONS" not in markers
+
+
+def test_distance_independence_is_not_hardcoded_to_1500_square_meters():
+    answer = (
+        "대지면적 2,000㎡는 최소면적 기준을 충족합니다. "
+        "다만 거리요건은 별도로 적용되므로 면적 충족만으로 사업대상지 자격이 확정되는 것은 아닙니다."
+    )
+
+    markers = detect_ansim_markers(answer)
+
+    assert "DISTANCE_NOT_REPLACED" in markers
+    assert "UNCERTAINTY_PRESERVED" in markers
