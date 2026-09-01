@@ -93,18 +93,22 @@ def detect_ansim_markers(answer: str) -> set[str]:
     if re.search(r"200\s*㎡.{0,10}(?:당\s*)?1대", normalized) and "서울" in normalized:
         markers.add("DORM_200_SEOUL")
 
-    area_requirement_present = matches(r"1,?500\s*㎡") and any_of("면적", "최소면적", "최소 면적")
+    area_requirement_present = (
+        re.search(r"\d[\d,]*\s*㎡", normalized) is not None
+        and any_of("면적", "대지면적", "최소면적", "최소 면적")
+        and any_of("충족", "기준", "요건")
+    )
     distance_requirement_present = (
         any_of("거리", "거리요건", "거리 요건")
         or re.search(r"(?:250|300|350)\s*(?:m|미터)", normalized) is not None
     )
     conditional_eligibility = (
-        matches(r"만으로.{0,50}(?:확정|자격|사업\s*가능).{0,25}(?:아니|않|없)")
-        or matches(r"(?:확정|단정).{0,25}(?:아니|않|없)")
+        matches(r"만으로.{0,50}(?:확정|자격|사업\s*가능).{0,25}(?:아니|아닙|않|없)")
+        or matches(r"(?:확정|단정).{0,25}(?:아니|아닙|않|없)")
     )
     separate_requirements = (
         any_of("각각", "별도", "별도로", "독립")
-        and any_of("면적", "1,500㎡")
+        and any_of("면적", "대지면적", "최소면적", "최소 면적")
         and any_of("거리", "250m", "350m")
     )
     if any_of("거리요건을 대체하지", "거리 요건을 대체하지") or (
@@ -129,9 +133,9 @@ def detect_ansim_markers(answer: str) -> set[str]:
         markers.add("MEDICAL_350")
     if (
         any_of("확정할 수 없", "단정할 수 없", "확인해야", "확인 필요")
-        or matches(r"(?:확정|단정).{0,25}(?:아니|않|없)")
+        or matches(r"(?:확정|단정).{0,25}(?:아니|아닙|않|없)")
         or (
-            any_of("요건", "조건")
+            any_of("나머지 요건", "다른 요건", "추가 요건", "기타 요건", "별도 요건", "다른 계획요건")
             and any_of("충족해야", "검토해야", "확인해야", "검토 필요", "확인 필요")
         )
     ):
