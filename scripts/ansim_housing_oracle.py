@@ -37,6 +37,11 @@ def load_ansim_oracle(path: Path) -> dict[str, Any]:
 def detect_ansim_markers(answer: str) -> set[str]:
     """Return semantic findings without requiring one exact answer phrase."""
     normalized = re.sub(r"\s+", " ", answer).strip()
+    propositions = [
+        re.sub(r"\s+", " ", proposition).strip()
+        for proposition in re.split(r"(?<=[.!?。！？])\s+|\n+", answer)
+        if proposition.strip()
+    ]
     markers: set[str] = set()
 
     def has(*terms: str) -> bool:
@@ -48,9 +53,22 @@ def detect_ansim_markers(answer: str) -> set[str]:
     def matches(pattern: str) -> bool:
         return re.search(pattern, normalized) is not None
 
+    def proposition_has_350m_exception(proposition: str) -> bool:
+        has_350m = re.search(r"350\s*(?:m|미터)", proposition) is not None
+        if not has_350m:
+            return False
+        has_review = "통합심의" in proposition or "심의위원회" in proposition
+        has_exception_effect = any(term in proposition for term in ("예외", "특례", "지정"))
+        explicit_target_designation = (
+            "사업대상지" in proposition
+            and "지정" in proposition
+            and "심의" in proposition
+        )
+        return (has_review and has_exception_effect) or explicit_target_designation
+
     if re.search(r"250\s*(?:m|미터)", normalized) and any_of("원칙", "기본", "본칙"):
         markers.add("BASE_250M")
-    if re.search(r"350\s*(?:m|미터)", normalized) and any_of("통합심의", "심의위원회") and any_of("예외", "특례", "지정"):
+    if any(proposition_has_350m_exception(proposition) for proposition in propositions):
         markers.add("EXCEPTION_350M_REVIEW")
     if any_of("과반수", "과반") and any_of("미달", "못 미", "원칙", "본칙"):
         markers.add("MAJORITY_RULE")
