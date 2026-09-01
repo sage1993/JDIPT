@@ -52,6 +52,21 @@ def test_majority_exception_does_not_match_when_exception_is_denied():
     assert "SEPARATE_EXCEPTIONS" not in markers
 
 
+def test_ash07_accepts_distinct_exception_structures_without_separate_keyword():
+    answer = (
+        "45%는 과반 원칙에 미달합니다. "
+        "토지의 효율적 이용과 구역 정형화 등의 사유가 있으면 통합심의위원회 심의를 통해 "
+        "예외로 인정될 수 있습니다. "
+        "역세권 기본 범위는 250m 이내이고, 일정 사유가 있으면 통합심의를 거쳐 "
+        "350m 이내 토지를 사업대상지로 지정할 수 있습니다."
+    )
+
+    markers = detect_ansim_markers(answer)
+
+    assert "MAJORITY_EXCEPTION" in markers
+    assert "SEPARATE_EXCEPTIONS" in markers
+
+
 def test_distance_independence_is_not_hardcoded_to_1500_square_meters():
     answer = (
         "대지면적 2,000㎡는 최소면적 기준을 충족합니다. "

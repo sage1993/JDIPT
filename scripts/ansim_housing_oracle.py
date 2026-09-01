@@ -124,7 +124,10 @@ def detect_ansim_markers(answer: str) -> set[str]:
         "MAJORITY_EXCEPTION" in markers
         and re.search(r"350\s*(?:m|미터)", normalized)
         and any_of("지정", "특례", "예외")
-        and any_of("별도", "별도의", "별개", "별개의", "서로 독립", "각각", "따로")
+        and (
+            "EXCEPTION_350M_REVIEW" in markers
+            or any_of("별도", "별도의", "별개", "별개의", "서로 독립", "각각", "따로")
+        )
     ):
         markers.add("SEPARATE_EXCEPTIONS")
     if any_of("제46조제6항", "제46조 제6항") and any_of("하위 위임", "위임규정") and any_of("지구단위계획 결정", "결정내용"):
