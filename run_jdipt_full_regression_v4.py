@@ -336,6 +336,24 @@ def write_case_bundle(out_dir: Path, case: Case, answer: str) -> None:
     )
 
 
+def _terminate_process_tree(proc: subprocess.Popen[str]) -> bool:
+    """Terminate a timed-out Codex child and its Windows descendants."""
+    if os.name == "nt":
+        taskkill = shutil.which("taskkill")
+        if taskkill:
+            result = subprocess.run(
+                [taskkill, "/PID", str(proc.pid), "/T", "/F"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+            return result.returncode == 0
+    proc.kill()
+    return True
+
+
 def run_case(root: Path, out_dir: Path, case: Case, timeout_seconds: int, codex_cmd: list[str], model: str, unsafe_bypass_sandbox: bool) -> Result:
     answer_path = out_dir / f"E{case.number:02d}.md"
     log_path = out_dir / f"E{case.number:02d}.log.txt"
@@ -364,27 +382,35 @@ def run_case(root: Path, out_dir: Path, case: Case, timeout_seconds: int, codex_
     error = None
     returncode: int | None = None
     stdout = ""
+    pid: int | None = None
+    spawned_at = datetime.now().astimezone().isoformat()
+    killed = False
     stderr = ""
 
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             cmd,
             cwd=root,
+            stdin=subprocess.DEVNULL,
             text=True,
             encoding="utf-8",
             errors="replace",
-            capture_output=True,
-            timeout=timeout_seconds,
-            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
+        pid = proc.pid
+        stdout, stderr = proc.communicate(timeout=timeout_seconds)
         returncode = proc.returncode
-        stdout = proc.stdout or ""
-        stderr = proc.stderr or ""
     except subprocess.TimeoutExpired as exc:
         timed_out = True
         error = f"timeout after {timeout_seconds}s"
-        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
-        stderr = exc.stderr if isinstance(exc.stderr, str) else ""
+        killed = _terminate_process_tree(proc)
+        stdout, stderr = proc.communicate()
+        if not stdout and isinstance(exc.stdout, str):
+            stdout = exc.stdout
+        if not stderr and isinstance(exc.stderr, str):
+            stderr = exc.stderr
+        returncode = proc.returncode
     except Exception as exc:  # pragma: no cover - operational guard
         error = f"{type(exc).__name__}: {exc}"
 
@@ -408,9 +434,16 @@ def run_case(root: Path, out_dir: Path, case: Case, timeout_seconds: int, codex_
         "\n".join(
             [
                 f"COMMAND: {' '.join(cmd)}",
+                "STDIN: DEVNULL",
+                f"PID: {pid}",
+                f"SPAWNED_AT_UTC: {spawned_at}",
+                f"KILLED: {killed}",
+                f"ANSWER_FILE_EXISTS: {answer_path.is_file()}",
+                f"TIMEOUT_REASON: {error if timed_out else None}",
                 f"RETURN_CODE: {returncode}",
                 f"TIMEOUT: {timed_out}",
                 f"ENVIRONMENT_ERROR: {environment_error}",
+                f"ERROR: {error}",
                 f"DURATION_SECONDS: {duration:.3f}",
                 "",
                 "=== PROMPT ===",
@@ -421,6 +454,12 @@ def run_case(root: Path, out_dir: Path, case: Case, timeout_seconds: int, codex_
                 "",
                 "=== STDERR ===",
                 stderr,
+                "",
+                "=== STDOUT TAIL ===",
+                stdout[-8192:],
+                "",
+                "=== STDERR TAIL ===",
+                stderr[-8192:],
                 "",
             ]
         ),
