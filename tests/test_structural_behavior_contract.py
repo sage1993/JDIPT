@@ -138,6 +138,34 @@ def test_skill_invokes_compound_coverage_and_legal_effect_preservation():
     )
 
 
+def test_source_policy_resolves_direct_defining_authority_before_guidance_synthesis():
+    text = _read(REFERENCES / "source-policy.md")
+    _require(
+        text,
+        (
+            "Direct Defining Authority Gate",
+            "법정 범주",
+            "직접 정의",
+            "운영기준",
+            "법적 효과",
+            "원문 확인 실패",
+        ),
+    )
+
+
+def test_skill_preserves_mutable_standard_temporal_status_in_final_answer():
+    text = _read(SKILL_ROOT / "SKILL.md")
+    _require(
+        text,
+        (
+            "mutable-standard temporal rendering hard stop",
+            "revision/effective-date",
+            "current/effective status",
+            "link alone",
+        ),
+    )
+
+
 def test_skill_blocks_material_proposition_omission_at_rendering():
     text = _read(SKILL_ROOT / "SKILL.md")
     _require(
