@@ -30,6 +30,7 @@ def test_skill_requires_named_scheme_special_rule_completion_before_synthesis():
             "named scheme",
             "general rule",
             "directly governing special rule",
+            "reasonably implicated",
             "Synthesis coverage hard stop",
             "main rule and exception",
         ),
@@ -64,6 +65,18 @@ def test_source_policy_named_scheme_gate_does_not_stop_at_general_rule():
             "법적 기능",
         ),
     )
+
+
+def test_special_rule_search_is_bounded_not_exhaustive():
+    text = _read(REFERENCES / "source-policy.md")
+    section = _section(
+        text,
+        "## Named-scheme Special Rule Completeness Gate",
+        "## Context-selector Branching Gate",
+    )
+
+    assert "전수조사하지 않는다" in section
+    assert "합리적으로" in section
 
 
 def test_source_policy_maps_material_context_selectors_when_they_change_the_rule():
