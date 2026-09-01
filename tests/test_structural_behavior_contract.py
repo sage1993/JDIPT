@@ -15,9 +15,9 @@ def _require(text: str, markers: tuple[str, ...]) -> None:
     assert not missing, f"missing markers: {missing}"
 
 
-def _section(text: str, heading: str, next_heading: str) -> str:
-    start = text.index(heading)
-    end = text.index(next_heading, start)
+def _section(text: str, start_marker: str, end_marker: str) -> str:
+    start = text.index(start_marker)
+    end = text.index(end_marker, start)
     return text[start:end]
 
 
@@ -51,37 +51,37 @@ def test_source_policy_named_scheme_gate_does_not_stop_at_general_rule():
     )
 
 
-def test_logic_validation_blocks_material_proposition_omission_at_rendering():
-    text = _read(REFERENCES / "logic-validation.md")
+def test_skill_blocks_material_proposition_omission_at_rendering():
+    text = _read(SKILL_ROOT / "SKILL.md")
     _require(
         text,
         (
-            "Material Proposition Coverage BLOCK",
-            "본칙과 예외",
-            "일반규정과 직접 규율하는 특별규정",
-            "과거 기준과 현행 기준",
-            "최종 문안에서 누락",
+            "본칙/예외",
+            "일반/특별",
+            "현행/과거",
+            "material proposition",
+            "최종 문안에서 빠지면 BLOCK",
             "재렌더링",
         ),
     )
 
 
 def test_new_structural_contracts_are_not_ansim_case_hardcodes():
+    skill = _read(SKILL_ROOT / "SKILL.md")
     source_policy = _read(REFERENCES / "source-policy.md")
-    logic_validation = _read(REFERENCES / "logic-validation.md")
 
+    skill_contract = _section(
+        skill,
+        "- Special-rule completeness hard stop:",
+        "- MOLEG suitability correction",
+    )
     source_section = _section(
         source_policy,
         "## Named-scheme Special Rule Completeness Gate",
         "## Source Completeness / Counterevidence Gate",
     )
-    logic_section = _section(
-        logic_validation,
-        "### Material Proposition Coverage BLOCK",
-        "### WARN — 표현 강도·범위를 조정",
-    )
 
     forbidden = ("안심주택", "250m", "350m", "300㎡", "200㎡", "1,000㎡", "1,500㎡")
     for token in forbidden:
+        assert token not in skill_contract
         assert token not in source_section
-        assert token not in logic_section
