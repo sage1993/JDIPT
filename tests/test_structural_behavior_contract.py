@@ -94,22 +94,6 @@ def test_source_policy_maps_material_context_selectors_when_they_change_the_rule
     )
 
 
-def test_issue_mapping_binds_quantitative_rules_to_their_legal_function():
-    text = _read(REFERENCES / "legal-issue-mapping.md")
-    _require(
-        text,
-        (
-            "Quantitative Rule Scope Binding Gate",
-            "정량기준",
-            "규율대상",
-            "법적 행위·단계",
-            "법적 기능",
-            "효과",
-            "일반 기준으로 승격",
-        ),
-    )
-
-
 def test_issue_mapping_preserves_compound_issue_coverage_before_rendering():
     text = _read(REFERENCES / "legal-issue-mapping.md")
     _require(
@@ -126,15 +110,30 @@ def test_issue_mapping_preserves_compound_issue_coverage_before_rendering():
     )
 
 
-def test_skill_invokes_quantitative_scope_and_compound_issue_gates():
+def test_issue_mapping_preserves_defined_category_boundaries_and_specific_effects():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
+    _require(
+        text,
+        (
+            "defined eligibility category",
+            "material boundary",
+            "exception",
+            "specific legal effect",
+            "generic relaxation",
+            "지정·인정·승인",
+        ),
+    )
+
+
+def test_skill_invokes_compound_coverage_and_legal_effect_preservation():
     text = _read(SKILL_ROOT / "SKILL.md")
     _require(
         text,
         (
-            "quantitative rule scope",
             "compound-issue coverage",
-            "regulated subject",
-            "legal function",
+            "defined eligibility category",
+            "specific legal effect",
+            "generic relaxation",
         ),
     )
 
