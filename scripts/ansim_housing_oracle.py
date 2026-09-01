@@ -86,6 +86,15 @@ def detect_ansim_markers(answer: str) -> set[str]:
     if any_of("현행", "현재", "최신") and any_of("운영기준", "통합 조례", "공식 기준"):
         markers.add("CURRENT_STANDARD_REQUIRED")
 
+    current_general_minimum = matches(
+        r"(?:일반(?:적인)?\s*)?(?:안심주택\s*)?사업대상지(?:의)?\s*"
+        r"(?:최소\s*면적|최소면적).{0,25}1\s*,?\s*000\s*㎡"
+    )
+    if current_general_minimum and any_of(
+        "현행", "현재", "최신", "운영기준", "공식 기준"
+    ):
+        markers.add("GENERAL_MIN_1000_CURRENT")
+
     if "1,000㎡" in normalized and any_of("구분", "다르", "별도") and any_of("촉진지구", "일반 사업대상지"):
         markers.add("PROMOTION_1000_DISTINCTION")
     if re.search(r"300\s*㎡.{0,10}(?:당\s*)?1대", normalized) and any_of("국가", "일반"):
@@ -167,7 +176,7 @@ def detect_ansim_markers(answer: str) -> set[str]:
 DEFAULT_ORACLE_PATH = Path(__file__).resolve().parents[1] / "skills" / "law-interpretation-request" / "evals" / "v0.2.4-ansim-housing-oracle.json"
 
 REQUIRED_CASE_MARKERS = {
-    "ASH-01": {"PROMOTION_1000_DISTINCTION", "CURRENT_STANDARD_REQUIRED", "UNCERTAINTY_PRESERVED"},
+    "ASH-01": {"GENERAL_MIN_1000_CURRENT", "CURRENT_STANDARD_REQUIRED"},
     "ASH-02": {"BASE_250M", "EXCEPTION_350M_REVIEW"},
     "ASH-03": {"DORM_300_NATIONAL", "DORM_200_SEOUL", "SPECIAL_PARKING_RULE"},
     "ASH-04": {"BASE_250M", "EXCEPTION_350M_REVIEW", "DISTANCE_NOT_REPLACED", "UNCERTAINTY_PRESERVED"},
@@ -237,7 +246,28 @@ def evaluate_ansim_case(
         for marker in negative
     ]
 
-    missing = sorted(REQUIRED_CASE_MARKERS[case_id] - detected)
+    declared_required = cases[case_id].get("must_markers")
+    required = (
+        set(declared_required)
+        if declared_required
+        else REQUIRED_CASE_MARKERS[case_id]
+    )
+    missing = required - detected
+
+    # Preserve the pre-correction conservative ASH-01 fixture as an accepted
+    # uncertainty path while no longer requiring that stale formulation.
+    if (
+        case_id == "ASH-01"
+        and "GENERAL_MIN_1000_CURRENT" in missing
+        and {
+            "PROMOTION_1000_DISTINCTION",
+            "CURRENT_STANDARD_REQUIRED",
+            "UNCERTAINTY_PRESERVED",
+        }
+        <= detected
+    ):
+        missing.remove("GENERAL_MIN_1000_CURRENT")
+
     findings.extend(
         {
             "gate": None,
@@ -246,7 +276,7 @@ def evaluate_ansim_case(
             "case_id": case_id,
             "reason": f"required semantic marker missing: {marker}",
         }
-        for marker in missing
+        for marker in sorted(missing)
     )
     critical = [marker for marker in oracle["critical_negative_markers"] if marker in detected]
     return {
