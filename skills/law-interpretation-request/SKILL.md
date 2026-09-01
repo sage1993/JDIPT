@@ -18,6 +18,8 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - Authority comparison hard stop: when 법제처 해석례 and 대법원 판결 are compared, explicitly distinguish 법제처 해석례 as 행정부의 공식 해석 from 대법원 판결 as 사법적 판단, and state that 법제처 해석례를 법원 확정판결과 같은 법적 구속력으로 취급하지 않는다. Compare the statutory versions and material wording before carrying an older interpretation forward.
 - Abstract or fictional fixtures are closed-world inputs. A self-contained legal inference is also an abstract fixture. Use only supplied premises and sources actually verified in the current run.
 - Same-term conflict hard stop: if competing views use the same legal term with different scopes without a supplied or verified common definition, identify the inconsistency and keep the substantive conclusion unresolved. 동일 용어 충돌을 식별한 것 자체가 요청된 법적 관계 검토의 결과일 수 있다.
+- Special-rule completeness hard stop: when the question names a specific statutory or regulatory named scheme, program, permit category, use, or facility, finding a general rule is not source-complete. Before synthesis, verify whether the named scheme has a directly governing special rule on the same matter and compare its regulated subject, legal function, conditions, and effect with the general rule. Do not stop merely because the general rule already answers part of the question.
+- Synthesis coverage hard stop: if research identifies a main rule and exception, a general rule and directly governing special rule, or current and historical standards that can change the conclusion, the final answer must preserve that relationship. A material proposition found and relied upon during research may not disappear during rendering; unresolved applicability remains `확인 필요` or conditional rather than being omitted.
 - MOLEG suitability correction applies only in explicit MOLEG request mode.
 - Question-only mode is reserved for an input so incomplete that the legal issue, target rule, and object of review cannot meaningfully be identified. Missing material facts that prevent a definitive conclusion do not by themselves trigger question-only mode in a general legal review.
 - **E02 precedence:** 형식상 부적합 + 정보 부족이면 질문-only가 법제처 3-H1보다 우선한다. 부적합 고지 후 객관적 법령 의미·적용범위·요건·근거조항 문제로 재구성할 점을 설명한다. 필요한 질문 3~7개만 출력하고 즉시 중단한다. 이 응답에는 H1 제목, 법제처 1~3 초안, `※ 제출 전 확인`, 출처 링크를 출력하지 않는다.
@@ -87,6 +89,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 
 실체결론을 확정하기 전에 `references/source-policy.md`의 **Source Completeness / Counterevidence Gate**를 적용한다.
 
+- 질문이 특정 제도·사업·허가유형·용도·시설을 지칭하면 일반규정 확인으로 조사를 종료하지 않고, 같은 사항을 직접 규율하는 특별규정이 있는지 확인한다.
 - 잠정 결론을 제한할 수 있는 하위법령·위임·준용·**별표**·**별지서식**을 필요한 범위에서 확인한다.
 - `명문 제한 없음`, **규정 부재**를 적극 결론의 근거로 삼기 전에 반대 규정과 참조자료를 확인한다.
 - 별표·별지서식의 **위임근거**와 **실체·절차·신청양식 기능**을 구분한다.
@@ -109,6 +112,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - 형식적 타당성과 `사실성 미확인`을 분리한다.
 - 법제처 모드에서는 **갑설과 을설을 각각 독립 검증**한다.
 - 갑설·을설의 **동일한 법률용어** 의미가 근거 없이 달라지면 Same-term conflict hard stop을 적용한다.
+- 조사 중 확인한 본칙/예외, 일반/특별, 현행/과거 구분 중 결론에 영향을 주는 material proposition이 최종 문안에서 빠지면 BLOCK하고 재작성한다.
 - 사용자가 제시한 **추상 논리 시나리오**는 실제 법령·사실로 임의 치환하지 않는다.
 - `내부 오류분류명`, 기호화, 점수표, 반례표는 기본 사용자 출력에 노출하지 않는다.
 
@@ -163,6 +167,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 3. `# 2. 검토결론`에 확정 또는 조건부 결론이 있다.
 4. Output Hygiene check와 URL provenance check를 통과한다.
 5. URL에 `lsBylInfoPLinkR.do` + `lsNm`이 있으면 해당 링크를 제거하거나 현재 실행에서 확인한 안정적인 식별자 기반 링크로 교체한다.
+6. 조사·논리검증에서 결론에 사용한 material proposition과 본칙/예외·일반/특별·현행/과거 구분이 `# 2. 검토결론` 또는 `# 3. 검토이유`에 보존되어 있다.
 
 하나라도 실패하면 **그 초안은 폐기**하고 올바른 구조로 다시 작성한다. **재렌더링한 결과**에도 같은 검사를 다시 적용한다.
 
@@ -176,6 +181,7 @@ Korean Law MCP가 연결되어 있으면 공식 법령 데이터 조회를 우�
 2. `get_law_text`로 최종 인용 조문을 확인한다.
 3. `search_decisions` → `get_decision_text`로 판례·법제처 해석례 본문을 확인한다.
 4. 필요한 도구가 직접 보이지 않으면 `discover_tools` → `execute_tool`을 사용한다.
-5. 최종 인용은 필요하면 `legal_analysis`로 검증한다.
+5. 질문이 특정 제도·사업·허가유형·용도·시설을 지칭하면 일반규정 확인 후에도 같은 사항을 직접 규율하는 특별규정을 추가 탐색한다.
+6. 최종 인용은 필요하면 `legal_analysis`로 검증한다.
 
 상세 작성 규칙, 적합성 보정, 사례 패턴은 `references/request-format.md`, `references/eligibility-checklist.md`, `references/case-patterns.md`, `references/baseline-document-policy.md`를 필요한 경우에만 읽는다.
