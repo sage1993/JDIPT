@@ -19,6 +19,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - Abstract or fictional fixtures are closed-world inputs. A self-contained legal inference is also an abstract fixture. Use only supplied premises and sources actually verified in the current run.
 - Same-term conflict hard stop: if competing views use the same legal term with different scopes without a supplied or verified common definition, identify the inconsistency and keep the substantive conclusion unresolved. 동일 용어 충돌을 식별한 것 자체가 요청된 법적 관계 검토의 결과일 수 있다.
 - Special-rule completeness hard stop: when the question names a specific statutory or regulatory named scheme, program, permit category, use, or facility, finding a general rule is not source-complete. Before synthesis, verify whether the named scheme has a directly governing special rule on the same matter and compare its regulated subject, legal function, conditions, and effect with the general rule. Do not stop merely because the general rule already answers part of the question.
+- Context-branching hard stop: when the same legal subject can be governed by materially different rules depending on jurisdiction, regulated program, permit category, subtype, or special statutory status and that selector is unresolved, do not collapse the answer into one universal rule. Identify the unresolved selector, map the material branches supported by verified sources, and preserve those conditional branches without assuming which branch applies. Do not exhaustively enumerate remote or hypothetical regimes that are not reasonably implicated by the question or the sources found.
 - Synthesis coverage hard stop: if research identifies a main rule and exception, a general rule and directly governing special rule, or current and historical standards that can change the conclusion, the final answer must preserve that relationship. A material proposition found and relied upon during research may not disappear during rendering; unresolved applicability remains `확인 필요` or conditional rather than being omitted.
 - MOLEG suitability correction applies only in explicit MOLEG request mode.
 - Question-only mode is reserved for an input so incomplete that the legal issue, target rule, and object of review cannot meaningfully be identified. Missing material facts that prevent a definitive conclusion do not by themselves trigger question-only mode in a general legal review.
@@ -90,6 +91,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 실체결론을 확정하기 전에 `references/source-policy.md`의 **Source Completeness / Counterevidence Gate**를 적용한다.
 
 - 질문이 특정 제도·사업·허가유형·용도·시설을 지칭하면 일반규정 확인으로 조사를 종료하지 않고, 같은 사항을 직접 규율하는 특별규정이 있는지 확인한다.
+- 관할·제도·허가유형·세부용도·특별지위에 따라 같은 사항의 적용규정이 달라질 수 있고 그 selector가 미확정이면 하나의 보편 기준으로 단정하지 않고, 현재 자료에서 합리적으로 확인되는 적용경로를 조건부로 분리한다.
 - 잠정 결론을 제한할 수 있는 하위법령·위임·준용·**별표**·**별지서식**을 필요한 범위에서 확인한다.
 - `명문 제한 없음`, **규정 부재**를 적극 결론의 근거로 삼기 전에 반대 규정과 참조자료를 확인한다.
 - 별표·별지서식의 **위임근거**와 **실체·절차·신청양식 기능**을 구분한다.
@@ -182,6 +184,7 @@ Korean Law MCP가 연결되어 있으면 공식 법령 데이터 조회를 우�
 3. `search_decisions` → `get_decision_text`로 판례·법제처 해석례 본문을 확인한다.
 4. 필요한 도구가 직접 보이지 않으면 `discover_tools` → `execute_tool`을 사용한다.
 5. 질문이 특정 제도·사업·허가유형·용도·시설을 지칭하면 일반규정 확인 후에도 같은 사항을 직접 규율하는 특별규정을 추가 탐색한다.
-6. 최종 인용은 필요하면 `legal_analysis`로 검증한다.
+6. 관할·제도·허가유형·세부용도·특별지위가 미확정이고 검색 중 서로 다른 적용기준이 확인되면 그 차이를 선택하는 selector와 적용경로를 추가 확인한다.
+7. 최종 인용은 필요하면 `legal_analysis`로 검증한다.
 
 상세 작성 규칙, 적합성 보정, 사례 패턴은 `references/request-format.md`, `references/eligibility-checklist.md`, `references/case-patterns.md`, `references/baseline-document-policy.md`를 필요한 경우에만 읽는다.
