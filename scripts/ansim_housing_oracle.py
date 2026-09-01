@@ -45,14 +45,34 @@ def detect_ansim_markers(answer: str) -> set[str]:
     def any_of(*terms: str) -> bool:
         return any(term in normalized for term in terms)
 
+    def matches(pattern: str) -> bool:
+        return re.search(pattern, normalized) is not None
+
     if re.search(r"250\s*(?:m|미터)", normalized) and any_of("원칙", "기본", "본칙"):
         markers.add("BASE_250M")
     if re.search(r"350\s*(?:m|미터)", normalized) and any_of("통합심의", "심의위원회") and any_of("예외", "특례", "지정"):
         markers.add("EXCEPTION_350M_REVIEW")
     if any_of("과반수", "과반") and any_of("미달", "못 미", "원칙", "본칙"):
         markers.add("MAJORITY_RULE")
-    if any_of("과반 예외", "과반수 예외") and any_of("통합심의", "심의위원회"):
+
+    majority_exception_denied = matches(
+        r"(?:과반수?\s*예외|예외).{0,20}(?:인정되지|인정할 수 없|불가|허용되지)"
+    )
+    majority_exception_supported = (
+        any_of("과반수", "과반")
+        and any_of("통합심의", "심의위원회")
+        and (
+            any_of("과반 예외", "과반수 예외", "예외 가능")
+            or (
+                any_of("토지의 효율", "토지 효율", "구역 정형화", "정형화")
+                and any_of("인정될 수", "허용될 수", "가능")
+            )
+        )
+        and not majority_exception_denied
+    )
+    if majority_exception_supported:
         markers.add("MAJORITY_EXCEPTION")
+
     if any_of("용도별", "두 주택용도") and any_of("각각", "별도") and any_of("주차", "주차대수"):
         markers.add("MIXED_USE_SEPARATE")
     if "안심주택" in normalized and any_of("특별규정", "특별 조항", "제13조") and any_of("우선", "먼저", "따라"):
@@ -72,19 +92,50 @@ def detect_ansim_markers(answer: str) -> set[str]:
         markers.add("DORM_300_NATIONAL")
     if re.search(r"200\s*㎡.{0,10}(?:당\s*)?1대", normalized) and "서울" in normalized:
         markers.add("DORM_200_SEOUL")
-    if any_of("거리요건을 대체하지", "거리 요건을 대체하지"):
+
+    area_requirement_present = matches(r"1,?500\s*㎡") and any_of("면적", "최소면적", "최소 면적")
+    distance_requirement_present = (
+        any_of("거리", "거리요건", "거리 요건")
+        or re.search(r"(?:250|300|350)\s*(?:m|미터)", normalized) is not None
+    )
+    conditional_eligibility = (
+        matches(r"만으로.{0,50}(?:확정|자격|사업\s*가능).{0,25}(?:아니|않|없)")
+        or matches(r"(?:확정|단정).{0,25}(?:아니|않|없)")
+    )
+    separate_requirements = (
+        any_of("각각", "별도", "별도로", "독립")
+        and any_of("면적", "1,500㎡")
+        and any_of("거리", "250m", "350m")
+    )
+    if any_of("거리요건을 대체하지", "거리 요건을 대체하지") or (
+        area_requirement_present
+        and distance_requirement_present
+        and (conditional_eligibility or separate_requirements)
+    ):
         markers.add("DISTANCE_NOT_REPLACED")
+
     if any_of("물리적 공동사용", "물리적 공동 사용") and any_of("법정 최소대수", "법정 산정"):
         markers.add("PHYSICAL_USE_SEPARATE")
-    if "350m" in normalized and any_of("별개", "별개의", "서로 독립") and any_of("과반 예외", "과반수 예외"):
+    if (
+        "MAJORITY_EXCEPTION" in markers
+        and re.search(r"350\s*(?:m|미터)", normalized)
+        and any_of("지정", "특례", "예외")
+        and any_of("별도", "별도의", "별개", "별개의", "서로 독립", "각각", "따로")
+    ):
         markers.add("SEPARATE_EXCEPTIONS")
     if any_of("제46조제6항", "제46조 제6항") and any_of("하위 위임", "위임규정") and any_of("지구단위계획 결정", "결정내용"):
         markers.add("DELEGATION_CHAIN")
     if any_of("의료시설 중심지역", "종합병원") and "350m" in normalized:
         markers.add("MEDICAL_350")
-    if any_of("확정할 수 없", "단정할 수 없", "확인해야", "확인 필요"):
+    if (
+        any_of("확정할 수 없", "단정할 수 없", "확인해야", "확인 필요")
+        or matches(r"(?:확정|단정).{0,25}(?:아니|않|없)")
+        or (
+            any_of("요건", "조건")
+            and any_of("충족해야", "검토해야", "확인해야", "검토 필요", "확인 필요")
+        )
+    ):
         markers.add("UNCERTAINTY_PRESERVED")
-
 
     if re.search(r"역세권(?:은|의 범위는).{0,30}350\s*(?:m|미터).{0,10}(?:이내|까지)", normalized) and not any_of("예외", "특례", "통합심의"):
         markers.add("GENERAL_350M")
@@ -199,8 +250,6 @@ def evaluate_ansim_case(
     }
 
 
-
-
 def _validate_ansim_oracle(oracle: dict[str, Any]) -> None:
     if oracle.get("contract") != "ansim_housing_regression_oracle=v0.2.4-candidate":
         raise ValueError("invalid ansim housing oracle contract")
@@ -227,7 +276,6 @@ def _validate_ansim_oracle(oracle: dict[str, Any]) -> None:
             raise ValueError(f"{case['id']} must_not must be a list")
         if not isinstance(case.get("authorities"), list) or not case["authorities"]:
             raise ValueError(f"{case['id']} authorities must be non-empty")
-
 
 
 def build_ansim_summary(
