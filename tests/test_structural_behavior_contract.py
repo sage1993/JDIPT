@@ -36,6 +36,21 @@ def test_skill_requires_named_scheme_special_rule_completion_before_synthesis():
     )
 
 
+def test_skill_preserves_unresolved_context_branches_instead_of_one_universal_rule():
+    text = _read(SKILL_ROOT / "SKILL.md")
+    _require(
+        text,
+        (
+            "Context-branching hard stop",
+            "jurisdiction",
+            "special statutory status",
+            "one universal rule",
+            "selector",
+            "conditional branches",
+        ),
+    )
+
+
 def test_source_policy_named_scheme_gate_does_not_stop_at_general_rule():
     text = _read(REFERENCES / "source-policy.md")
     _require(
@@ -47,6 +62,21 @@ def test_source_policy_named_scheme_gate_does_not_stop_at_general_rule():
             "직접 규율하는 특별규정",
             "규율대상",
             "법적 기능",
+        ),
+    )
+
+
+def test_source_policy_maps_material_context_selectors_when_they_change_the_rule():
+    text = _read(REFERENCES / "source-policy.md")
+    _require(
+        text,
+        (
+            "Context-selector Branching Gate",
+            "관할",
+            "특별지위",
+            "적용경로",
+            "하나의 보편 기준",
+            "조건부 분기",
         ),
     )
 
