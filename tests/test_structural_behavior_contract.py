@@ -138,8 +138,8 @@ def test_skill_invokes_compound_coverage_and_legal_effect_preservation():
     )
 
 
-def test_source_policy_resolves_direct_defining_authority_before_guidance_synthesis():
-    text = _read(REFERENCES / "source-policy.md")
+def test_issue_mapping_resolves_direct_defining_authority_before_guidance_synthesis():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
     _require(
         text,
         (
@@ -153,15 +153,17 @@ def test_source_policy_resolves_direct_defining_authority_before_guidance_synthe
     )
 
 
-def test_skill_preserves_mutable_standard_temporal_status_in_final_answer():
-    text = _read(SKILL_ROOT / "SKILL.md")
+def test_issue_mapping_preserves_mutable_standard_temporal_status_in_final_synthesis():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
     _require(
         text,
         (
-            "mutable-standard temporal rendering hard stop",
-            "revision/effective-date",
-            "current/effective status",
-            "link alone",
+            "Mutable Standard Temporal Status Gate",
+            "개정일",
+            "시행일",
+            "현행성",
+            "최종 합성",
+            "링크만으로",
         ),
     )
 
