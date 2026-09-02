@@ -204,6 +204,67 @@ def test_skill_blocks_material_proposition_omission_at_rendering():
     )
 
 
+def test_skill_requires_material_source_dependency_closure_before_synthesis():
+    text = _read(SKILL_ROOT / "SKILL.md")
+    runtime_contract = _section(
+        text,
+        "## ASCII execution contract",
+        "## 응답 모드 라우팅",
+    )
+    _require(
+        runtime_contract,
+        (
+            "Material source dependency closure hard stop",
+            "direct definition",
+            "main rule",
+            "material boundary",
+            "exception",
+            "specific legal effect",
+            "targeted retrieval retry",
+            "CLOSED",
+            "확인 필요",
+        ),
+    )
+
+
+def test_source_policy_requires_bounded_material_dependency_closure():
+    text = _read(REFERENCES / "source-policy.md")
+    _require(
+        text,
+        (
+            "Material Source Dependency Closure Gate",
+            "직접 정의규정",
+            "본칙",
+            "material boundary",
+            "예외·특례",
+            "specific legal effect",
+            "직접 근거",
+            "targeted retrieval retry",
+            "CLOSED",
+            "OPEN",
+            "bounded",
+        ),
+    )
+
+
+def test_issue_mapping_maintains_material_source_dependency_closure_ledger():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
+    _require(
+        text,
+        (
+            "Material Source Dependency Closure Ledger",
+            "direct definition",
+            "main rule",
+            "material boundary",
+            "exception",
+            "specific legal effect",
+            "direct source",
+            "CLOSED",
+            "OPEN",
+        ),
+    )
+
+
 def test_new_structural_contracts_are_not_ansim_case_hardcodes():
     skill = _read(SKILL_ROOT / "SKILL.md")
     source_policy = _read(REFERENCES / "source-policy.md")
