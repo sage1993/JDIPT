@@ -21,6 +21,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - Special-rule completeness hard stop: when the question names a specific statutory or regulatory named scheme, program, permit category, use, or facility, finding a general rule is not source-complete. Before synthesis, verify whether a directly governing special rule on the same matter is reasonably implicated by the named context or verified sources, and compare its regulated subject, legal function, conditions, and effect with the general rule. Do not stop merely because the general rule already answers part of the question, but do not exhaustively search unrelated special regimes.
 - Context-branching hard stop: when the same legal subject can be governed by materially different rules depending on jurisdiction, regulated program, permit category, subtype, or special statutory status and that selector is unresolved, do not collapse the answer into one universal rule. Identify the unresolved selector, map the material branches supported by verified sources, and preserve those conditional branches without assuming which branch applies. Do not exhaustively enumerate remote or hypothetical regimes that are not reasonably implicated by the question or the sources found.
 - Direct defining authority hard stop: when a material conclusion depends on a statutory category, exception, or **specific legal effect** and an **operating standard**, guidance, notice, or summary merely restates that rule, do not treat the restatement as source-complete. Before synthesis, resolve the statute, regulation, ordinance, or rule that **directly defines** the category, exception, or effect when reasonably accessible. If the directly governing **original source** cannot be verified after **bounded** attempts, do not convert the restatement into a generic relaxation or inferred legal effect; preserve that proposition as `확인 필요` or clearly attribute it as guidance-level only. This bounded check ends at the directly defining authority and does not require exhaustive hierarchy search.
+- Material source dependency closure hard stop: before synthesis, every material issue that depends on a defined legal category or direct authority must be `CLOSED`. Track the applicable `direct definition`, `main rule`, `material boundary`, `exception`, `specific legal effect`, direct source, and temporal status. If an applicable field is missing, perform a **targeted retrieval retry** bounded to the directly defining authority, exception, or effect. Do not fill an `OPEN` field from model memory or a generic guidance summary. If bounded retries do not close the dependency, keep the proposition as `확인 필요` and lower the conclusion instead of synthesizing an unsupported rule.
 - compound-issue coverage hard stop: when the question contains multiple independently outcome-determinative issues, keep an internal issue list through research and synthesis. For each issue, preserve any material main rule, exception or special rule, temporal applicability, unresolved condition, and supporting authority. If an issue depends on a **defined eligibility category**, preserve the category's material boundary and exception rather than leaving the category as an opaque label; do not treat coverage of one issue as coverage of another.
 - Synthesis coverage hard stop: if research identifies a main rule and exception, a general rule and directly governing special rule, or current and historical standards that can change the conclusion, the final answer must preserve that relationship. A material proposition found and relied upon during research may not disappear during rendering. When a verified source states a **specific legal effect** such as designation, recognition, approval, permission, or exclusion, preserve that effect instead of reducing it to a **generic relaxation** or vague possibility. Unresolved applicability remains `확인 필요` or conditional rather than being omitted.
 - MOLEG suitability correction applies only in explicit MOLEG request mode.
@@ -76,6 +77,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 - 동일 사항의 중복 규율인지 **규율 공백**인지 구분한다.
 - 복수의 독립 판단요소가 있는 질문은 compound-issue coverage를 유지하여 각 issue의 본칙·예외·특례·적용시점·`확인 필요` 상태가 최종 합성에서 누락되지 않게 한다.
 - issue가 **defined eligibility category**에 의존하면 그 category의 적용 여부를 바꾸는 material boundary와 exception을 함께 매핑한다.
+- material issue마다 `direct definition`·`main rule`·`material boundary`·`exception`·`specific legal effect`·direct source를 추적하고, 적용 가능한 필드가 직접 근거에 연결될 때까지 `OPEN`으로 유지한다. `OPEN` issue는 최종 합성 전에 targeted retrieval retry를 거치며, bounded 재확인 뒤에도 미해결이면 `확인 필요`로 낮춘다.
 - 확인한 규정의 **specific legal effect**가 지정·인정·승인·허가·적용제외 등으로 특정되면 이를 단순한 **generic relaxation**이나 막연한 가능성으로 바꾸지 않는다.
 - 사실과 요건을 `충족`, `불충족`, `확인 필요`로 연결한다.
 - 사용자가 **가상 규정·정의·본칙·예외·사실관계를 직접 제공**하면 그 전제를 보존한다.
@@ -97,6 +99,7 @@ This block is the runtime priority contract. Apply it before clarification, sour
 
 - 질문이 특정 제도·사업·허가유형·용도·시설을 지칭하면 일반규정 확인으로 조사를 종료하지 않고, 같은 사항을 직접 규율하는 특별규정이 있는지 확인한다.
 - 관할·제도·허가유형·세부용도·특별지위에 따라 같은 사항의 적용규정이 달라질 수 있고 그 selector가 미확정이면 하나의 보편 기준으로 단정하지 않고, 현재 자료에서 합리적으로 확인되는 적용경로를 조건부로 분리한다.
+- 정의된 법적 범주·material boundary·예외·specific legal effect가 결론에 영향을 주면 `Material Source Dependency Closure Gate`를 우선 적용하고, 해당 issue가 `OPEN`인 동안 Source Completeness를 통과시키지 않는다.
 - 잠정 결론을 제한할 수 있는 하위법령·위임·준용·**별표**·**별지서식**을 필요한 범위에서 확인한다.
 - `명문 제한 없음`, **규정 부재**를 적극 결론의 근거로 삼기 전에 반대 규정과 참조자료를 확인한다.
 - 별표·별지서식의 **위임근거**와 **실체·절차·신청양식 기능**을 구분한다.
@@ -191,6 +194,7 @@ Korean Law MCP가 연결되어 있으면 공식 법령 데이터 조회를 우�
 4. 필요한 도구가 직접 보이지 않으면 `discover_tools` → `execute_tool`을 사용한다.
 5. 질문이 특정 제도·사업·허가유형·용도·시설을 지칭하면 일반규정 확인 후에도 같은 사항을 직접 규율하는 특별규정을 추가 탐색한다.
 6. 관할·제도·허가유형·세부용도·특별지위가 미확정이고 검색 중 서로 다른 적용기준이 확인되면 그 차이를 선택하는 selector와 적용경로를 추가 확인한다.
-7. 최종 인용은 필요하면 `legal_analysis`로 검증한다.
+7. defined category·material boundary·exception·specific legal effect 중 material field가 미해결이면 해당 field를 직접 규정한 원문을 대상으로 targeted retrieval retry를 수행하고, bounded 재확인 뒤에도 `OPEN`이면 `확인 필요`로 보존한다.
+8. 최종 인용은 필요하면 `legal_analysis`로 검증한다.
 
 상세 작성 규칙, 적합성 보정, 사례 패턴은 `references/request-format.md`, `references/eligibility-checklist.md`, `references/case-patterns.md`, `references/baseline-document-policy.md`를 필요한 경우에만 읽는다.
