@@ -148,6 +148,22 @@ def detect_ansim_markers(answer: str) -> set[str]:
     if stale_policy_controls_current:
         markers.add("STALE_POLICY_CONTROLS")
 
+    current_general_minimum = matches(
+        r"(?:일반(?:적인)?\s*)?(?:안심주택\s*)?사업대상지(?:의)?\s*"
+        r"(?:최소\s*면적|최소면적).{0,25}1\s*,?\s*000\s*㎡"
+    )
+    current_general_minimum_denied = matches(
+        r"(?:일반(?:적인)?\s*)?(?:안심주택\s*)?사업대상지(?:의)?\s*"
+        r"(?:최소\s*면적|최소면적).{0,25}1\s*,?\s*000\s*㎡"
+        r".{0,15}(?:아니|아닙|않)"
+    )
+    if (
+        current_general_minimum
+        and not current_general_minimum_denied
+        and any_of("현행", "현재", "최신", "운영기준", "공식 기준")
+    ):
+        markers.add("GENERAL_MIN_1000_CURRENT")
+
     if "1,000㎡" in normalized and any_of("구분", "다르", "별도") and any_of("촉진지구", "일반 사업대상지"):
         markers.add("PROMOTION_1000_DISTINCTION")
     if re.search(r"300\s*㎡.{0,10}(?:당\s*)?1대", normalized) and any_of("국가", "일반"):
@@ -235,7 +251,7 @@ def detect_ansim_markers(answer: str) -> set[str]:
 DEFAULT_ORACLE_PATH = Path(__file__).resolve().parents[1] / "skills" / "law-interpretation-request" / "evals" / "v0.2.4-ansim-housing-oracle.json"
 
 REQUIRED_CASE_MARKERS = {
-    "ASH-01": {"PROMOTION_1000_DISTINCTION", "CURRENT_STANDARD_REQUIRED", "UNCERTAINTY_PRESERVED"},
+    "ASH-01": {"GENERAL_MIN_1000_CURRENT", "CURRENT_STANDARD_REQUIRED"},
     "ASH-02": {"BASE_250M", "EXCEPTION_350M_REVIEW"},
     "ASH-03": {"DORM_300_NATIONAL", "DORM_200_SEOUL", "SPECIAL_PARKING_RULE"},
     "ASH-04": {"BASE_250M", "EXCEPTION_350M_REVIEW", "DISTANCE_NOT_REPLACED", "UNCERTAINTY_PRESERVED"},
@@ -305,7 +321,13 @@ def evaluate_ansim_case(
         for marker in negative
     ]
 
-    missing = sorted(REQUIRED_CASE_MARKERS[case_id] - detected)
+    declared_required = cases[case_id].get("must_markers")
+    required = (
+        set(declared_required)
+        if declared_required is not None
+        else REQUIRED_CASE_MARKERS[case_id]
+    )
+    missing = sorted(required - detected)
     findings.extend(
         {
             "gate": None,

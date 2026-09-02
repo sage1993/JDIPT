@@ -30,18 +30,22 @@
       "id": "ASH-01",
       "prompt": "안심주택의 일반적인 사업대상지 최소 면적은 얼마야?",
       "severity": "CRITICAL_TEMPORAL",
+      "must_markers": [
+        "GENERAL_MIN_1000_CURRENT",
+        "CURRENT_STANDARD_REQUIRED"
+      ],
       "must": [
-        "현행 안심주택의 일반 최소면적을 500㎡로 무조건 단정하지 않는다",
-        "촉진지구 1,000㎡ 이상 규정과 별도 사업대상지/용도지역 변경 기준을 구분한다",
-        "500㎡ 등 별도 수치를 제시하려면 질의일 현재 공식 운영기준의 직접 근거를 확인한다"
+        "질의일 현재 공식 안심주택 건립 및 운영기준상 일반 사업대상지 최소 면적 1,000㎡ 기준을 식별한다",
+        "어르신 100% 임대공급 등 현행 운영기준의 별도 5,000㎡ 적용분기는 일반 기준과 구분한다",
+        "과거 500㎡ 기준을 현행 안심주택 일반 최소면적으로 승계하지 않는다"
       ],
       "must_not": [
         "GENERAL_MIN_500",
         "STALE_POLICY_CONTROLS"
       ],
       "authorities": [
-        "서울특별시 안심주택 공급 지원에 관한 조례 제2조제11호",
-        "질의일 현재 서울시 안심주택 건립 및 운영기준"
+        "질의일 현재 서울시 안심주택 건립 및 운영기준의 사업대상지 최소면적 조항",
+        "서울특별시 안심주택 공급 지원에 관한 조례"
       ]
     },
     {
@@ -64,6 +68,11 @@
       "id": "ASH-03",
       "prompt": "임대형기숙사의 주차장 설치기준은 어떤 규정을 따라야 해?",
       "severity": "MAJOR_CONTEXT_BRANCHING",
+      "must_markers": [
+        "DORM_300_NATIONAL",
+        "DORM_200_SEOUL",
+        "SPECIAL_PARKING_RULE"
+      ],
       "must": [
         "일반 임대형기숙사와 서울 안심주택 임대형기숙사의 적용경로를 구분한다",
         "국가 일반기준에서 비학생용 그 밖의 건축물 300㎡/대를 설명할 수 있다",
@@ -86,7 +95,9 @@
       "severity": "CRITICAL_EXCEPTION_APPLICATION",
       "must_markers": [
         "BASE_250M",
-        "EXCEPTION_350M_REVIEW"
+        "EXCEPTION_350M_REVIEW",
+        "DISTANCE_NOT_REPLACED",
+        "UNCERTAINTY_PRESERVED"
       ],
       "must": [
         "300m는 원칙 250m 밖이라고 판단",
@@ -107,7 +118,8 @@
       "severity": "CRITICAL_SPECIAL_RULE",
       "must_markers": [
         "SPECIAL_PARKING_RULE",
-        "MIXED_USE_SEPARATE"
+        "MIXED_USE_SEPARATE",
+        "PHYSICAL_USE_SEPARATE"
       ],
       "must": [
         "공공지원민간임대주택 부분과 임대형기숙사 부분을 용도별로 각각 산정",
@@ -151,7 +163,9 @@
       "must_markers": [
         "MAJORITY_RULE",
         "MAJORITY_EXCEPTION",
-        "EXCEPTION_350M_REVIEW"
+        "EXCEPTION_350M_REVIEW",
+        "SEPARATE_EXCEPTIONS",
+        "UNCERTAINTY_PRESERVED"
       ],
       "must": [
         "45%는 과반 본칙 미달",
@@ -172,7 +186,8 @@
       "must_markers": [
         "MIXED_USE_SEPARATE",
         "FAR_400_CONDITIONAL",
-        "INDUSTRIAL_SITE_BY_COMMITTEE"
+        "INDUSTRIAL_SITE_BY_COMMITTEE",
+        "DELEGATION_CHAIN"
       ],
       "must": [
         "지구단위계획 주차완화는 국토계획법 시행령 제46조제6항의 법정 요건과 하위 위임을 추적",
@@ -194,7 +209,9 @@
       "severity": "CRITICAL_REPEALED_AUTHORITY",
       "must_markers": [
         "REPEALED_LAW_BLOCK",
-        "CURRENT_STANDARD_REQUIRED"
+        "CURRENT_STANDARD_REQUIRED",
+        "MEDICAL_350",
+        "UNCERTAINTY_PRESERVED"
       ],
       "must": [
         "현행 통합 안심주택 조례 사용",
