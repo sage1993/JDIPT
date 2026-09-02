@@ -138,6 +138,27 @@ def test_skill_invokes_compound_coverage_and_legal_effect_preservation():
     )
 
 
+def test_skill_promotes_direct_defining_authority_to_runtime_priority_contract():
+    text = _read(SKILL_ROOT / "SKILL.md")
+    runtime_contract = _section(
+        text,
+        "## ASCII execution contract",
+        "## 응답 모드 라우팅",
+    )
+    _require(
+        runtime_contract,
+        (
+            "Direct defining authority hard stop",
+            "operating standard",
+            "directly defines",
+            "specific legal effect",
+            "original source",
+            "확인 필요",
+            "bounded",
+        ),
+    )
+
+
 def test_issue_mapping_resolves_direct_defining_authority_before_guidance_synthesis():
     text = _read(REFERENCES / "legal-issue-mapping.md")
     _require(
