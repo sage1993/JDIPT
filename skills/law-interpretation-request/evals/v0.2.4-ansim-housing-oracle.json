@@ -68,6 +68,11 @@
       "id": "ASH-03",
       "prompt": "임대형기숙사의 주차장 설치기준은 어떤 규정을 따라야 해?",
       "severity": "MAJOR_CONTEXT_BRANCHING",
+      "must_markers": [
+        "DORM_300_NATIONAL",
+        "DORM_200_SEOUL",
+        "SPECIAL_PARKING_RULE"
+      ],
       "must": [
         "일반 임대형기숙사와 서울 안심주택 임대형기숙사의 적용경로를 구분한다",
         "국가 일반기준에서 비학생용 그 밖의 건축물 300㎡/대를 설명할 수 있다",
@@ -90,7 +95,9 @@
       "severity": "CRITICAL_EXCEPTION_APPLICATION",
       "must_markers": [
         "BASE_250M",
-        "EXCEPTION_350M_REVIEW"
+        "EXCEPTION_350M_REVIEW",
+        "DISTANCE_NOT_REPLACED",
+        "UNCERTAINTY_PRESERVED"
       ],
       "must": [
         "300m는 원칙 250m 밖이라고 판단",
@@ -111,7 +118,8 @@
       "severity": "CRITICAL_SPECIAL_RULE",
       "must_markers": [
         "SPECIAL_PARKING_RULE",
-        "MIXED_USE_SEPARATE"
+        "MIXED_USE_SEPARATE",
+        "PHYSICAL_USE_SEPARATE"
       ],
       "must": [
         "공공지원민간임대주택 부분과 임대형기숙사 부분을 용도별로 각각 산정",
@@ -155,7 +163,9 @@
       "must_markers": [
         "MAJORITY_RULE",
         "MAJORITY_EXCEPTION",
-        "EXCEPTION_350M_REVIEW"
+        "EXCEPTION_350M_REVIEW",
+        "SEPARATE_EXCEPTIONS",
+        "UNCERTAINTY_PRESERVED"
       ],
       "must": [
         "45%는 과반 본칙 미달",
@@ -176,7 +186,8 @@
       "must_markers": [
         "MIXED_USE_SEPARATE",
         "FAR_400_CONDITIONAL",
-        "INDUSTRIAL_SITE_BY_COMMITTEE"
+        "INDUSTRIAL_SITE_BY_COMMITTEE",
+        "DELEGATION_CHAIN"
       ],
       "must": [
         "지구단위계획 주차완화는 국토계획법 시행령 제46조제6항의 법정 요건과 하위 위임을 추적",
@@ -198,7 +209,9 @@
       "severity": "CRITICAL_REPEALED_AUTHORITY",
       "must_markers": [
         "REPEALED_LAW_BLOCK",
-        "CURRENT_STANDARD_REQUIRED"
+        "CURRENT_STANDARD_REQUIRED",
+        "MEDICAL_350",
+        "UNCERTAINTY_PRESERVED"
       ],
       "must": [
         "현행 통합 안심주택 조례 사용",
