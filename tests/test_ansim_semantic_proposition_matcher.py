@@ -89,3 +89,41 @@ def test_350m_exception_does_not_borrow_unrelated_designation_from_another_propo
 
     assert "BASE_250M" in markers
     assert "EXCEPTION_350M_REVIEW" not in markers
+
+
+def test_separate_exceptions_does_not_match_when_same_proposition_conflates_rules():
+    answer = (
+        "45%는 과반 원칙에 미달하지만 과반 예외 가능하며, 통합심의를 거치면 "
+        "같은 기준으로 350m까지 사업대상지 지정이 가능합니다."
+    )
+
+    markers = detect_ansim_markers(answer)
+
+    assert "MAJORITY_EXCEPTION" in markers
+    assert "EXCEPTION_350M_REVIEW" in markers
+    assert "SEPARATE_EXCEPTIONS" not in markers
+
+
+def test_unrelated_denial_does_not_suppress_supported_majority_exception():
+    answer = (
+        "45%는 과반 원칙에 미달합니다. "
+        "토지의 효율적 이용 사유가 있으면 통합심의위원회 심의를 거쳐 과반 예외로 인정될 수 있습니다. "
+        "다만 다른 별도 예외는 인정되지 않습니다. "
+        "350m 사업대상지 지정은 별도 심의가 필요합니다."
+    )
+
+    markers = detect_ansim_markers(answer)
+
+    assert "MAJORITY_EXCEPTION" in markers
+
+
+def test_stale_policy_controls_current_marker_detects_old_scheme_as_current_authority():
+    answer = "현행 안심주택은 역세권 청년주택 건립 및 운영기준에 따라 사업대상지를 판단합니다."
+
+    assert "STALE_POLICY_CONTROLS" in detect_ansim_markers(answer)
+
+
+def test_historical_stale_policy_reference_does_not_trigger_current_authority_marker():
+    answer = "과거 역세권 청년주택 건립 및 운영기준은 현행 안심주택에 그대로 적용하지 않습니다."
+
+    assert "STALE_POLICY_CONTROLS" not in detect_ansim_markers(answer)

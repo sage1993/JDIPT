@@ -66,29 +66,48 @@ def detect_ansim_markers(answer: str) -> set[str]:
         )
         return (has_review and has_exception_effect) or explicit_target_designation
 
+    def proposition_has_majority_exception(proposition: str) -> bool:
+        has_review = "통합심의" in proposition or "심의위원회" in proposition
+        if not has_review:
+            return False
+        denied = re.search(
+            r"(?:과반수?\s*예외|예외).{0,20}(?:인정되지|인정할 수 없|불가|허용되지)",
+            proposition,
+        )
+        if denied:
+            return False
+        explicit = any(
+            term in proposition for term in ("과반 예외", "과반수 예외", "예외 가능")
+        )
+        reasoned = (
+            any(
+                term in proposition
+                for term in ("토지의 효율", "토지 효율", "구역 정형화", "정형화")
+            )
+            and any(term in proposition for term in ("인정될 수", "허용될 수", "가능"))
+        )
+        return explicit or reasoned
+
     if re.search(r"250\s*(?:m|미터)", normalized) and any_of("원칙", "기본", "본칙"):
         markers.add("BASE_250M")
-    if any(proposition_has_350m_exception(proposition) for proposition in propositions):
+
+    exception_350_indices = {
+        index
+        for index, proposition in enumerate(propositions)
+        if proposition_has_350m_exception(proposition)
+    }
+    if exception_350_indices:
         markers.add("EXCEPTION_350M_REVIEW")
+
     if any_of("과반수", "과반") and any_of("미달", "못 미", "원칙", "본칙"):
         markers.add("MAJORITY_RULE")
 
-    majority_exception_denied = matches(
-        r"(?:과반수?\s*예외|예외).{0,20}(?:인정되지|인정할 수 없|불가|허용되지)"
-    )
-    majority_exception_supported = (
-        any_of("과반수", "과반")
-        and any_of("통합심의", "심의위원회")
-        and (
-            any_of("과반 예외", "과반수 예외", "예외 가능")
-            or (
-                any_of("토지의 효율", "토지 효율", "구역 정형화", "정형화")
-                and any_of("인정될 수", "허용될 수", "가능")
-            )
-        )
-        and not majority_exception_denied
-    )
-    if majority_exception_supported:
+    majority_exception_indices = {
+        index
+        for index, proposition in enumerate(propositions)
+        if proposition_has_majority_exception(proposition)
+    }
+    if majority_exception_indices and any_of("과반수", "과반"):
         markers.add("MAJORITY_EXCEPTION")
 
     if any_of("용도별", "두 주택용도") and any_of("각각", "별도") and any_of("주차", "주차대수"):
@@ -103,6 +122,31 @@ def detect_ansim_markers(answer: str) -> set[str]:
         markers.add("REPEALED_LAW_BLOCK")
     if any_of("현행", "현재", "최신") and any_of("운영기준", "통합 조례", "공식 기준"):
         markers.add("CURRENT_STANDARD_REQUIRED")
+
+    stale_policy_source = any_of(
+        "역세권 청년주택",
+        "청년주택 건립 및 운영기준",
+        "청년주택 운영기준",
+    )
+    stale_policy_disclaimed = any_of(
+        "과거",
+        "종전",
+        "이전",
+        "폐지",
+        "적용하지",
+        "적용하지 않",
+        "승계하지",
+        "승계할 수 없",
+        "참고",
+    )
+    stale_policy_controls_current = (
+        stale_policy_source
+        and "안심주택" in normalized
+        and any_of("현행", "현재", "2026년", "따라", "적용")
+        and not stale_policy_disclaimed
+    )
+    if stale_policy_controls_current:
+        markers.add("STALE_POLICY_CONTROLS")
 
     if "1,000㎡" in normalized and any_of("구분", "다르", "별도") and any_of("촉진지구", "일반 사업대상지"):
         markers.add("PROMOTION_1000_DISTINCTION")
@@ -138,16 +182,22 @@ def detect_ansim_markers(answer: str) -> set[str]:
 
     if any_of("물리적 공동사용", "물리적 공동 사용") and any_of("법정 최소대수", "법정 산정"):
         markers.add("PHYSICAL_USE_SEPARATE")
+
+    explicit_separation = any_of(
+        "별도", "별도의", "별개", "별개의", "서로 독립", "각각", "따로"
+    )
+    distinct_exception_propositions = any(
+        majority_index != exception_index
+        for majority_index in majority_exception_indices
+        for exception_index in exception_350_indices
+    )
     if (
         "MAJORITY_EXCEPTION" in markers
-        and re.search(r"350\s*(?:m|미터)", normalized)
-        and any_of("지정", "특례", "예외")
-        and (
-            "EXCEPTION_350M_REVIEW" in markers
-            or any_of("별도", "별도의", "별개", "별개의", "서로 독립", "각각", "따로")
-        )
+        and "EXCEPTION_350M_REVIEW" in markers
+        and (distinct_exception_propositions or explicit_separation)
     ):
         markers.add("SEPARATE_EXCEPTIONS")
+
     if any_of("제46조제6항", "제46조 제6항") and any_of("하위 위임", "위임규정") and any_of("지구단위계획 결정", "결정내용"):
         markers.add("DELEGATION_CHAIN")
     if any_of("의료시설 중심지역", "종합병원") and "350m" in normalized:
