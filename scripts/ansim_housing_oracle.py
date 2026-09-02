@@ -123,6 +123,31 @@ def detect_ansim_markers(answer: str) -> set[str]:
     if any_of("현행", "현재", "최신") and any_of("운영기준", "통합 조례", "공식 기준"):
         markers.add("CURRENT_STANDARD_REQUIRED")
 
+    stale_policy_source = any_of(
+        "역세권 청년주택",
+        "청년주택 건립 및 운영기준",
+        "청년주택 운영기준",
+    )
+    stale_policy_disclaimed = any_of(
+        "과거",
+        "종전",
+        "이전",
+        "폐지",
+        "적용하지",
+        "적용하지 않",
+        "승계하지",
+        "승계할 수 없",
+        "참고",
+    )
+    stale_policy_controls_current = (
+        stale_policy_source
+        and "안심주택" in normalized
+        and any_of("현행", "현재", "2026년", "따라", "적용")
+        and not stale_policy_disclaimed
+    )
+    if stale_policy_controls_current:
+        markers.add("STALE_POLICY_CONTROLS")
+
     current_general_minimum = matches(
         r"(?:일반(?:적인)?\s*)?(?:안심주택\s*)?사업대상지(?:의)?\s*"
         r"(?:최소\s*면적|최소면적).{0,25}1\s*,?\s*000\s*㎡"
