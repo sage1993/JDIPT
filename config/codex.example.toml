@@ -3,6 +3,6 @@
 
 [mcp_servers.korean_law]
 command = "npx"
-args = ["-y", "korean-law-mcp@4.12.1"]
+args = ["-y", "korean-law-mcp@4.12.2"]
 enabled = true
 env_vars = ["LAW_OC"]

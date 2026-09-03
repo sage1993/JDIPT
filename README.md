@@ -17,7 +17,7 @@ JDIPT는 다음 책임을 분리해 관리합니다.
 - **법령 데이터 계층:** [`korean-law-mcp`](https://github.com/chrisryugj/korean-law-mcp) — 국가법령정보센터 기반 법령·판례·해석례 조회 및 인용 검증
 - **회귀검증 계층:** E1–E46 contract oracle, installed runtime SHA-256 integrity, critical stability suite, full release gate
 
-`korean-law-mcp` 소스는 저장소에 복제하지 않고 외부 의존성으로 사용합니다. 현재 고정 버전은 `4.12.1`입니다.
+`korean-law-mcp` 소스는 저장소에 복제하지 않고 외부 의존성으로 사용합니다. 현재 고정 버전은 `4.12.2`입니다.
 
 ## Plugin 패키징
 
@@ -191,7 +191,7 @@ $env:LAW_OC="발급받은_API_KEY"
 ```toml
 [mcp_servers.korean_law]
 command = "npx"
-args = ["-y", "korean-law-mcp@4.12.1"]
+args = ["-y", "korean-law-mcp@4.12.2"]
 enabled = true
 env_vars = ["LAW_OC"]
 ```

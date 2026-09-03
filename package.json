@@ -13,7 +13,7 @@
     "validate": "python scripts/validate_repo.py"
   },
   "dependencies": {
-    "korean-law-mcp": "4.12.1"
+    "korean-law-mcp": "4.12.2"
   },
   "overrides": {
     "hono": "^4.13.1",

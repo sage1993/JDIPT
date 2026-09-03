@@ -144,14 +144,14 @@ E26은 설치된 Plugin에서 **명시 호출**이 정상 작동하는지 확인
 
 Plugin 설치 자체는 `korean-law-mcp` 없이 가능합니다. 법령·판례·해석례 조회를 Codex 로컬에서 사용하려면 별도 MCP 설정이 필요합니다.
 
-현재 고정 버전: `korean-law-mcp@4.12.1`
+현재 고정 버전: `korean-law-mcp@4.12.2`
 
 예시:
 
 ```toml
 [mcp_servers.korean_law]
 command = "npx"
-args = ["-y", "korean-law-mcp@4.12.1"]
+args = ["-y", "korean-law-mcp@4.12.2"]
 enabled = true
 env_vars = ["LAW_OC"]
 ```
