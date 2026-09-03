@@ -1,0 +1,18 @@
+{
+  "description": "JDIPT bounded runtime synthesis integrity gate",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/stop_synthesis_gate.py\"",
+            "commandWindows": "py -3 \"%PLUGIN_ROOT%\\scripts\\stop_synthesis_gate.py\"",
+            "timeout": 30,
+            "statusMessage": "Checking JDIPT synthesis integrity"
+          }
+        ]
+      }
+    ]
+  }
+}

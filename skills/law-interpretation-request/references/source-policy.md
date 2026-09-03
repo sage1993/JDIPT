@@ -227,3 +227,53 @@
 - `law.go.kr/LSW/flDownload.do` combined with `flNm` is unstable for user-facing source provenance and is forbidden even when `flNm` is validly percent-encoded. Use a verified `lsInfoP.do` or stable parent page instead.
 - **`lsBylInfoPLinkR.do` + `lsNm` 링크는 사용자 출력에 사용하지 않는다.** 사람용 법령명 query는 재인코딩 과정에서 혼합 인코딩이 생기기 쉬우므로, 현재 실행에서 검증한 식별자 기반의 안정적인 상위 법령·별표 페이지를 사용하고 없으면 `[공식 링크 확인 필요]`로 처리한다.
 Stable source policy forbids the classes `flDownload.do + flNm` and `lsBylInfoPLinkR.do + lsNm`.
+## Material Source Dependency Closure Gate
+
+- A defined legal category must not remain an opaque label when its scope can change the legal conclusion.
+- Follow the 직접 정의규정 through the directly defining statute, regulation, ordinance, or rule before treating the category as source-complete.
+- When an 예외 exists, retrieve and record both its 성립조건 and its legal effect; do not record only the exception label.
+- A 검색 결과 제목 or 운영기준 summary is not sufficient to close a material dependency when the original defining source is reasonably accessible.
+- Track each material field separately and, for every 누락 필드, perform a targeted retrieval retry directed at the authority that directly defines that field.
+- Targeted retrieval retry must be bounded to the directly defining source, relevant exception conditions, and specific legal effect; it must not become unbounded hierarchy exploration.
+- A failed retry is not 규정 없음; preserve the unresolved proposition as 확인 필요, lower dependent conclusions conditionally, and do not fill the gap from model memory.
+
+### Material Proposition Synthesis Input Contract
+
+- Runtime activation is explicit and turn-scoped: a successful bundled `register_material_proposition` call writes the structured proposition ledger under `PLUGIN_DATA` for the exact `session_id` and `turn_id`, sets `jdipt_active=true`, and is the only activation signal for the Stop gate. A missing record on an unrelated turn is a no-op.
+- The registry input must not contain a model-authored `mandatory_render_clause`; the runtime deterministically generates that clause from the structured fields. Runtime state contains compact metadata only and must not contain secrets, a transcript, or a full source document.
+- Every material proposition passed to final synthesis carries its `condition`, `procedure`, `specific legal effect`, `direct source`, `temporal status`, and `closure status`.
+- Every material `CLOSED` proposition is first rendered into an independent Mandatory Proposition Sentence and inserted as a required draft slot before explanatory synthesis. Render legal effect before numbers, ranges, or practical consequences.
+- Source-clause extraction precedes any range or practical-consequence sentence. Copy the verified operative clause into the proposition record before free-form synthesis; if the source action is unambiguous, preserve its operative verb stem and do not map one legal action to another.
+- The surface anchors `operative_verb_lexeme` and `mandatory_render_clause` preserve the source-specific operative action. When present, use `mandatory_render_clause` → `source_proposition` → `evidence_span` in that order before attempting a free paraphrase.
+- Preserve a verified source-specific effect at the verb level: `지정`, `인정`, `승인`, `허가`, `산입`, `제외`, or `적용하지 아니한다` may be paraphrased naturally, but may not be replaced by an unsupported generic relaxation or benefit.
+- `CURRENT_CONFIRMED` requires question-date applicability and effective-status evidence. `HISTORICAL_CONFIRMED` identifies a prior applicable version. `CURRENT_UNRESOLVED` is the fail-safe when a recent publication, revision date, or summary does not close current applicability.
+- A proposition with `OPEN` closure status is rendered as `확인 필요` or a neutral conditional statement; the synthesis must not make it appear source-complete.
+
+## Material Coverage Invariant
+
+Every CLOSED material proposition must be represented in the final answer with an equivalent legal relation. Coverage requires the proposition's material condition, procedure, modality, legal action, legal object, resulting legal status/effect, polarity, and relation to any base or exception to remain semantically recoverable.
+
+The following do not count as coverage: a numeric value alone, a source link alone, a statement that an exception exists without its condition and effect, or another proposition about the same topic. A base rule and exception remain independently represented even when the exception changes the practical range. A missing proposition is a material mismatch and blocks final rendering.
+
+## Relation Preservation Invariant
+
+Natural paraphrase is allowed only when it preserves the complete legal relation:
+
+```text
+legal actor + condition + procedure + modality
+    → legal action + legal object
+    → resulting legal status/effect + polarity
+```
+
+For example, an evidence statement that an actor may designate an object as a defined legal status after conditions and procedure cannot be rendered merely as “the standard may be relaxed.” That substitution loses the legal actor, legal action, legal object, resulting legal status/effect, and condition-effect relation. Preserve the source-specific effect such as designation, approval, recognition, permission, exclusion, counting, or non-application.
+
+## Bounded Reconciliation / Repair
+
+After the mandatory slots and explanatory synthesis are composed, reconcile each CLOSED proposition against the draft. Check proposition presence, condition, procedure, modality, legal action, legal object, resulting legal status/effect, polarity, and base/exception relation. On an unresolved material mismatch, do not omit the proposition: perform one targeted repair from `mandatory_render_clause` → `source_proposition` → `evidence_span` → source-equivalent close paraphrase, then one bounded re-check. This bounded repair must not be replaced by a new free-form paraphrase. If the mismatch remains, render the proposition as `확인 필요` or a neutral conditional statement with its missing evidence identified.
+
+If an equivalent paraphrase is uncertain during repair, recover the operative clause from the proposition's `evidence_span` or `source_proposition` and use a dedicated attributed sentence. Do not substitute a weaker generic verb.
+For Korean output, an operative relation may be rendered as `[조건]을 충족하고 [절차]를 거치면 [대상]을 [법적 상태]로 지정할 수 있다`; the source-specific action must remain visible.
+
+An OPEN proposition must not be converted into a confirmed legal effect to make the coverage check pass. The final answer must not omit an unresolved material mismatch or silently replace a specific effect with a generic relaxation.
+
+The Codex `Stop` hook performs the final runtime reconciliation only for an active exact session/turn. It may issue one bounded block/repair request; if the next Stop event still fails, it returns the documented fail-closed response and does not request another continuation.

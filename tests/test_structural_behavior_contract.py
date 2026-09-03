@@ -226,3 +226,119 @@ def test_new_structural_contracts_are_not_ansim_case_hardcodes():
         assert token not in skill_contract
         assert token not in source_section
         assert token not in issue_section
+
+
+def test_skill_requires_material_source_dependency_closure_before_synthesis():
+    text = _read(SKILL_ROOT / "SKILL.md")
+    runtime_contract = _section(
+        text,
+        "## ASCII execution contract",
+        "## \uc751\ub2f5 \ubaa8\ub4dc \ub77c\uc6b0\ud305",
+    )
+    _require(
+        runtime_contract,
+        (
+            "Material source dependency closure hard stop",
+            "before synthesis",
+            "source dependency closure",
+            "direct definition",
+            "main rule",
+            "material boundary",
+            "exception",
+            "specific legal effect",
+            "direct source",
+            "temporal status",
+            "OPEN",
+            "CLOSED",
+            "targeted retrieval retry",
+            "\ud655\uc778 \ud544\uc694",
+        ),
+    )
+
+
+def test_issue_mapping_tracks_material_evidence_slots_and_closure_status():
+    text = _read(REFERENCES / "legal-issue-mapping.md")
+    _require(
+        text,
+        (
+            "Material Source Dependency Closure Ledger",
+            "direct definition",
+            "main rule",
+            "material boundary",
+            "exception",
+            "specific legal effect",
+            "direct source",
+            "temporal status",
+            "closure status",
+            "OPEN",
+            "CLOSED",
+            "synthesis",
+        ),
+    )
+
+
+def test_source_policy_retries_missing_material_fields_with_bounded_closure():
+    text = _read(REFERENCES / "source-policy.md")
+    _require(
+        text,
+        (
+            "Material Source Dependency Closure Gate",
+            "opaque label",
+            "\uc9c1\uc811 \uc815\uc758\uaddc\uc815",
+            "\uc608\uc678",
+            "\uc131\ub9bd\uc870\uac74",
+            "specific legal effect",
+            "\uac80\uc0c9 \uacb0\uacfc \uc81c\ubaa9",
+            "\uc6b4\uc601\uae30\uc900",
+            "targeted retrieval retry",
+            "\ub204\ub77d \ud544\ub4dc",
+            "bounded",
+            "\uaddc\uc815 \uc5c6\uc74c",
+            "\ud655\uc778 \ud544\uc694",
+        ),
+    )
+
+
+def test_material_proposition_ledger_preserves_effect_conditions_and_procedure():
+    skill = _read(SKILL_ROOT / "SKILL.md")
+    mapping = _read(REFERENCES / "legal-issue-mapping.md")
+    _require(
+        skill,
+        (
+            "condition",
+            "procedure",
+            "specific legal effect",
+            "closure status",
+            "unresolved",
+            "final synthesis",
+        ),
+    )
+    _require(
+        mapping,
+        (
+            "condition",
+            "procedure",
+            "specific legal effect",
+            "temporal status",
+            "closure status",
+            "OPEN",
+            "CLOSED",
+        ),
+    )
+
+
+def test_temporal_status_contract_distinguishes_confirmed_and_unresolved_currentness():
+    text = _read(REFERENCES / "source-policy.md")
+    _require(
+        text,
+        (
+            "CURRENT_CONFIRMED",
+            "HISTORICAL_CONFIRMED",
+            "CURRENT_UNRESOLVED",
+            "question-date applicability",
+            "current applicability",
+            "effective-status evidence",
+            "recent publication",
+            "revision date",
+        ),
+    )
