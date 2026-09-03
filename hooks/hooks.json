@@ -1,6 +1,20 @@
 {
   "description": "JDIPT bounded runtime synthesis integrity gate",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__jdipt_runtime__register_material_proposition$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/inject_registry_runtime.py\"",
+            "commandWindows": "py -3 \"%PLUGIN_ROOT%\\scripts\\inject_registry_runtime.py\"",
+            "timeout": 30,
+            "statusMessage": "Binding JDIPT runtime state"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

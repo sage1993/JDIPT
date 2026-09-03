@@ -3,8 +3,7 @@
     "jdipt_runtime": {
       "command": "python",
       "args": ["scripts/jdipt_runtime_mcp.py"],
-      "cwd": ".",
-      "env_vars": ["PLUGIN_ROOT", "PLUGIN_DATA"]
+      "cwd": "."
     }
   }
 }

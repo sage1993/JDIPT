@@ -1,5 +1,4 @@
 """Small stdio MCP server exposing JDIPT's material-proposition registry."""
-
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -12,13 +11,13 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.synthesis_runtime_state import (
+from scripts.runtime_registry_state import (
     RuntimeStateError,
     register_material_proposition as _register_material_proposition,
 )
 
-
 TOOL_NAME = "register_material_proposition"
+RUNTIME_PLUGIN_DATA_FIELD = "_runtime_plugin_data"
 REGISTRY_FIELDS = frozenset(
     {
         "session_id",
@@ -40,19 +39,19 @@ REGISTRY_FIELDS = frozenset(
         "exception_proposition_id",
         "source_clause",
         "current_status",
+        RUNTIME_PLUGIN_DATA_FIELD,
     }
 )
 
 
 def tool_definitions() -> list[dict[str, Any]]:
-    """Return the public MCP tool schema without a model-controlled clause."""
-
     return [
         {
             "name": TOOL_NAME,
             "description": (
                 "Register one compact material legal proposition for the current "
-                "session and turn. The runtime builds the mandatory render clause."
+                "session and turn. The runtime hook binds authoritative session/turn "
+                "state and builds the mandatory render clause."
             ),
             "inputSchema": {
                 "type": "object",
@@ -78,6 +77,13 @@ def tool_definitions() -> list[dict[str, Any]]:
                     "exception_proposition_id": {"type": "string"},
                     "source_clause": {"type": "string"},
                     "current_status": {"type": "string"},
+                    RUNTIME_PLUGIN_DATA_FIELD: {
+                        "type": "string",
+                        "description": (
+                            "Runtime-injected by JDIPT PreToolUse; model values are "
+                            "overwritten."
+                        ),
+                    },
                 },
             },
         }
@@ -88,9 +94,15 @@ def register_material_proposition(
     arguments: Mapping[str, Any],
     plugin_data: str | os.PathLike[str] | None = None,
 ) -> dict[str, Any]:
-    """Register a proposition and expose only compact result metadata."""
-
-    state = _register_material_proposition(arguments, plugin_data)
+    runtime_plugin_data = plugin_data
+    if runtime_plugin_data is None:
+        injected = arguments.get(RUNTIME_PLUGIN_DATA_FIELD)
+        if not isinstance(injected, str) or not injected:
+            raise RuntimeStateError("authoritative plugin data was not injected")
+        runtime_plugin_data = injected
+    fields = dict(arguments)
+    fields.pop(RUNTIME_PLUGIN_DATA_FIELD, None)
+    state = _register_material_proposition(fields, runtime_plugin_data)
     proposition = next(
         item
         for item in state.propositions
@@ -108,15 +120,17 @@ def register_material_proposition(
 
 
 def _error(request_id: Any, code: int, message: str) -> dict[str, Any]:
-    return {"jsonrpc": "2.0", "id": request_id, "error": {"code": code, "message": message}}
+    return {
+        "jsonrpc": "2.0",
+        "id": request_id,
+        "error": {"code": code, "message": message},
+    }
 
 
 def dispatch_json_rpc(
     request: Mapping[str, Any],
     plugin_data: str | os.PathLike[str] | None = None,
 ) -> dict[str, Any] | None:
-    """Dispatch the subset of JSON-RPC needed by the bundled stdio server."""
-
     if not isinstance(request, Mapping):
         return _error(None, -32600, "Invalid Request")
     request_id = request.get("id")
@@ -138,7 +152,11 @@ def dispatch_json_rpc(
             },
         }
     if method == "tools/list":
-        return {"jsonrpc": "2.0", "id": request_id, "result": {"tools": tool_definitions()}}
+        return {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "result": {"tools": tool_definitions()},
+        }
     if method != "tools/call":
         return _error(request_id, -32601, "Method not found")
 
@@ -162,11 +180,23 @@ def dispatch_json_rpc(
     return {
         "jsonrpc": "2.0",
         "id": request_id,
-        "result": {"content": [{"type": "text", "text": json.dumps(result, ensure_ascii=False)}]},
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, ensure_ascii=False)}
+            ]
+        },
     }
 
 
+def _configure_stdio() -> None:
+    for stream in (sys.stdin, sys.stdout):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="strict")
+
+
 def serve() -> None:
+    _configure_stdio()
     for line in sys.stdin:
         if not line.strip():
             continue
@@ -176,7 +206,7 @@ def serve() -> None:
         except (UnicodeError, json.JSONDecodeError):
             response = _error(None, -32700, "Parse error")
         if response is not None:
-            json.dump(response, sys.stdout, ensure_ascii=False, separators=(",", ":"))
+            json.dump(response, sys.stdout, ensure_ascii=True, separators=(",", ":"))
             sys.stdout.write("\n")
             sys.stdout.flush()
 
