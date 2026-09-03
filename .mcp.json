@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "jdipt_runtime": {
+      "command": "python",
+      "args": ["scripts/jdipt_runtime_mcp.py"],
+      "cwd": "."
+    }
+  }
+}

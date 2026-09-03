@@ -16,6 +16,8 @@
     "대한민국-법령"
   ],
   "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "JDIPT",
     "shortDescription": "대한민국 법령해석요청 작성·검토",

@@ -29,6 +29,15 @@ PLUGIN_INTEGRITY = ROOT / "scripts" / "plugin_integrity.py"
 RELEASE_GATE = ROOT / "scripts" / "run_release_gate.py"
 MACHINE_ORACLES = SKILL.parent / "evals" / "machine-oracles.json"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
+SYNTHESIS_BEHAVIOR_TEST = ROOT / "tests" / "test_synthesis_integrity_behavior.py"
+RUNTIME_STATE = ROOT / "scripts" / "synthesis_runtime_state.py"
+STOP_GATE = ROOT / "scripts" / "stop_synthesis_gate.py"
+RUNTIME_MCP = ROOT / "scripts" / "jdipt_runtime_mcp.py"
+RUNTIME_STATE_TEST = ROOT / "tests" / "test_synthesis_runtime_state.py"
+STOP_GATE_TEST = ROOT / "tests" / "test_stop_synthesis_gate.py"
+RUNTIME_MCP_TEST = ROOT / "tests" / "test_jdipt_runtime_mcp.py"
+HOOKS_MANIFEST = ROOT / "hooks" / "hooks.json"
+MCP_MANIFEST = ROOT / ".mcp.json"
 
 REQUIRED_REFERENCES = {
     "baseline-document-policy.md",
@@ -93,6 +102,72 @@ REQUIRED_V022_SKILL_MARKERS = {
     "초안을 **폐기**",
     "기존 일반 건축물의 최초 전환",
     "건축물 신축",
+}
+# structural_synthesis_contract checks marker presence only; it is not behavioral semantic proof.
+REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS = {
+    "Synthesis Integrity Gate",
+    "Material Proposition Schema",
+    "proposition_id",
+    "materiality",
+    "subject / legal actor",
+    "condition",
+    "procedure",
+    "modality",
+    "legal_action",
+    "legal_object",
+    "resulting_status_or_effect",
+    "polarity",
+    "relation_to_base_or_exception",
+    "direct_source",
+    "evidence_span",
+    "temporal_status",
+    "closure_status",
+    "draft synthesis",
+    "proposition-to-draft reconciliation",
+    "material mismatch",
+    "one targeted repair",
+    "bounded re-check",
+    "Every `CLOSED` material proposition must be represented",
+    "register_material_proposition",
+    "jdipt_active=true",
+    "PLUGIN_DATA/synthesis-runtime",
+    "unrelated turn",
+    "Stop-hook bound",
+    "fail-closed stop response",
+}
+REQUIRED_RUNTIME_FILES = (
+    RUNTIME_STATE,
+    STOP_GATE,
+    RUNTIME_MCP,
+    RUNTIME_STATE_TEST,
+    STOP_GATE_TEST,
+    RUNTIME_MCP_TEST,
+    HOOKS_MANIFEST,
+    MCP_MANIFEST,
+)
+RUNTIME_PRODUCTION_MARKERS = {
+    "scripts/synthesis_runtime_state.py": (
+        "PLUGIN_DATA",
+        "synthesis-runtime",
+        "session_id",
+        "turn_id",
+        "os.replace",
+        "mandatory_render_clause",
+    ),
+    "scripts/stop_synthesis_gate.py": (
+        "last_assistant_message",
+        "stop_hook_active",
+        "decision",
+        "continue",
+        "reconcile_draft",
+        "update_repair_count",
+    ),
+    "scripts/jdipt_runtime_mcp.py": (
+        "register_material_proposition",
+        "tools/list",
+        "tools/call",
+        "mandatory_render_clause",
+    ),
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "MOLEG suitability correction applies only in explicit MOLEG request mode",
@@ -225,6 +300,22 @@ REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS = {
     "잠정 결론을 실제로 제한하는지",
     "존재하지 않는 반대근거",
 }
+REQUIRED_STRUCTURAL_SYNTHESIS_SOURCE_POLICY_MARKERS = {
+    "Material Coverage Invariant",
+    "Relation Preservation Invariant",
+    "Every CLOSED material proposition must be represented",
+    "equivalent legal relation",
+    "numeric value alone",
+    "generic relaxation",
+    "legal actor",
+    "legal action",
+    "legal object",
+    "resulting legal status/effect",
+    "bounded repair",
+    "unresolved material mismatch",
+    "OPEN proposition",
+    "must not be converted into a confirmed legal effect",
+}
 REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS = {
     "Referenced Source Resolution Hard Gate",
     "필수 확인자료로 승격",
@@ -299,6 +390,14 @@ REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS = {
     "기존 일반 건축물의 최초 전환",
     "건축물 신축",
     "참조자료의 미확인 상태",
+}
+REQUIRED_STRUCTURAL_SYNTHESIS_LOGIC_MARKERS = {
+    "Synthesis Integrity Gate",
+    "proposition-to-draft reconciliation",
+    "evidence_span / source_proposition",
+    "Every CLOSED material proposition must be represented",
+    "one targeted repair",
+    "one bounded re-check",
 }
 REQUIRED_ABSTRACT_FIXTURE_LOGIC_MARKERS = {
     "추상 fixture 전제 보존 Hard Gate",
@@ -538,7 +637,60 @@ def main() -> int:
     require_markers(skill_text, REQUIRED_ISSUE_MAPPING_SKILL_MARKERS, "skill issue mapping")
     require_markers(skill_text, REQUIRED_COUNTEREVIDENCE_SKILL_MARKERS, "skill counterevidence")
     require_markers(skill_text, REQUIRED_V022_SKILL_MARKERS, "skill v0.2.2 hard gates")
+    require_markers(skill_text, REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS, "structural_synthesis_contract")
+    if not SYNTHESIS_BEHAVIOR_TEST.is_file():
+        fail("behavioral semantic regression missing: test_synthesis_integrity_behavior.py")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
+
+    missing_runtime_files = [str(path.relative_to(ROOT)) for path in REQUIRED_RUNTIME_FILES if not path.is_file()]
+    if missing_runtime_files:
+        fail(f"runtime enforcement files missing: {missing_runtime_files}")
+    runtime_texts = {
+        relative: (ROOT / relative).read_text(encoding="utf-8")
+        for relative in RUNTIME_PRODUCTION_MARKERS
+    }
+    for relative, markers in RUNTIME_PRODUCTION_MARKERS.items():
+        require_markers(runtime_texts[relative], markers, f"runtime enforcement {relative}")
+    for relative, text in runtime_texts.items():
+        if any(token in text for token in ("ASH-06", "안심주택", "250m", "350m", "400%", "사업대상지")):
+            fail(f"runtime enforcement must remain generic: {relative}")
+
+    try:
+        hooks = json.loads(HOOKS_MANIFEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"hooks/hooks.json invalid: {exc}")
+    stop_entries = ((hooks.get("hooks") or {}).get("Stop") or []) if isinstance(hooks, dict) else []
+    hook_commands = [
+        hook.get("command", "")
+        for entry in stop_entries
+        if isinstance(entry, dict)
+        for hook in (entry.get("hooks") or [])
+        if isinstance(hook, dict)
+    ]
+    if not hook_commands or not any("stop_synthesis_gate.py" in command for command in hook_commands):
+        fail("Stop hook must invoke stop_synthesis_gate.py")
+    if not any("PLUGIN_ROOT" in command for command in hook_commands):
+        fail("Stop hook must resolve the script through PLUGIN_ROOT")
+    windows_commands = [
+        hook.get("commandWindows", "")
+        for entry in stop_entries
+        if isinstance(entry, dict)
+        for hook in (entry.get("hooks") or [])
+        if isinstance(hook, dict)
+    ]
+    if not windows_commands or not any("stop_synthesis_gate.py" in command for command in windows_commands):
+        fail("Stop hook must define a Windows command for stop_synthesis_gate.py")
+
+    try:
+        mcp_config = json.loads(MCP_MANIFEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f".mcp.json invalid: {exc}")
+    servers = mcp_config.get("mcpServers") if isinstance(mcp_config, dict) else None
+    registry_server = servers.get("jdipt_runtime") if isinstance(servers, dict) else None
+    if not isinstance(registry_server, dict) or "jdipt_runtime_mcp.py" not in " ".join(
+        str(value) for value in registry_server.values()
+    ):
+        fail(".mcp.json must register jdipt_runtime")
 
     if not AGENT_CONFIG.is_file():
         fail("skills/law-interpretation-request/agents/openai.yaml missing")
@@ -574,6 +726,7 @@ def main() -> int:
     require_markers(logic_text, REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS, "logic counterevidence")
     require_markers(logic_text, REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS, "logic referenced source resolution")
     require_markers(logic_text, REQUIRED_ABSTRACT_FIXTURE_LOGIC_MARKERS, "logic abstract fixture preservation")
+    require_markers(logic_text, REQUIRED_STRUCTURAL_SYNTHESIS_LOGIC_MARKERS, "structural synthesis logic")
 
     request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
@@ -592,6 +745,11 @@ def main() -> int:
         source_text,
         REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS,
         "referenced source resolution policy",
+    )
+    require_markers(
+        source_text,
+        REQUIRED_STRUCTURAL_SYNTHESIS_SOURCE_POLICY_MARKERS,
+        "structural synthesis source policy",
     )
 
     if not AGENTS.is_file():
@@ -704,6 +862,10 @@ def main() -> int:
         fail("plugin version must match package.json")
     if plugin.get("skills") != "./skills/":
         fail("plugin skills path must be ./skills/")
+    if plugin.get("hooks") != "./hooks/hooks.json":
+        fail("plugin hooks path must be ./hooks/hooks.json")
+    if plugin.get("mcpServers") != "./.mcp.json":
+        fail("plugin mcpServers path must be ./.mcp.json")
     interface = plugin.get("interface") or {}
     if interface.get("displayName") != "JDIPT":
         fail("plugin displayName must be JDIPT")
@@ -773,6 +935,8 @@ def main() -> int:
     print(f"output_hygiene_eval_markers={len(REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS)}")
     print(f"v022_eval_markers={len(REQUIRED_V022_EVAL_MARKERS)}")
     print(f"skill_invocation_markers={len(REQUIRED_AGENT_CONFIG_MARKERS)}")
+    print("structural_synthesis_contract=PASS")
+    print("behavioral semantic regression=separate test_synthesis_integrity_behavior.py")
     return 0
 
 

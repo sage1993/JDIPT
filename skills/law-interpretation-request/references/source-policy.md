@@ -114,6 +114,30 @@
 - 2차 자료를 공식 법령 원문보다 우선하지 않는다.
 - 인용 원문과 다른 의미로 과도하게 확대·축소 요약하지 않는다.
 
+## Material Source Dependency Closure Gate
+
+각 material issue는 최종 합성 전에 **직접 근거까지 dependency가 닫혔는지** 확인한다. 운영기준·안내·해설자료, 일반 적용조문 또는 검색요약에서 결론에 필요한 법정 범주가 확인되더라도 그 범주의 직접 정의·경계·예외·효과가 다른 규정에 있으면 해당 dependency를 추적한다.
+
+issue마다 필요한 범위에서 다음 evidence slot을 확인한다.
+
+- `직접 정의규정`
+- `본칙`
+- `material boundary`
+- `예외·특례`
+- `specific legal effect`
+- `직접 근거`
+- 적용시점 또는 현행성
+
+위 slot 중 결론에 필요한 항목이 하나라도 직접 근거에 연결되지 않았으면 해당 issue는 `OPEN`이다. 관련 조문 하나 또는 운영기준의 요약을 찾았다는 이유만으로 `CLOSED`로 처리하지 않는다.
+
+`OPEN` field가 있으면 최종 합성 전에 누락된 field 이름을 포함한 **targeted retrieval retry**를 수행한다. 예를 들어 정의가 비어 있으면 정의규정, 예외가 비어 있으면 예외·특례, 법적 효과가 비어 있으면 지정·인정·승인·허가·적용제외 등 해당 효과를 직접 규정한 원문을 다시 찾는다. 이 retry는 현재 issue의 직접 정의·예외·효과까지의 **bounded** 추적으로 제한하며 전 법령 체계를 전수조사하지 않는다.
+
+직접 정의규정이 다른 조문을 참조하거나 material boundary·예외·specific legal effect를 별도로 두면 그 참조가 결론을 바꿀 수 있는 범위까지 계속 추적한다. 반대로 현재 실행에서 확인한 직접 원문상 더 이상의 material dependency가 없으면 그 지점에서 종료한다.
+
+모든 필요한 slot이 현재 실행의 공식 원문에 추적 가능하고, 시점이 중요하면 해당 버전까지 확인된 경우에만 `CLOSED`로 처리한다. bounded 재확인 뒤에도 `OPEN` field가 남으면 이를 모델 기억이나 운영기준의 일반화로 보충하지 않고 `확인 필요`로 유지한다.
+
+확인된 `specific legal effect`는 합성 단계에서도 원문 동사를 보존한다. `지정`, `인정`, `승인`, `허가`, `적용제외`를 단순한 `완화`, `가능`, `검토 가능`으로 바꾸는 것은 source-complete한 합성으로 보지 않는다.
+
 ## Referenced Source Resolution Hard Gate
 
 공식 원문에서 확인한 법률·시행령·시행규칙·행정규칙 조문이 `별표`, `별지`, `서식`, `부표`, `부록` 또는 이에 준하는 별도 자료를 직접 참조하고, **그 참조자료의 문언이 신청 유형·법적 분류·요건·예외·처분 유형 또는 결론의 강도에 영향을 줄 수 있으면 그 자료는 필수 확인자료로 승격한다.**
@@ -144,6 +168,29 @@
 - `신설`이라는 신청 유형이 있다는 이유만으로 `건축물 신축`과 같은 개념이라고 단정하지 않는다.
 - 반대로 법률 본문에 `신축` 제한이 없다는 이유만으로 참조된 신청서·별지서식의 법적 분류를 확인하지 않고 기존 건축물 전환을 확정 허용하지 않는다.
 
+## Named-scheme Special Rule Completeness Gate
+
+질문이 특정 제도, 사업, 허가유형, 시설, 용도 등 명칭을 직접 지칭하고 그 제도에 관한 별도 법령·조례·규칙·고시·공식 운영기준이 존재할 가능성이 합리적으로 예상되면, 해당 사항을 직접 규율하는 특별규정의 존재와 적용관계를 확인한다.
+
+- 국가 또는 지방자치단체의 일반규정을 찾았다는 이유만으로 조사를 종료하지 않는다.
+- 특정 제도에서 같은 사항을 직접 규율하는 특별규정이 있는지 추가 확인한다.
+- 일반규정 확인만으로 Source Completeness를 통과하지 않는다.
+- 모든 특별규정을 전수조사하지 않는다. 질문의 명시적 제도명, 현재 확인된 공식자료, 직접 규율 가능성이 합리적으로 드러나는 범위까지만 추적한다.
+- 특별규정이 발견되면 일반규정과의 관계를 단순한 법령 단계 서열로 정하지 않고 규율대상, 법적 기능, 직접 규율 여부, 요건과 효과를 비교한다.
+- 특별규정이 일반규정을 배제하는지, 수정·보완하는지, 별도 대상을 규율하는지, 누적 적용되는지를 구분한다.
+- 특별규정의 존재 또는 적용 여부를 끝내 확인하지 못했고 그 결과가 결론을 바꿀 수 있으면 확정 결론을 피하고 `확인 필요` 또는 조건부 결론으로 낮춘다.
+
+## Context-selector Branching Gate
+
+같은 법적 대상·행위에 관한 기준이 관할, 특정 제도 적용 여부, 허가유형, 세부용도 또는 특별지위에 따라 달라질 수 있고 그 선택조건이 사용자 사실에서 확정되지 않으면, 확인된 규정들을 하나의 보편 기준으로 합치지 않는다.
+
+- 어떤 관할·제도·법적 상태가 적용규정을 선택하는지 selector를 먼저 특정한다.
+- 일반법령, 자치법규, 특정 제도 특별규정 등 서로 다른 적용경로가 현재 실행에서 확인되면 각 경로의 조건과 효과를 구분한다.
+- selector가 미확정이면 어느 한 경로를 사실상 적용규정으로 단정하지 않고 조건부 분기로 보존한다.
+- 사용자가 제공하지 않은 관할이나 특별지위를 임의로 가정하지 않는다.
+- 모든 지자체·모든 특례를 전수조사하지 않는다. 질문 및 현재 확인된 공식자료에서 결론을 바꿀 가능성이 합리적으로 드러난 분기만 추적한다.
+- 어느 분기가 실제 사안에 적용되는지 확인할 정보가 없으면 해당 선택조건을 `확인 필요`로 표시한다.
+
 ## Source Completeness / Counterevidence Gate
 
 잠정 결론을 세운 뒤에는 그 결론과 관련성이 합리적으로 예상되는 범위에서 다음 자료가 빠지지 않았는지 확인한다.
@@ -154,6 +201,8 @@
 - 정의·준용·위임으로 반대방향 연결될 수 있는 규정
 
 특히 잠정 결론이 `명문 제한 없음`, `규정 부재` 또는 `적용 제외 없음`에 의존하거나, 신청·승인·등록·변경승인과 신설·증설·변경·신규·기존·전환의 분류가 결론을 좌우하면 관련 하위법령·위임·준용·별표·별지서식을 필요한 범위에서 우선 확인한다. 모든 사건에서 서식을 전수조사하거나 반대근거를 반드시 하나 만들어내지는 않는다.
+
+**정의된 범주·material boundary·예외·specific legal effect가 결론에 영향을 주면 위 `Material Source Dependency Closure Gate`를 우선 적용한다. 해당 issue가 `OPEN`인 상태에서는 Source Completeness를 통과하지 않는다.**
 
 **상위 조문이 결론과 관련된 별표·별지서식을 직접 참조하는 경우에는 위 `Referenced Source Resolution Hard Gate`를 우선 적용한다. 단순히 참조 존재를 발견한 것만으로는 확인 완료가 아니다.**
 
@@ -204,3 +253,53 @@
 - `law.go.kr/LSW/flDownload.do` combined with `flNm` is unstable for user-facing source provenance and is forbidden even when `flNm` is validly percent-encoded. Use a verified `lsInfoP.do` or stable parent page instead.
 - **`lsBylInfoPLinkR.do` + `lsNm` 링크는 사용자 출력에 사용하지 않는다.** 사람용 법령명 query는 재인코딩 과정에서 혼합 인코딩이 생기기 쉬우므로, 현재 실행에서 검증한 식별자 기반의 안정적인 상위 법령·별표 페이지를 사용하고 없으면 `[공식 링크 확인 필요]`로 처리한다.
 Stable source policy forbids the classes `flDownload.do + flNm` and `lsBylInfoPLinkR.do + lsNm`.
+## Material Source Dependency Closure Gate
+
+- A defined legal category must not remain an opaque label when its scope can change the legal conclusion.
+- Follow the 직접 정의규정 through the directly defining statute, regulation, ordinance, or rule before treating the category as source-complete.
+- When an 예외 exists, retrieve and record both its 성립조건 and its legal effect; do not record only the exception label.
+- A 검색 결과 제목 or 운영기준 summary is not sufficient to close a material dependency when the original defining source is reasonably accessible.
+- Track each material field separately and, for every 누락 필드, perform a targeted retrieval retry directed at the authority that directly defines that field.
+- Targeted retrieval retry must be bounded to the directly defining source, relevant exception conditions, and specific legal effect; it must not become unbounded hierarchy exploration.
+- A failed retry is not 규정 없음; preserve the unresolved proposition as 확인 필요, lower dependent conclusions conditionally, and do not fill the gap from model memory.
+
+### Material Proposition Synthesis Input Contract
+
+- Runtime activation is explicit and turn-scoped: a successful bundled `register_material_proposition` call writes the structured proposition ledger under `PLUGIN_DATA` for the exact `session_id` and `turn_id`, sets `jdipt_active=true`, and is the only activation signal for the Stop gate. A missing record on an unrelated turn is a no-op.
+- The registry input must not contain a model-authored `mandatory_render_clause`; the runtime deterministically generates that clause from the structured fields. Runtime state contains compact metadata only and must not contain secrets, a transcript, or a full source document.
+- Every material proposition passed to final synthesis carries its `condition`, `procedure`, `specific legal effect`, `direct source`, `temporal status`, and `closure status`.
+- Every material `CLOSED` proposition is first rendered into an independent Mandatory Proposition Sentence and inserted as a required draft slot before explanatory synthesis. Render legal effect before numbers, ranges, or practical consequences.
+- Source-clause extraction precedes any range or practical-consequence sentence. Copy the verified operative clause into the proposition record before free-form synthesis; if the source action is unambiguous, preserve its operative verb stem and do not map one legal action to another.
+- The surface anchors `operative_verb_lexeme` and `mandatory_render_clause` preserve the source-specific operative action. When present, use `mandatory_render_clause` → `source_proposition` → `evidence_span` in that order before attempting a free paraphrase.
+- Preserve a verified source-specific effect at the verb level: `지정`, `인정`, `승인`, `허가`, `산입`, `제외`, or `적용하지 아니한다` may be paraphrased naturally, but may not be replaced by an unsupported generic relaxation or benefit.
+- `CURRENT_CONFIRMED` requires question-date applicability and effective-status evidence. `HISTORICAL_CONFIRMED` identifies a prior applicable version. `CURRENT_UNRESOLVED` is the fail-safe when a recent publication, revision date, or summary does not close current applicability.
+- A proposition with `OPEN` closure status is rendered as `확인 필요` or a neutral conditional statement; the synthesis must not make it appear source-complete.
+
+## Material Coverage Invariant
+
+Every CLOSED material proposition must be represented in the final answer with an equivalent legal relation. Coverage requires the proposition's material condition, procedure, modality, legal action, legal object, resulting legal status/effect, polarity, and relation to any base or exception to remain semantically recoverable.
+
+The following do not count as coverage: a numeric value alone, a source link alone, a statement that an exception exists without its condition and effect, or another proposition about the same topic. A base rule and exception remain independently represented even when the exception changes the practical range. A missing proposition is a material mismatch and blocks final rendering.
+
+## Relation Preservation Invariant
+
+Natural paraphrase is allowed only when it preserves the complete legal relation:
+
+```text
+legal actor + condition + procedure + modality
+    → legal action + legal object
+    → resulting legal status/effect + polarity
+```
+
+For example, an evidence statement that an actor may designate an object as a defined legal status after conditions and procedure cannot be rendered merely as “the standard may be relaxed.” That substitution loses the legal actor, legal action, legal object, resulting legal status/effect, and condition-effect relation. Preserve the source-specific effect such as designation, approval, recognition, permission, exclusion, counting, or non-application.
+
+## Bounded Reconciliation / Repair
+
+After the mandatory slots and explanatory synthesis are composed, reconcile each CLOSED proposition against the draft. Check proposition presence, condition, procedure, modality, legal action, legal object, resulting legal status/effect, polarity, and base/exception relation. On an unresolved material mismatch, do not omit the proposition: perform one targeted repair from `mandatory_render_clause` → `source_proposition` → `evidence_span` → source-equivalent close paraphrase, then one bounded re-check. This bounded repair must not be replaced by a new free-form paraphrase. If the mismatch remains, render the proposition as `확인 필요` or a neutral conditional statement with its missing evidence identified.
+
+If an equivalent paraphrase is uncertain during repair, recover the operative clause from the proposition's `evidence_span` or `source_proposition` and use a dedicated attributed sentence. Do not substitute a weaker generic verb.
+For Korean output, an operative relation may be rendered as `[조건]을 충족하고 [절차]를 거치면 [대상]을 [법적 상태]로 지정할 수 있다`; the source-specific action must remain visible.
+
+An OPEN proposition must not be converted into a confirmed legal effect to make the coverage check pass. The final answer must not omit an unresolved material mismatch or silently replace a specific effect with a generic relaxation.
+
+The Codex `Stop` hook performs the final runtime reconciliation only for an active exact session/turn. It may issue one bounded block/repair request; if the next Stop event still fails, it returns the documented fail-closed response and does not request another continuation.
