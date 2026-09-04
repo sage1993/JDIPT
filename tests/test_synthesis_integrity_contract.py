@@ -41,7 +41,7 @@ def test_material_proposition_schema_preserves_each_legal_relation_component():
     )
 
 
-def test_synthesis_integrity_gate_reconciles_draft_before_final_rendering():
+def test_proposition_render_contract_reconciles_draft_before_final_rendering():
     text = _read(SKILL_ROOT / "SKILL.md")
 
     _require(
@@ -108,7 +108,7 @@ def test_base_exception_and_open_proposition_contracts_are_fail_closed():
     )
 
 
-def test_synthesis_integrity_contract_is_generic_not_ash06_case_hardcoded():
+def test_proposition_runtime_contract_is_generic_not_ash06_case_hardcoded():
     production = "\n".join(
         (
             _read(SKILL_ROOT / "SKILL.md"),

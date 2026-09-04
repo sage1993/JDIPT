@@ -8,17 +8,20 @@ import json
 import os
 from pathlib import Path
 
+
 SKILL_RUNTIME_FILES = ("SKILL.md", "agents/openai.yaml")
 PLUGIN_RUNTIME_FILES = (
     ".codex-plugin/plugin.json",
     ".mcp.json",
     "hooks/hooks.json",
-    "scripts/inject_registry_runtime.py",
-    "scripts/jdipt_runtime_mcp.py",
-    "scripts/runtime_registry_state.py",
-    "scripts/stop_synthesis_gate.py",
+    "scripts/legal_proposition.py",
+    "scripts/proposition_rendering.py",
+    "scripts/proposition_reconciliation.py",
+    "scripts/proposition_registry.py",
     "scripts/synthesis_runtime_state.py",
-    "scripts/synthesis_integrity.py",
+    "scripts/jdipt_runtime_mcp.py",
+    "scripts/inject_registry_runtime.py",
+    "scripts/stop_synthesis_gate.py",
 )
 
 

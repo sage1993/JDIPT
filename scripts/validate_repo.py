@@ -129,13 +129,21 @@ REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS = {
     "bounded re-check",
     "Every `CLOSED` material proposition must be represented",
     "register_material_proposition",
-    "jdipt_active=true",
+    "registry_active=true",
     "PLUGIN_DATA/synthesis-runtime",
     "unrelated turn",
     "Stop-hook bound",
     "fail-closed stop response",
 }
+PROPOSITION_MODEL = ROOT / "scripts" / "legal_proposition.py"
+PROPOSITION_RENDERING = ROOT / "scripts" / "proposition_rendering.py"
+PROPOSITION_RECONCILIATION = ROOT / "scripts" / "proposition_reconciliation.py"
+PROPOSITION_REGISTRY = ROOT / "scripts" / "proposition_registry.py"
 REQUIRED_RUNTIME_FILES = (
+    PROPOSITION_MODEL,
+    PROPOSITION_RENDERING,
+    PROPOSITION_RECONCILIATION,
+    PROPOSITION_REGISTRY,
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
@@ -149,24 +157,25 @@ RUNTIME_PRODUCTION_MARKERS = {
     "scripts/synthesis_runtime_state.py": (
         "PLUGIN_DATA",
         "synthesis-runtime",
-        "session_id",
-        "turn_id",
+        "schema_version",
+        "registry_active",
         "os.replace",
-        "mandatory_render_clause",
     ),
     "scripts/stop_synthesis_gate.py": (
         "last_assistant_message",
         "stop_hook_active",
         "decision",
         "continue",
-        "reconcile_draft",
+        "build_render_contract",
+        "reconcile_render_contracts",
         "update_repair_count",
     ),
     "scripts/jdipt_runtime_mcp.py": (
         "register_material_proposition",
         "tools/list",
         "tools/call",
-        "mandatory_render_clause",
+        "render_contract",
+        "temporal_status",
     ),
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
