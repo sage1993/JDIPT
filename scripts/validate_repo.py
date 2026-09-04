@@ -473,6 +473,7 @@ REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS = {
     "E40",
 }
 REQUIRED_AGENTS_MARKERS = {
+    "$law-interpretation-request",
     "응답 모드나 정보 부족 여부를 판단하기 전에",
     "SKILL.md를 먼저 읽는다",
 }

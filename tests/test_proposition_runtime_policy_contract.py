@@ -34,9 +34,9 @@ def test_canonical_model_is_the_single_legal_proposition_schema():
             "modality",
             "legal_action",
             "legal_object",
-            "resulting_status_or_effect",
-            "temporal_status",
-            "closure_status",
+            "legal_effect",
+            "evidence",
+            "status",
         ),
     )
 
