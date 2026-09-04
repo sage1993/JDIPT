@@ -4,6 +4,43 @@
 
 JDIPT는 **Plugin 패키징**, **법적 쟁점 매핑**, **법령해석**, **논리검증**, **법령 데이터 조회**, **사용자 출력**의 책임을 분리한다. 내부 분석은 세밀하게 유지하되 사용자 출력은 결론 우선성과 논증 연결성을 기준으로 단순화한다.
 
+## v2 runtime flow
+
+The runtime path for a material legal proposition is deliberately explicit and turn-scoped:
+
+```text
+Explicit JDIPT Skill
+      │
+      ▼
+Legal Issue Mapping
+      │
+      ▼
+Source / Temporal / Authority Resolution
+      │
+      ▼
+LegalProposition Ledger
+      │
+      ▼
+register_material_proposition
+      │
+      ▼
+PLUGIN_DATA Runtime State
+      │
+      ▼
+Render Contract
+      │
+      ▼
+Answer
+      │
+      ▼
+Stop Gate
+```
+
+`registry_active=true` means that the bundled registry successfully wrote a proposition for the exact authoritative `session_id` and `turn_id`. It is a runtime activation record for the registry; runtime state does not independently prove host Plugin invocation. The state file is compact persistence under `PLUGIN_DATA`; an unrelated turn without the exact record remains a no-op.
+
+The runtime Stop gate compares deterministic slots (render slots) against the draft. The Oracle/evaluator may use relation-bound semantic proposition matching to accept faithful paraphrases, but the runtime enforcement path does not use semantic token matching or answer-wide bag-of-words coverage.
+
+Evaluation is layered: Tier 1~3 static PASS covers repository structure, runtime integration contracts, and deterministic regression/oracle checks. It does not establish Tier 4 Live PASS, which requires observing the real host tool call, PreToolUse bridge, authoritative identifiers, `PLUGIN_DATA`, exact Stop-state reuse, and bounded repair behavior.
 ```text
 ChatGPT / Codex
    │

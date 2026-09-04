@@ -128,6 +128,31 @@ D package/static: PASS
 
 Oracle이 실제 의미상 동등한 표현을 놓친 false negative는 fixture를 추가하고 oracle을 수정한 뒤 기존 계약을 약화하지 않는 방식으로 처리한다. 반면 동일 입력에서 실제 계약 준수 여부가 달라지는 경우는 모델 변동성으로 보고 Gate B 반복 대상으로 관리한다.
 
+## Runtime bridge acceptance
+
+Static unit and integration tests validate the runtime modules, but they do not by themselves prove that the host invokes the bridge. A fresh explicit JDIPT turn is required for Live acceptance.
+
+The Live checklist must observe all of the following:
+
+- `register_material_proposition` is actually called through the bundled MCP tool.
+- The PreToolUse hook injects the authoritative `session_id`, `turn_id`, and `PLUGIN_DATA`.
+- The state file is created at the exact session/turn path with `registry_active=true`.
+- The Stop hook loads that same exact state; an unrelated turn without a record remains a no-op.
+- A response omitting one mandatory render slot produces the first Stop `decision: "block"` and `repair_count=1`.
+- A second still-invalid Stop produces `continue: false` and no unbounded continuation.
+
+Calling `handle_stop_event()` directly in a unit test is evidence for the deterministic gate only; it is not Runtime bridge Live PASS.
+
+## Evaluation tiers
+
+```text
+Tier 1 — static structure and packaging
+Tier 2 — runtime integration contracts
+Tier 3 — deterministic regressions and oracle
+Tier 4 — live host behavior
+```
+
+Tier 1~3 static PASS ≠ Tier 4 Live PASS. A failure is classified at the first layer that cannot be evidenced, and a live gate remains HOLD until the host-level observations are available.
 ## Legacy 정책
 
 Legacy case는 삭제된 테스트가 아니다. active 대표 시나리오와 deterministic oracle이 동일 계약을 더 적은 LLM 호출로 검증하기 때문에 기본 실행에서 제외된 것이다.
