@@ -29,7 +29,7 @@ PLUGIN_INTEGRITY = ROOT / "scripts" / "plugin_integrity.py"
 RELEASE_GATE = ROOT / "scripts" / "run_release_gate.py"
 MACHINE_ORACLES = SKILL.parent / "evals" / "machine-oracles.json"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
-SYNTHESIS_BEHAVIOR_TEST = ROOT / "tests" / "test_synthesis_integrity_behavior.py"
+SYNTHESIS_BEHAVIOR_TEST = ROOT / "tests" / "test_proposition_runtime_behavior.py"
 RUNTIME_STATE = ROOT / "scripts" / "synthesis_runtime_state.py"
 STOP_GATE = ROOT / "scripts" / "stop_synthesis_gate.py"
 RUNTIME_MCP = ROOT / "scripts" / "jdipt_runtime_mcp.py"
@@ -648,7 +648,7 @@ def main() -> int:
     require_markers(skill_text, REQUIRED_V022_SKILL_MARKERS, "skill v0.2.2 hard gates")
     require_markers(skill_text, REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS, "structural_synthesis_contract")
     if not SYNTHESIS_BEHAVIOR_TEST.is_file():
-        fail("behavioral semantic regression missing: test_synthesis_integrity_behavior.py")
+        fail("behavioral semantic regression missing: test_proposition_runtime_behavior.py")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
 
     missing_runtime_files = [str(path.relative_to(ROOT)) for path in REQUIRED_RUNTIME_FILES if not path.is_file()]
@@ -945,7 +945,7 @@ def main() -> int:
     print(f"v022_eval_markers={len(REQUIRED_V022_EVAL_MARKERS)}")
     print(f"skill_invocation_markers={len(REQUIRED_AGENT_CONFIG_MARKERS)}")
     print("structural_synthesis_contract=PASS")
-    print("behavioral semantic regression=separate test_synthesis_integrity_behavior.py")
+    print("behavioral semantic regression=separate test_proposition_runtime_behavior.py")
     return 0
 
 
