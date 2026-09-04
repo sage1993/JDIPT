@@ -25,7 +25,7 @@ This block owns the runtime orchestration for the Skill. Detailed source, issue-
 
 The runtime sequence is:
 
-`Material Proposition Ledger` → `register_material_proposition` → deterministic `render_contract` / mandatory render slots → insert mandatory slots → explanatory synthesis → final rendering → `Stop` reconciliation.
+`Material Proposition Ledger` → `register_material_proposition` → deterministic `render_contract` / mandatory render slots → insert mandatory slots → explanatory synthesis → final rendering → Stop reconciliation.
 
 - The ledger is closed only after source and temporal resolution. A successful first `register_material_proposition` call is the authoritative activation record for the exact `session_id` and `turn_id` and sets `registry_active=true`.
 - The registry accepts structured proposition fields; render slots are generated deterministically from the canonical proposition and are not model-authored. Every material `CLOSED` proposition receives an independent mandatory render slot before explanatory synthesis. Preserve condition, procedure, modality, legal action, legal object, resulting status/effect, polarity, and base/exception relation.

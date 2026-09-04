@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 import re
@@ -33,6 +34,7 @@ SYNTHESIS_BEHAVIOR_TEST = ROOT / "tests" / "test_proposition_runtime_behavior.py
 RUNTIME_STATE = ROOT / "scripts" / "synthesis_runtime_state.py"
 STOP_GATE = ROOT / "scripts" / "stop_synthesis_gate.py"
 RUNTIME_MCP = ROOT / "scripts" / "jdipt_runtime_mcp.py"
+REGISTRY_BRIDGE = ROOT / "scripts" / "inject_registry_runtime.py"
 RUNTIME_STATE_TEST = ROOT / "tests" / "test_synthesis_runtime_state.py"
 STOP_GATE_TEST = ROOT / "tests" / "test_stop_synthesis_gate.py"
 RUNTIME_MCP_TEST = ROOT / "tests" / "test_jdipt_runtime_mcp.py"
@@ -105,35 +107,19 @@ REQUIRED_V022_SKILL_MARKERS = {
 }
 # structural_synthesis_contract checks marker presence only; it is not behavioral semantic proof.
 REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS = {
-    "Synthesis Integrity Gate",
-    "Material Proposition Schema",
-    "proposition_id",
-    "materiality",
-    "subject / legal actor",
-    "condition",
-    "procedure",
-    "modality",
-    "legal_action",
-    "legal_object",
-    "resulting_status_or_effect",
-    "polarity",
-    "relation_to_base_or_exception",
-    "direct_source",
-    "evidence_span",
-    "temporal_status",
-    "closure_status",
-    "draft synthesis",
-    "proposition-to-draft reconciliation",
-    "material mismatch",
-    "one targeted repair",
-    "bounded re-check",
-    "Every `CLOSED` material proposition must be represented",
+    "Material Proposition Ledger",
     "register_material_proposition",
+    "render_contract",
+    "mandatory render slots",
+    "explanatory synthesis",
+    "final rendering",
+    "Stop reconciliation",
     "registry_active=true",
-    "PLUGIN_DATA/synthesis-runtime",
-    "unrelated turn",
-    "Stop-hook bound",
-    "fail-closed stop response",
+    "OPEN",
+    "CLOSED",
+    "확인 필요",
+    "one targeted repair",
+    "one bounded re-check",
 }
 PROPOSITION_MODEL = ROOT / "scripts" / "legal_proposition.py"
 PROPOSITION_RENDERING = ROOT / "scripts" / "proposition_rendering.py"
@@ -147,6 +133,8 @@ REQUIRED_RUNTIME_FILES = (
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
+    REGISTRY_BRIDGE,
+    PLUGIN_MANIFEST,
     RUNTIME_STATE_TEST,
     STOP_GATE_TEST,
     RUNTIME_MCP_TEST,
@@ -179,10 +167,8 @@ RUNTIME_PRODUCTION_MARKERS = {
     ),
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {
-    "MOLEG suitability correction applies only in explicit MOLEG request mode",
-    "Every percent sign in a final URL must begin a valid percent escape",
+    "General legal-review mode comes first",
     "URLs with empty query-parameter values are incomplete",
-    "A self-contained legal inference is also an abstract fixture",
     "미확인 상태 자체를 제공된 전제로 취급한다",
     "Same-term conflict hard stop",
     "ASCII execution contract",
@@ -204,7 +190,6 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "최종 Rendering Hard Gate",
     "Output Hygiene check",
     "URL provenance check",
-    "$law-interpretation-request",
     "질문만 하고 그 응답에서는 중단한다",
 }
 REQUIRED_REQUEST_FORMAT_MARKERS = {
@@ -336,17 +321,13 @@ REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS = {
     "실제 문언을 끝내 확인하지 못했으면",
 }
 REQUIRED_AGENT_CONFIG_MARKERS = {
-    "법제처 질의로서 부적합할 수 있음을 먼저 한 문장으로 설명",
-    "모든 `%`는 뒤에 16진수 두 자리",
-    "값이 빈 query parameter",
-    "자족적 법적 논증의 타당성을 묻는 경우",
-    "미확인 상태 자체를 제공된 전제로 보세요",
-    "모드를 먼저 확정하세요",
-    "과거 건축허가→법 개정→후속 변경허가",
-    "질문-only·확인질문으로 시작하지 말고",
-    "URL은 검증된 것만 쓰고 빈 query 값",
     "allow_implicit_invocation: false",
-    "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토",
+    "대한민국 법령의 의미·적용범위",
+    "직접 근거",
+    "예외·특례",
+    "material proposition",
+    "4-H1",
+    "명시적 법제처 요청",
 }
 REQUIRED_LOGIC_REFERENCE_MARKERS = {
     "실체 논거를 각각 전개하지 않는다",
@@ -492,14 +473,31 @@ REQUIRED_COUNTEREVIDENCE_EXPECTED_MARKERS = {
     "E40",
 }
 REQUIRED_AGENTS_MARKERS = {
-    "Legal Issue Mapping → Legal Interpretation → Logic Validation → Answer Rendering",
-    "explicit-only Skill",
-    "allow_implicit_invocation",
-    "정보 부족 처리",
-    "Output Hygiene 및 URL provenance",
-    "최종 Rendering Gate",
-    "# 2. 해석대상 법령조문 및 관련 법령",
+    "응답 모드나 정보 부족 여부를 판단하기 전에",
+    "SKILL.md를 먼저 읽는다",
 }
+PRODUCTION_RUNTIME_MODULES = (
+    "scripts/legal_proposition.py",
+    "scripts/proposition_rendering.py",
+    "scripts/proposition_reconciliation.py",
+    "scripts/proposition_registry.py",
+    "scripts/synthesis_runtime_state.py",
+    "scripts/jdipt_runtime_mcp.py",
+    "scripts/inject_registry_runtime.py",
+    "scripts/stop_synthesis_gate.py",
+)
+LEGACY_RUNTIME_MODULES = (
+    "scripts/runtime_registry_state.py",
+    "scripts/synthesis_integrity.py",
+)
+ASH_SPECIFIC_RUNTIME_LITERALS = (
+    "ASH-06",
+    "안심주택",
+    "250m",
+    "350m",
+    "400%",
+    "사업대상지",
+)
 LEGACY_DEFAULT_HEADINGS = {
     "\n# 1. 요청취지\n",
     "\n# 2. 질의 배경 및 사실관계\n",
@@ -529,6 +527,105 @@ PLACEHOLDER_VALUES = {
     "xxx",
 }
 
+
+def _definitions(path: Path, *, name: str | None = None, kind: type[ast.AST] | None = None) -> list[ast.AST]:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError):
+        return []
+    nodes = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    if name is not None:
+        nodes = [node for node in nodes if getattr(node, "name", None) == name]
+    if kind is not None:
+        nodes = [node for node in nodes if isinstance(node, kind)]
+    return nodes
+
+
+def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
+    """Return structural failures limited to the intended production runtime modules."""
+    violations: list[str] = []
+    root = Path(root)
+
+    for relative in LEGACY_RUNTIME_MODULES:
+        if (root / relative).exists():
+            violations.append(f"legacy runtime module remains: {relative}")
+
+    module_paths = {
+        relative: root / relative
+        for relative in PRODUCTION_RUNTIME_MODULES
+        if (root / relative).is_file()
+    }
+    proposition_classes = [
+        (relative, node.lineno)
+        for relative, path in module_paths.items()
+        for node in _definitions(path, name="LegalProposition", kind=ast.ClassDef)
+    ]
+    if len(proposition_classes) != 1:
+        violations.append(
+            "LegalProposition production definition count: "
+            f"expected 1, found {len(proposition_classes)} ({proposition_classes})"
+        )
+
+    registry_relative = "scripts/proposition_registry.py"
+    transport_relative = "scripts/jdipt_runtime_mcp.py"
+    domain_writers = [
+        (relative, node.lineno)
+        for relative, path in module_paths.items()
+        if relative == registry_relative
+        for node in _definitions(path, name="register_material_proposition")
+    ]
+    non_domain_writers = [
+        (relative, node.lineno)
+        for relative, path in module_paths.items()
+        if relative not in {registry_relative, transport_relative}
+        for node in _definitions(path, name="register_material_proposition")
+    ]
+    if len(domain_writers) != 1:
+        violations.append(
+            "register_material_proposition domain implementation count: "
+            f"expected 1, found {len(domain_writers)} ({domain_writers})"
+        )
+    if non_domain_writers:
+        violations.append(
+            "register_material_proposition implementation outside proposition_registry.py: "
+            f"{non_domain_writers}"
+        )
+
+    state_path = module_paths.get("scripts/synthesis_runtime_state.py")
+    if state_path is not None and _definitions(state_path, name="build_render_contract"):
+        violations.append("runtime state module defines a render builder")
+
+    for relative, path in module_paths.items():
+        try:
+            module_text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            violations.append(f"production runtime could not be read: {relative}: {exc}")
+            continue
+        found = [token for token in ASH_SPECIFIC_RUNTIME_LITERALS if token in module_text]
+        if found:
+            violations.append(
+                f"production runtime contains ASH-specific literals: {relative}: {found}"
+            )
+
+    manifest_path = root / ".codex-plugin" / "plugin.json"
+    if not manifest_path.is_file():
+        violations.append("plugin manifest missing")
+    else:
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            violations.append(f"plugin manifest invalid: {exc}")
+        else:
+            if not manifest.get("hooks"):
+                violations.append("plugin manifest omits hooks")
+            if not manifest.get("mcpServers"):
+                violations.append("plugin manifest omits MCP server")
+
+    return violations
 
 def fail(message: str) -> None:
     print(f"FAIL: {message}")
@@ -650,6 +747,9 @@ def main() -> int:
     if not SYNTHESIS_BEHAVIOR_TEST.is_file():
         fail("behavioral semantic regression missing: test_proposition_runtime_behavior.py")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
+
+    for violation in runtime_architecture_violations():
+        fail(violation)
 
     missing_runtime_files = [str(path.relative_to(ROOT)) for path in REQUIRED_RUNTIME_FILES if not path.is_file()]
     if missing_runtime_files:
