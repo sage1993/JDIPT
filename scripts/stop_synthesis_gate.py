@@ -1,4 +1,4 @@
-"""Codex Stop-hook adapter for bounded runtime synthesis enforcement."""
+"""Codex Stop-hook adapter for bounded deterministic render-slot enforcement."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.synthesis_integrity import reconcile_draft, render_mandatory_proposition_sentence
+from scripts.proposition_reconciliation import reconcile_render_contracts
+from scripts.proposition_rendering import build_render_contract
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     load_runtime_state,
@@ -22,7 +23,7 @@ from scripts.synthesis_runtime_state import (
 def _fail_closed(system_message: str) -> dict[str, str | bool]:
     return {
         "continue": False,
-        "stopReason": "JDIPT synthesis integrity validation failed",
+        "stopReason": "JDIPT synthesis render-slot validation failed",
         "systemMessage": system_message,
     }
 
@@ -31,24 +32,21 @@ def _block(reason: str) -> dict[str, str]:
     return {"decision": "block", "reason": reason}
 
 
-def _failure_reason(state, result) -> str:
-    clauses = []
-    for proposition, proposition_result in zip(
-        (item.to_integrity_proposition() for item in state.propositions),
-        result.proposition_results,
-        strict=False,
-    ):
-        if proposition_result.covered:
-            continue
-        clause = render_mandatory_proposition_sentence(proposition).strip()
-        if clause:
-            clauses.append(f"{proposition.proposition_id}: {clause}")
-    if not clauses:
-        clauses.append("확인된 material proposition을 누락 없이 반영해야 한다.")
+def _failure_reason(result) -> str:
+    grouped: dict[str, list[str]] = {}
+    for slot in result.missing_slots:
+        grouped.setdefault(slot.proposition_id, []).append(slot.expected_text.strip())
+    details = " | ".join(
+        f"{proposition_id}: " + " ; ".join(texts)
+        for proposition_id, texts in grouped.items()
+    )
+    if not details:
+        details = "material proposition render slots are missing"
     return (
-        "JDIPT synthesis integrity mismatch. Add each mandatory legal-effect "
-        "proposition before optional explanation, then resubmit. "
-        + " | ".join(clauses)
+        "JDIPT synthesis mismatch. Insert the missing mandatory legal proposition "
+        "render slots without weakening their legal action, modality, temporal "
+        "status, or uncertainty. "
+        + details
     )
 
 
@@ -59,7 +57,9 @@ def handle_stop_event(
     """Return the documented Stop-hook response for one Codex event."""
 
     if not isinstance(event, Mapping):
-        return _fail_closed("JDIPT synthesis validation failed closed; invalid Stop input.")
+        return _fail_closed(
+            "JDIPT synthesis validation failed closed; invalid Stop input."
+        )
 
     session_id = event.get("session_id")
     turn_id = event.get("turn_id")
@@ -72,21 +72,21 @@ def handle_stop_event(
         return _fail_closed(
             "JDIPT synthesis validation failed closed; runtime state was invalid."
         )
-    if state is None or not state.jdipt_active:
+    if state is None or not state.registry_active:
         return {}
 
     draft = event.get("last_assistant_message")
     if not isinstance(draft, str):
         draft = ""
-    result = reconcile_draft(
-        [proposition.to_integrity_proposition() for proposition in state.propositions],
-        draft,
-    )
+    contracts = [
+        contract
+        for proposition in state.propositions
+        if (contract := build_render_contract(proposition)).slots
+    ]
+    result = reconcile_render_contracts(contracts, draft)
     if result.covered:
         return {}
 
-    # Codex sets stop_hook_active when a prior Stop hook already requested a
-    # continuation.  Refuse another continuation even if stale state says 0.
     if state.repair_count != 0 or event.get("stop_hook_active") is True:
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; the bounded repair did not "
@@ -99,7 +99,7 @@ def handle_stop_event(
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; repair state could not be persisted."
         )
-    return _block(_failure_reason(state, result))
+    return _block(_failure_reason(result))
 
 
 def _main() -> int:
