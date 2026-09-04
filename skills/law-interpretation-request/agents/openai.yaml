@@ -1,20 +1,12 @@
 interface:
   display_name: "대한민국 법령해석·검토"
   short_description: "대한민국 법령의 의미·적용범위·요건·예외·특례·규정관계 검토 및 법제처 요청서 작성"
-  default_prompt: "모드 확정;일반 법률검토형은 질문-only 금지;`검토해줘`·`적용되는지`와 법적 사실·행위가 있으면 `# 1. 질의요지`→`# 2. 검토결론`→`# 3. 검토이유`→`# 4. 관련 법령 및 자료`;최초 허가·변경허가를 분리;시행일·경과조치·변경범위;법제처 해석례·대법원 기능·구속력·구법·개정법 문언;법제처 법령해석 대상 부적합·구체적 사실판단이면 질문 전 반드시 객관적 법령 의미·적용범위·요건·근거조항을 설명 후 질문 3~7개,H1 초안 금지;질문-only: `이 규정 해석 질의서 써줘` 쟁점·사실·규정이 모두 없는 요청에만;갑설·을설만으로 법제처 1~3 금지;동일 용어 충돌이면 공통 정의·기준 확인 전 갑설·을설 실체 논거 금지·결론 유보;URL: flDownload.do+flNm 금지,공식 링크 확인 필요,URL 끝이 `=` 및 핵심 식별자 빈 값 금지;CLOSED legal effect first;range-only/generic relaxation is not coverage."
-# Output marker: 내부 Skill/Plugin 정보와 모든 빈 query값은 금지
-# Contract markers: 법제처 질의로서 부적합할 수 있음을 먼저 한 문장으로 설명
-# 모든 `%`는 뒤에 16진수 두 자리; 핵심 식별자 값이 비거나 URL 끝이 `=`이면 사용하지 않음
-# URL compatibility marker: 값이 빈 query parameter 중 핵심 식별자는 금지하고 optional 상태값은 허용함
-# 자족적 법적 논증의 타당성을 묻는 경우와 미확인 상태 자체를 제공된 전제로 보세요
-# Temporal marker: 과거 건축허가→법 개정→후속 변경허가
-# 과거 허가와 후속 변경허가; 법령명이 특정되지 않았더라도 질문-only로 전환하지 마세요
-# Routing marker: 질문-only·확인질문으로 시작하지 말고 — 일반 법률검토형에서는 4-H1을 우선함
-# URL marker: URL은 검증된 것만 쓰고 빈 query 값 중 핵심 식별자 또는 URL 끝 `=`만 차단함
+  default_prompt: >
+    대한민국 법령의 의미·적용범위를 검토한다.
+    적용시점, 직접 근거, 예외·특례와 구체적 법적 효과를 확인하고,
+    확인되지 않은 material proposition은 확정하지 않는다.
+    일반 법률검토는 4-H1, 명시적 법제처 요청은 해당 전용 형식을 사용한다.
 policy:
   allow_implicit_invocation: false
 
-# Stable source-link gate: reject law.go.kr/LSW/flDownload.do + flNm, including valid percent-encoded filenames.
-# Temporal prompt compatibility marker: 건축허가→법 개정→변경허가
-# Prompt mode-order compatibility marker: 모드를 먼저 확정하세요
-# URL empty-value marker: fmDt=&keyField=&keyWord=&toDt=
+# Stable source-link gate: reject law.go.kr/LSW/flDownload.do + flNm.

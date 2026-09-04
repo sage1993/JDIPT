@@ -50,8 +50,8 @@ def test_e37_runtime_variant_rejects_incomplete_download_url():
 
 
 def test_runtime_prompt_names_the_stable_source_link_class():
-    prompt = (ROOT / "skills/law-interpretation-request/agents/openai.yaml").read_text(encoding="utf-8")
+    policy = (ROOT / "skills/law-interpretation-request/references/source-policy.md").read_text(encoding="utf-8")
 
-    assert "flDownload.do" in prompt
-    assert "flNm" in prompt
-    assert "확인 필요" in prompt
+    assert "flDownload.do" in policy
+    assert "flNm" in policy
+    assert "확인 필요" in policy
