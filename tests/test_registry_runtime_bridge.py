@@ -24,9 +24,16 @@ def _arguments(**overrides):
         "operative_verb_lexeme": "지정",
         "legal_object": "대상 O",
         "legal_effect": "지위 Z",
-        "source_clause": "확인된 원문",
         "relation_type": "base",
         "modality": "may",
+        "polarity": "positive",
+        "source_id": "law-001",
+        "authority_kind": "statute",
+        "source_title": "검증 법령",
+        "source_locator": "법령 식별자/조문",
+        "evidence_span": "확인된 원문",
+        "temporal_status": "CURRENT_CONFIRMED",
+        "temporal_render_text": "2026-09-04 현재 시행 중인 기준이다.",
     }
     data.update(overrides)
     return data
@@ -70,7 +77,7 @@ def test_bridge_and_mcp_write_exact_stop_hook_state(tmp_path):
 
     assert "error" not in response
     state = load_runtime_state("actual-session", "actual-turn", tmp_path)
-    assert state is not None and state.jdipt_active is True
+    assert state is not None and state.registry_active is True
     assert not runtime_state_path(tmp_path, "current", "current").exists()
 
 
@@ -96,7 +103,7 @@ def test_mandatory_modality_is_not_weakened_to_discretion(tmp_path):
     response = dispatch_json_rpc(_tool_call(updated, request_id=2))
 
     payload = json.loads(response["result"]["content"][0]["text"])
-    clause = payload["mandatory_render_clause"]
+    clause = payload["render_contract"]["slots"][0]["text"]
     assert "할 수 있다" not in clause
     assert "의무적" in clause and "하여야" in clause
     assert "shall hold" in clause
@@ -138,7 +145,7 @@ def test_stdio_forces_utf8_even_if_pythonioencoding_is_cp949(tmp_path):
     assert process.returncode == 0
     response = json.loads(process.stdout)
     payload = json.loads(response["result"]["content"][0]["text"])
-    assert "지정" in payload["mandatory_render_clause"]
+    assert "지정" in payload["render_contract"]["slots"][0]["text"]
 
 
 def test_packaging_wires_exact_registry_pretool_hook_and_no_mcp_env_dependency():

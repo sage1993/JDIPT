@@ -22,21 +22,33 @@ def _fields() -> dict[str, str]:
         "operative_verb_lexeme": "지정",
         "legal_object": "O",
         "legal_effect": "Z",
-        "source_clause": "원문",
+        "modality": "may",
+        "polarity": "positive",
         "relation_type": "base",
+        "source_id": "law-001",
+        "authority_kind": "statute",
+        "source_title": "검증 법령",
+        "source_locator": "법령 식별자/조문",
+        "evidence_span": "원문",
+        "temporal_status": "CURRENT_CONFIRMED",
+        "temporal_render_text": "2026-09-04 현재 시행 중인 기준이다.",
     }
 
 
-def test_registry_tool_exposes_structure_but_not_free_render_clause():
+def test_registry_tool_exposes_evidence_but_not_free_render_clause():
     definitions = tool_definitions()
     assert [item["name"] for item in definitions] == ["register_material_proposition"]
     properties = definitions[0]["inputSchema"]["properties"]
     assert "mandatory_render_clause" not in properties
+    assert "render_slot" not in properties
+    assert "source_id" in properties
+    assert "authority_kind" in properties
+    assert "temporal_status" in properties
     assert "proposition_id" in properties
     assert "status" in properties
 
 
-def test_tools_call_registers_and_returns_deterministic_clause(tmp_path):
+def test_tools_call_registers_and_returns_render_contract(tmp_path):
     response = dispatch_json_rpc(
         {
             "jsonrpc": "2.0",
@@ -52,9 +64,13 @@ def test_tools_call_registers_and_returns_deterministic_clause(tmp_path):
 
     assert response["id"] == 1
     payload = json.loads(response["result"]["content"][0]["text"])
-    assert payload["jdipt_active"] is True
-    assert payload["mandatory_render_clause"].startswith("기본 기준으로")
+    assert payload["registry_active"] is True
+    assert [slot["kind"] for slot in payload["render_contract"]["slots"]] == [
+        "effect",
+        "temporal",
+    ]
     assert payload["repair_count"] == 0
+    assert "mandatory_render_clause" not in payload
 
 
 def test_initialize_and_tools_list_are_json_rpc_compatible():

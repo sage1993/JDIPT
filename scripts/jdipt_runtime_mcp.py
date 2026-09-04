@@ -1,7 +1,9 @@
-"""Small stdio MCP server exposing JDIPT's material-proposition registry."""
+"""Small stdio MCP transport for the JDIPT proposition registry."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import asdict
 import json
 import os
 from pathlib import Path
@@ -11,10 +13,9 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.runtime_registry_state import (
-    RuntimeStateError,
-    register_material_proposition as _register_material_proposition,
-)
+from scripts.proposition_registry import register_material_proposition as _register_material_proposition
+from scripts.synthesis_runtime_state import RuntimeStateError
+
 
 TOOL_NAME = "register_material_proposition"
 RUNTIME_PLUGIN_DATA_FIELD = "_runtime_plugin_data"
@@ -24,21 +25,26 @@ REGISTRY_FIELDS = frozenset(
         "turn_id",
         "proposition_id",
         "status",
+        "materiality",
         "subject",
         "condition",
         "procedure",
-        "operative_verb_lexeme",
+        "modality",
         "legal_action",
+        "operative_verb_lexeme",
         "legal_object",
         "legal_effect",
-        "modality",
         "polarity",
-        "materiality",
         "relation_type",
         "base_proposition_id",
         "exception_proposition_id",
-        "source_clause",
-        "current_status",
+        "source_id",
+        "authority_kind",
+        "source_title",
+        "source_locator",
+        "evidence_span",
+        "temporal_status",
+        "temporal_render_text",
         RUNTIME_PLUGIN_DATA_FIELD,
     }
 )
@@ -49,9 +55,9 @@ def tool_definitions() -> list[dict[str, Any]]:
         {
             "name": TOOL_NAME,
             "description": (
-                "Register one compact material legal proposition for the current "
-                "session and turn. The runtime hook binds authoritative session/turn "
-                "state and builds the mandatory render clause."
+                "Register one canonical material legal proposition for the current "
+                "session and turn. The runtime hook binds authoritative identity "
+                "and the registry returns a deterministic render contract."
             ),
             "inputSchema": {
                 "type": "object",
@@ -62,21 +68,26 @@ def tool_definitions() -> list[dict[str, Any]]:
                     "turn_id": {"type": "string"},
                     "proposition_id": {"type": "string"},
                     "status": {"type": "string", "enum": ["OPEN", "CLOSED"]},
+                    "materiality": {"type": "string"},
                     "subject": {"type": "string"},
                     "condition": {"type": "string"},
                     "procedure": {"type": "string"},
-                    "operative_verb_lexeme": {"type": "string"},
+                    "modality": {"type": "string"},
                     "legal_action": {"type": "string"},
+                    "operative_verb_lexeme": {"type": "string"},
                     "legal_object": {"type": "string"},
                     "legal_effect": {"type": "string"},
-                    "modality": {"type": "string"},
                     "polarity": {"type": "string"},
-                    "materiality": {"type": "string"},
                     "relation_type": {"type": "string"},
                     "base_proposition_id": {"type": "string"},
                     "exception_proposition_id": {"type": "string"},
-                    "source_clause": {"type": "string"},
-                    "current_status": {"type": "string"},
+                    "source_id": {"type": "string"},
+                    "authority_kind": {"type": "string"},
+                    "source_title": {"type": "string"},
+                    "source_locator": {"type": "string"},
+                    "evidence_span": {"type": "string"},
+                    "temporal_status": {"type": "string"},
+                    "temporal_render_text": {"type": "string"},
                     RUNTIME_PLUGIN_DATA_FIELD: {
                         "type": "string",
                         "description": (
@@ -102,20 +113,18 @@ def register_material_proposition(
         runtime_plugin_data = injected
     fields = dict(arguments)
     fields.pop(RUNTIME_PLUGIN_DATA_FIELD, None)
-    state = _register_material_proposition(fields, runtime_plugin_data)
-    proposition = next(
-        item
-        for item in state.propositions
-        if item.proposition_id == arguments.get("proposition_id")
-    )
+    result = _register_material_proposition(fields, runtime_plugin_data)
     return {
-        "session_id": state.session_id,
-        "turn_id": state.turn_id,
-        "proposition_id": proposition.proposition_id,
-        "status": proposition.status,
-        "jdipt_active": state.jdipt_active,
-        "repair_count": state.repair_count,
-        "mandatory_render_clause": proposition.mandatory_render_clause,
+        "session_id": result.state.session_id,
+        "turn_id": result.state.turn_id,
+        "proposition_id": result.proposition.proposition_id,
+        "status": result.proposition.status,
+        "registry_active": result.state.registry_active,
+        "repair_count": result.state.repair_count,
+        "render_contract": {
+            "proposition_id": result.render_contract.proposition_id,
+            "slots": [asdict(slot) for slot in result.render_contract.slots],
+        },
     }
 
 
