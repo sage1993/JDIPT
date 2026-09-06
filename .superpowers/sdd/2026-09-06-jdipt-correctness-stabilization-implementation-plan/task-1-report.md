@@ -173,3 +173,47 @@ An intermediate assertion command exited 1 because PowerShell/console encoding f
 - The approved design and implementation plan were not edited.
 - No production file and no external dirty-baseline file was modified.
 - Remaining concerns are unchanged: installed-bundle integrity mismatch, pytest permission/setup failures, inaccessible generated cache paths, and approved-document whitespace that must remain byte-identical.
+
+## Fix round 2 — rereview I2 remediation
+
+**Review input:** `.superpowers/sdd/2026-09-06-jdipt-correctness-stabilization-implementation-plan/task-1-rereview.md`
+**Fix-round timestamp:** `2026-09-06T21:50:55.2784823+09:00`
+**Scope:** Documentation/evidence only; no production files, external dirty-baseline files, or approved design/plan bytes were changed.
+
+### I2 correction
+
+The initial baseline sections are now explicitly labeled **historical/superseded**. Their former `PORT_TO_R2` candidate wording, “no `UNKNOWN`” statement, and unblocked-gate statement are not current decisions. The current authoritative gate is the fix-round ruling: `registry_required`, `registry_completed`, `enforcement_count`, and the range-exception relation are `UNKNOWN`; Task 2 is **BLOCKED** until semantic parity evidence resolves them.
+
+The evidence snapshot now disambiguates the search phases and commands:
+
+- Baseline phase: exact `rg -n "runtime_registry_state|synthesis_integrity" .` exited `0`.
+- Fix round 1 exact search: the same exact command exited `2` because inaccessible generated pytest cache/worktree paths emitted permission warnings.
+- Fix round 1 scoped search: the scoped `docs scripts tests` search excluding those inaccessible paths exited `0`.
+
+The fix-round exact-search `2` is the current warning record; the historical baseline `0` is not used to claim that the exact fix-round search was clean.
+
+### Changed files in this fix round
+
+- `docs/stabilization/2026-09-06-evidence-snapshot.md`
+- This report at `.superpowers/sdd/2026-09-06-jdipt-correctness-stabilization-implementation-plan/task-1-report.md`
+
+### Focused verification commands and outputs
+
+| Command/check | Exit | Output/result |
+|---|---:|---|
+| `git diff --check` | 0 | Pass; only normal LF-to-CRLF working-copy warnings |
+| Focused PowerShell documentation assertions for historical/superseded markers, current `UNKNOWN`/blocked rulings, baseline search `0`, fix-round exact search `2`, scoped search `0`, search-phase section, and approved-doc cleanliness | 0 | All assertions `True`; `focused_documentation_assertions=PASS` |
+| `git diff --cached --check` before the fix commit | 0 | Pass |
+| First local commit attempt | 128 | Git could not create linked-worktree metadata lock under `F:/2026-PJ/JDIPT/.git/worktrees/...`; no baseline working file was changed and no lock remained |
+| Retried local commit with permission to update linked-worktree metadata only | 0 | `806e08ebe840384d10e50df2c0e22cae52737193` (`docs: clarify Task 1 current gate evidence`) |
+
+No full pytest run and no inaccessible-directory scan were performed in this fix round, per instruction. Existing inaccessible cache/worktree warnings remain recorded rather than suppressed.
+
+### Fix-round self-review and concerns
+
+- The contradictory baseline conclusions are visibly historical/superseded, while the fix-round `UNKNOWN`/**BLOCKED** decision is identified as authoritative.
+- The baseline search exit `0`, fix-round exact-search exit `2`, and fix-round scoped-search exit `0` are separately identified by phase and exact command.
+- Approved design and implementation-plan bytes remain untouched; no production or external dirty-baseline file was modified.
+- Task 2 remains blocked by unresolved semantic parity. Installed-runtime identity/digest remain `NOT_OBSERVABLE`, and inaccessible generated paths continue to produce warnings.
+
+**Fix-round implementation commit:** `806e08ebe840384d10e50df2c0e22cae52737193`
