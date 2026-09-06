@@ -10,6 +10,10 @@ from typing import Any
 from scripts.legal_proposition import (
     EvidenceRef,
     LegalProposition,
+    normalize_materiality,
+    normalize_modality,
+    normalize_polarity,
+    normalize_status,
     PropositionValidationError,
 )
 from scripts.proposition_rendering import PropositionRenderContract, build_render_contract
@@ -100,17 +104,17 @@ def _build_evidence(fields: Mapping[str, Any]) -> EvidenceRef | None:
 def _build_proposition(fields: Mapping[str, Any]) -> LegalProposition:
     return LegalProposition(
         proposition_id=fields.get("proposition_id"),
-        status=fields.get("status"),
-        materiality=_text_arg(fields, "materiality") or "material",
+        status=normalize_status(fields.get("status"), required=True),
+        materiality=normalize_materiality(fields.get("materiality"), required=True),
         subject=_text_arg(fields, "subject"),
         condition=_text_arg(fields, "condition"),
         procedure=_text_arg(fields, "procedure"),
-        modality=_text_arg(fields, "modality"),
+        modality=normalize_modality(fields.get("modality")),
         legal_action=_text_arg(fields, "legal_action"),
         operative_verb_lexeme=_text_arg(fields, "operative_verb_lexeme"),
         legal_object=_text_arg(fields, "legal_object"),
         legal_effect=_text_arg(fields, "legal_effect"),
-        polarity=_text_arg(fields, "polarity"),
+        polarity=normalize_polarity(fields.get("polarity")),
         relation_type=_text_arg(fields, "relation_type"),
         base_proposition_id=_text_arg(fields, "base_proposition_id"),
         exception_proposition_id=_text_arg(fields, "exception_proposition_id"),

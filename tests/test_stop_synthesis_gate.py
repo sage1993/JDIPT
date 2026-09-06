@@ -4,7 +4,14 @@ from pathlib import Path
 import subprocess
 import sys
 
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.proposition_rendering import build_render_contract
 from scripts.stop_synthesis_gate import handle_stop_event
 from scripts.synthesis_runtime_state import (
@@ -30,24 +37,29 @@ def _evidence():
     )
 
 
-def _proposition(*, proposition_id: str = "P1", status: str = "CLOSED", condition: str = "C"):
+def _proposition(
+    *,
+    proposition_id: str = "P1",
+    status: PropositionStatus = PropositionStatus.CLOSED,
+    condition: str = "C",
+):
     return LegalProposition(
         proposition_id=proposition_id,
         status=status,
-        materiality="material",
+        materiality=Materiality.MATERIAL,
         subject="A",
         condition=condition,
         procedure="P",
-        modality="may",
+        modality=Modality.MAY,
         legal_action="designate",
         operative_verb_lexeme="지정",
         legal_object="O",
         legal_effect="Z",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="base",
         base_proposition_id=None,
         exception_proposition_id=None,
-        evidence=None if status == "OPEN" else _evidence(),
+        evidence=None if status is PropositionStatus.OPEN else _evidence(),
     )
 
 
@@ -123,8 +135,16 @@ def test_effect_present_but_temporal_slot_missing_is_blocked(tmp_path):
 
 def test_one_generic_neutral_phrase_does_not_cover_two_open_propositions(tmp_path):
     propositions = [
-        _proposition(proposition_id="P_OPEN_1", status="OPEN", condition="시행일 확인"),
-        _proposition(proposition_id="P_OPEN_2", status="OPEN", condition="예외요건 확인"),
+        _proposition(
+            proposition_id="P_OPEN_1",
+            status=PropositionStatus.OPEN,
+            condition="시행일 확인",
+        ),
+        _proposition(
+            proposition_id="P_OPEN_2",
+            status=PropositionStatus.OPEN,
+            condition="예외요건 확인",
+        ),
     ]
     save_runtime_state(_state(propositions=propositions), tmp_path)
 

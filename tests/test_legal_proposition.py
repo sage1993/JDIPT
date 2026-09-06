@@ -5,6 +5,10 @@ import pytest
 from scripts.legal_proposition import (
     EvidenceRef,
     LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
     PropositionValidationError,
 )
 
@@ -24,17 +28,17 @@ def _evidence():
 def _closed_proposition(**overrides):
     values = {
         "proposition_id": "P1",
-        "status": "CLOSED",
-        "materiality": "material",
+        "status": PropositionStatus.CLOSED,
+        "materiality": Materiality.MATERIAL,
         "subject": "행정청",
         "condition": "요건",
         "procedure": "절차",
-        "modality": "may",
+        "modality": Modality.MAY,
         "legal_action": "designate",
         "operative_verb_lexeme": "지정",
         "legal_object": "대상",
         "legal_effect": "법적 지위",
-        "polarity": "positive",
+        "polarity": Polarity.POSITIVE,
         "relation_type": "exception",
         "base_proposition_id": None,
         "exception_proposition_id": None,
@@ -57,8 +61,8 @@ def test_closed_proposition_requires_evidence_reference():
 def test_open_proposition_may_keep_partial_fields():
     proposition = LegalProposition(
         proposition_id="P1",
-        status="OPEN",
-        materiality="material",
+        status=PropositionStatus.OPEN,
+        materiality=Materiality.MATERIAL,
         subject=None,
         condition="예외요건 확인",
         procedure=None,

@@ -5,7 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from scripts.legal_proposition import LegalProposition
+from scripts.legal_proposition import (
+    LegalProposition,
+    Materiality,
+    Modality,
+    PropositionStatus,
+)
 
 
 RenderSlotKind = Literal["effect", "temporal", "open"]
@@ -26,16 +31,7 @@ class PropositionRenderContract:
 
 
 def _is_material(proposition: LegalProposition) -> bool:
-    return proposition.materiality.strip().lower() in {
-        "material",
-        "중요",
-        "material proposition",
-        "high",
-        "headline",
-        "핵심",
-        "중요도 높음",
-        "중요도높음",
-    }
+    return proposition.materiality is Materiality.MATERIAL
 
 
 def _relation_prefix(proposition: LegalProposition) -> str:
@@ -48,35 +44,9 @@ def _relation_prefix(proposition: LegalProposition) -> str:
 
 
 def _modality_kind(proposition: LegalProposition) -> str:
-    modality = (proposition.modality or "").strip().lower()
-    polarity = (proposition.polarity or "").strip().lower()
-    action = (
-        proposition.operative_verb_lexeme or proposition.legal_action or ""
-    ).strip().lower()
-    prohibited_tokens = (
-        "prohibited",
-        "forbidden",
-        "must not",
-        "shall not",
-        "may not",
-        "금지",
-        "하여서는 안",
-        "불허",
-    )
-    mandatory_tokens = (
-        "mandatory",
-        "must",
-        "shall",
-        "required",
-        "의무",
-        "하여야",
-        "해야",
-    )
-    if polarity in {"negative", "prohibited", "forbidden"}:
+    if proposition.modality in {Modality.MUST_NOT, Modality.MAY_NOT}:
         return "prohibited"
-    if any(token in modality or token in action for token in prohibited_tokens):
-        return "prohibited"
-    if any(token in modality or token in action for token in mandatory_tokens):
+    if proposition.modality is Modality.MUST:
         return "mandatory"
     return "discretionary"
 
@@ -152,7 +122,7 @@ def build_render_contract(
     if not _is_material(proposition):
         return PropositionRenderContract(proposition.proposition_id, ())
 
-    if proposition.status == "OPEN":
+    if proposition.status is PropositionStatus.OPEN:
         slot = RenderSlot(
             slot_id=f"{proposition.proposition_id}:open",
             proposition_id=proposition.proposition_id,

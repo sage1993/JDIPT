@@ -1,6 +1,13 @@
 from dataclasses import replace
 
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
 
@@ -20,17 +27,17 @@ def _evidence():
 def _closed_proposition(**overrides):
     values = {
         "proposition_id": "P1",
-        "status": "CLOSED",
-        "materiality": "material",
+        "status": PropositionStatus.CLOSED,
+        "materiality": Materiality.MATERIAL,
         "subject": "행정청",
         "condition": "요건",
         "procedure": "절차",
-        "modality": "may",
+        "modality": Modality.MAY,
         "legal_action": "designate",
         "operative_verb_lexeme": "지정",
         "legal_object": "대상",
         "legal_effect": "법적 지위",
-        "polarity": "positive",
+        "polarity": Polarity.POSITIVE,
         "relation_type": "exception",
         "base_proposition_id": None,
         "exception_proposition_id": None,
@@ -75,14 +82,14 @@ def test_one_generic_neutral_phrase_does_not_cover_two_open_slots():
     first = replace(
         _closed_proposition(),
         proposition_id="P_OPEN_1",
-        status="OPEN",
+        status=PropositionStatus.OPEN,
         condition="시행일 확인",
         evidence=None,
     )
     second = replace(
         _closed_proposition(),
         proposition_id="P_OPEN_2",
-        status="OPEN",
+        status=PropositionStatus.OPEN,
         condition="예외요건 확인",
         evidence=None,
     )

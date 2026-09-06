@@ -3,7 +3,14 @@ from dataclasses import replace
 
 import pytest
 
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.synthesis_runtime_state import (
     RUNTIME_STATE_SCHEMA_VERSION,
     RuntimeStateError,
@@ -30,17 +37,17 @@ def _evidence():
 def _proposition(*, proposition_id: str = "P1") -> LegalProposition:
     return LegalProposition(
         proposition_id=proposition_id,
-        status="CLOSED",
-        materiality="material",
+        status=PropositionStatus.CLOSED,
+        materiality=Materiality.MATERIAL,
         subject="A",
         condition="C",
         procedure="P",
-        modality="may",
+        modality=Modality.MAY,
         legal_action="designate",
         operative_verb_lexeme="지정",
         legal_object="O",
         legal_effect="Z",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="base",
         base_proposition_id=None,
         exception_proposition_id=None,
@@ -148,7 +155,11 @@ def test_update_repair_count_is_atomic_and_bounded(tmp_path):
 
 
 def test_open_proposition_is_preserved_as_open(tmp_path):
-    proposition = replace(_proposition(), status="OPEN", evidence=None)
+    proposition = replace(
+        _proposition(),
+        status=PropositionStatus.OPEN,
+        evidence=None,
+    )
     state = RuntimeTurnState(
         schema_version=RUNTIME_STATE_SCHEMA_VERSION,
         session_id="session-a",

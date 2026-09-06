@@ -16,6 +16,7 @@ def _fields() -> dict[str, str]:
         "turn_id": "turn-1",
         "proposition_id": "P1",
         "status": "CLOSED",
+        "materiality": "MATERIAL",
         "subject": "A",
         "condition": "C",
         "procedure": "P",

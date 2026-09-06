@@ -1,6 +1,13 @@
 from dataclasses import replace
 
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.proposition_rendering import build_render_contract
 
 
@@ -19,17 +26,17 @@ def _evidence():
 def _closed_proposition(**overrides):
     values = {
         "proposition_id": "P1",
-        "status": "CLOSED",
-        "materiality": "material",
+        "status": PropositionStatus.CLOSED,
+        "materiality": Materiality.MATERIAL,
         "subject": "행정청",
         "condition": "요건",
         "procedure": "절차",
-        "modality": "may",
+        "modality": Modality.MAY,
         "legal_action": "designate",
         "operative_verb_lexeme": "지정",
         "legal_object": "대상",
         "legal_effect": "법적 지위",
-        "polarity": "positive",
+        "polarity": Polarity.POSITIVE,
         "relation_type": "exception",
         "base_proposition_id": None,
         "exception_proposition_id": None,
@@ -49,7 +56,7 @@ def test_closed_discretionary_proposition_gets_effect_slot():
 def test_mandatory_modality_is_not_weakened():
     proposition = replace(
         _closed_proposition(),
-        modality="must",
+        modality=Modality.MUST,
         operative_verb_lexeme="실시",
         legal_action="conduct",
     )
@@ -63,7 +70,7 @@ def test_mandatory_modality_is_not_weakened():
 def test_prohibited_modality_is_not_rendered_as_discretionary():
     proposition = replace(
         _closed_proposition(),
-        modality="prohibited",
+        modality=Modality.MUST_NOT,
         operative_verb_lexeme="지정",
         legal_action="designate",
     )
@@ -87,14 +94,14 @@ def test_open_propositions_get_distinct_neutral_slots_for_their_context():
     first = replace(
         _closed_proposition(),
         proposition_id="P_OPEN_1",
-        status="OPEN",
+        status=PropositionStatus.OPEN,
         condition="시행일 확인",
         evidence=None,
     )
     second = replace(
         _closed_proposition(),
         proposition_id="P_OPEN_2",
-        status="OPEN",
+        status=PropositionStatus.OPEN,
         condition="예외요건 확인",
         evidence=None,
     )

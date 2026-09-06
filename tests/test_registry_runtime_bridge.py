@@ -18,6 +18,7 @@ def _arguments(**overrides):
         "turn_id": "current",
         "proposition_id": "P1",
         "status": "CLOSED",
+        "materiality": "MATERIAL",
         "subject": "행정청",
         "condition": "요건 C",
         "procedure": "절차 P",

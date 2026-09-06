@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
 
@@ -11,17 +18,17 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_canonical_model_and_render_contract_have_one_runtime_path():
     proposition = LegalProposition(
         proposition_id="P1",
-        status="CLOSED",
-        materiality="material",
+        status=PropositionStatus.CLOSED,
+        materiality=Materiality.MATERIAL,
         subject="행정청",
         condition="요건",
         procedure="절차",
-        modality="may",
+        modality=Modality.MAY,
         legal_action="designate",
         operative_verb_lexeme="지정",
         legal_object="대상",
         legal_effect="법적 지위",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="base",
         base_proposition_id=None,
         exception_proposition_id=None,

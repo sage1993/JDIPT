@@ -2,7 +2,14 @@ from dataclasses import replace
 
 import pytest
 
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
 from scripts.stop_synthesis_gate import handle_stop_event
@@ -28,17 +35,17 @@ def _evidence(source_id: str = "law-001") -> EvidenceRef:
 def designation_fixture() -> LegalProposition:
     return LegalProposition(
         proposition_id="EXCEPTION_X",
-        status="CLOSED",
-        materiality="material",
+        status=PropositionStatus.CLOSED,
+        materiality=Materiality.MATERIAL,
         subject="A",
         condition="C",
         procedure="P",
-        modality="may",
+        modality=Modality.MAY,
         legal_action="designate",
         operative_verb_lexeme="지정",
         legal_object="O",
         legal_effect="Z",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="exception to BASE_X",
         base_proposition_id="BASE_X",
         exception_proposition_id=None,
@@ -105,17 +112,17 @@ def test_reconciliation_rejects_degraded_closed_relation():
 def test_base_and_exception_get_independent_render_contracts():
     base = LegalProposition(
         proposition_id="BASE_X",
-        status="CLOSED",
-        materiality="material",
+        status=PropositionStatus.CLOSED,
+        materiality=Materiality.MATERIAL,
         subject="A",
         condition="기본 요건",
         procedure="기본 절차",
-        modality="must",
+        modality=Modality.MUST,
         legal_action="apply",
         operative_verb_lexeme="적용",
         legal_object="O",
         legal_effect="B",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="base",
         base_proposition_id=None,
         exception_proposition_id="EXCEPTION_X",
@@ -166,7 +173,11 @@ def test_stop_gate_requests_slots_instead_of_rewriting_the_draft(tmp_path):
 
 
 def test_open_proposition_cannot_be_promoted_to_confirmed_effect():
-    proposition = replace(designation_fixture(), status="OPEN", evidence=None)
+    proposition = replace(
+        designation_fixture(),
+        status=PropositionStatus.OPEN,
+        evidence=None,
+    )
     contract = build_render_contract(proposition)
 
     confirmed = reconcile_render_contracts([contract], contract.slots[0].text.replace("확인 필요: ", ""))

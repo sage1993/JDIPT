@@ -14,6 +14,10 @@ from typing import Literal
 from scripts.legal_proposition import (
     EvidenceRef,
     LegalProposition,
+    normalize_materiality,
+    normalize_modality,
+    normalize_polarity,
+    normalize_status,
     PropositionValidationError,
 )
 
@@ -195,7 +199,12 @@ def _as_json(state: RuntimeTurnState) -> dict[str, Any]:
         state.__post_init__()
     except (ValueError, RuntimeStateError) as exc:
         raise RuntimeStateError(f"invalid runtime state: {exc}") from exc
-    return asdict(state)
+    payload = asdict(state)
+    for item in payload["propositions"]:
+        for field in ("status", "materiality", "modality", "polarity"):
+            value = item[field]
+            item[field] = None if value is None else value.value
+    return payload
 
 
 def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
@@ -230,6 +239,20 @@ def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
             )
             proposition_fields = dict(item)
             proposition_fields["evidence"] = evidence
+            proposition_fields["status"] = normalize_status(
+                proposition_fields.get("status"),
+                required=True,
+            )
+            proposition_fields["materiality"] = normalize_materiality(
+                proposition_fields.get("materiality"),
+                required=True,
+            )
+            proposition_fields["modality"] = normalize_modality(
+                proposition_fields.get("modality")
+            )
+            proposition_fields["polarity"] = normalize_polarity(
+                proposition_fields.get("polarity")
+            )
             propositions.append(LegalProposition(**proposition_fields))
     except (KeyError, TypeError, ValueError, RuntimeStateError, PropositionValidationError) as exc:
         raise RuntimeStateError(f"invalid proposition metadata: {exc}") from exc

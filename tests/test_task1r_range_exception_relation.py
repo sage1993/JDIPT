@@ -1,4 +1,11 @@
-from scripts.legal_proposition import EvidenceRef, LegalProposition
+from scripts.legal_proposition import (
+    EvidenceRef,
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 from scripts.proposition_relations import (
     build_range_exception_relation,
     reconcile_range_exception_relation,
@@ -21,17 +28,17 @@ def _evidence(source_id="law-range-001"):
 def _base():
     return LegalProposition(
         proposition_id="BASE_RANGE",
-        status="CLOSED",
-        materiality="material",
+        status=PropositionStatus.CLOSED,
+        materiality=Materiality.MATERIAL,
         subject="행정청",
         condition="기본 요건",
         procedure="기본 절차",
-        modality="must",
+        modality=Modality.MUST,
         legal_action="apply",
         operative_verb_lexeme="적용",
         legal_object="사업대상지",
         legal_effect="기본 기준 적용",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="base",
         base_proposition_id=None,
         exception_proposition_id="EXCEPTION_RANGE",
@@ -44,17 +51,17 @@ def _base():
 def _exception():
     return LegalProposition(
         proposition_id="EXCEPTION_RANGE",
-        status="CLOSED",
-        materiality="material",
+        status=PropositionStatus.CLOSED,
+        materiality=Materiality.MATERIAL,
         subject="행정청",
         condition="특정 입지 요건을 충족하는 경우",
         procedure="통합심의를 거치면",
-        modality="may",
+        modality=Modality.MAY,
         legal_action="designate",
         operative_verb_lexeme="지정",
         legal_object="사업대상지",
         legal_effect="예외 대상 지정",
-        polarity="positive",
+        polarity=Polarity.POSITIVE,
         relation_type="exception to BASE_RANGE",
         base_proposition_id="BASE_RANGE",
         exception_proposition_id=None,

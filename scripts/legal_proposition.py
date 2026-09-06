@@ -3,11 +3,33 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 import re
 from typing import Literal
 
 
-PropositionStatus = Literal["OPEN", "CLOSED"]
+class Materiality(StrEnum):
+    MATERIAL = "MATERIAL"
+    NON_MATERIAL = "NON_MATERIAL"
+
+
+class Modality(StrEnum):
+    MAY = "MAY"
+    MUST = "MUST"
+    MUST_NOT = "MUST_NOT"
+    MAY_NOT = "MAY_NOT"
+
+
+class Polarity(StrEnum):
+    POSITIVE = "POSITIVE"
+    NEGATIVE = "NEGATIVE"
+
+
+class PropositionStatus(StrEnum):
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+
+
 TemporalStatus = Literal[
     "CURRENT_CONFIRMED",
     "HISTORICAL_CONFIRMED",
@@ -43,6 +65,100 @@ _AUTHORITY_KINDS = {
 
 class PropositionValidationError(ValueError):
     """Raised when proposition or evidence metadata is unsafe or incomplete."""
+
+
+_MATERIALITY_ALIASES = {
+    "MATERIAL": Materiality.MATERIAL,
+    "material": Materiality.MATERIAL,
+    "NON_MATERIAL": Materiality.NON_MATERIAL,
+    "non_material": Materiality.NON_MATERIAL,
+    "non-material": Materiality.NON_MATERIAL,
+}
+_MODALITY_ALIASES = {
+    "MAY": Modality.MAY,
+    "may": Modality.MAY,
+    "MUST": Modality.MUST,
+    "must": Modality.MUST,
+    "mandatory": Modality.MUST,
+    "MUST_NOT": Modality.MUST_NOT,
+    "must not": Modality.MUST_NOT,
+    "MAY_NOT": Modality.MAY_NOT,
+    "may not": Modality.MAY_NOT,
+}
+_POLARITY_ALIASES = {
+    "POSITIVE": Polarity.POSITIVE,
+    "positive": Polarity.POSITIVE,
+    "NEGATIVE": Polarity.NEGATIVE,
+    "negative": Polarity.NEGATIVE,
+}
+_STATUS_ALIASES = {
+    "OPEN": PropositionStatus.OPEN,
+    "CLOSED": PropositionStatus.CLOSED,
+}
+
+
+def _normalize_control(
+    raw: object,
+    field: str,
+    aliases: dict[str, StrEnum],
+    enum_type: type[StrEnum],
+    *,
+    required: bool,
+) -> StrEnum | None:
+    if raw is None:
+        if required:
+            raise PropositionValidationError(f"{field} is required")
+        return None
+    if isinstance(raw, enum_type):
+        return raw
+    if not isinstance(raw, str):
+        raise PropositionValidationError(f"{field} must be a canonical semantic value")
+    try:
+        return aliases[raw]
+    except KeyError as exc:
+        raise PropositionValidationError(
+            f"{field} has an unknown semantic value: {raw!r}"
+        ) from exc
+
+
+def normalize_materiality(raw: object, *, required: bool = True) -> Materiality | None:
+    return _normalize_control(
+        raw,
+        "materiality",
+        _MATERIALITY_ALIASES,
+        Materiality,
+        required=required,
+    )
+
+
+def normalize_modality(raw: object, *, required: bool = False) -> Modality | None:
+    return _normalize_control(
+        raw,
+        "modality",
+        _MODALITY_ALIASES,
+        Modality,
+        required=required,
+    )
+
+
+def normalize_polarity(raw: object, *, required: bool = False) -> Polarity | None:
+    return _normalize_control(
+        raw,
+        "polarity",
+        _POLARITY_ALIASES,
+        Polarity,
+        required=required,
+    )
+
+
+def normalize_status(raw: object, *, required: bool = True) -> PropositionStatus | None:
+    return _normalize_control(
+        raw,
+        "status",
+        _STATUS_ALIASES,
+        PropositionStatus,
+        required=required,
+    )
 
 
 def _validate_text(value: str, field: str, *, required: bool = False) -> None:
@@ -104,17 +220,17 @@ class EvidenceRef:
 class LegalProposition:
     proposition_id: str
     status: PropositionStatus
-    materiality: str
+    materiality: Materiality
 
     subject: str | None
     condition: str | None
     procedure: str | None
-    modality: str | None
+    modality: Modality | None
     legal_action: str | None
     operative_verb_lexeme: str | None
     legal_object: str | None
     legal_effect: str | None
-    polarity: str | None
+    polarity: Polarity | None
 
     relation_type: str | None
     base_proposition_id: str | None
@@ -126,9 +242,22 @@ class LegalProposition:
 
     def __post_init__(self) -> None:
         _validate_identifier(self.proposition_id, "proposition_id")
-        if self.status not in {"OPEN", "CLOSED"}:
-            raise PropositionValidationError("status must be OPEN or CLOSED")
-        _validate_text(self.materiality, "materiality", required=True)
+        if not isinstance(self.status, PropositionStatus):
+            raise PropositionValidationError(
+                "status must be a canonical PropositionStatus value"
+            )
+        if not isinstance(self.materiality, Materiality):
+            raise PropositionValidationError(
+                "materiality must be a canonical Materiality value"
+            )
+        if self.modality is not None and not isinstance(self.modality, Modality):
+            raise PropositionValidationError(
+                "modality must be a canonical Modality value"
+            )
+        if self.polarity is not None and not isinstance(self.polarity, Polarity):
+            raise PropositionValidationError(
+                "polarity must be a canonical Polarity value"
+            )
 
         for name in (
             "subject",
@@ -153,7 +282,7 @@ class LegalProposition:
         if self.evidence is not None and not isinstance(self.evidence, EvidenceRef):
             raise PropositionValidationError("evidence must be an EvidenceRef")
 
-        if self.status != "CLOSED":
+        if self.status is not PropositionStatus.CLOSED:
             return
 
         required_relation = {

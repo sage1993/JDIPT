@@ -6,7 +6,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 import re
 
-from scripts.legal_proposition import LegalProposition
+from scripts.legal_proposition import (
+    LegalProposition,
+    Materiality,
+    Modality,
+    Polarity,
+    PropositionStatus,
+)
 
 
 @dataclass(frozen=True)
@@ -28,8 +34,8 @@ class RangeExceptionRelation:
     operative_verb_lexeme: str
     legal_object: str
     legal_effect: str
-    modality: str
-    polarity: str
+    modality: Modality
+    polarity: Polarity
     source_id: str
     source_locator: str
     evidence_span: str
@@ -67,16 +73,7 @@ def _distance_values(value: str | None) -> tuple[str, ...]:
 
 
 def _is_material(proposition: LegalProposition) -> bool:
-    return _normalize(proposition.materiality) in {
-        "material",
-        "중요",
-        "material proposition",
-        "high",
-        "headline",
-        "핵심",
-        "중요도 높음",
-        "중요도높음",
-    }
+    return proposition.materiality is Materiality.MATERIAL
 
 
 def _is_exception(proposition: LegalProposition) -> bool:
@@ -118,7 +115,7 @@ def build_range_exception_relation(
         item
         for item in propositions
         if _is_material(item)
-        and item.status == "CLOSED"
+        and item.status is PropositionStatus.CLOSED
         and _is_exception(item)
         and item.evidence is not None
     ]
@@ -202,12 +199,7 @@ def _ordered_range_and_labels(
 
 
 def _positive_polarity_preserved(span: str, relation: RangeExceptionRelation) -> bool:
-    if _normalize(relation.polarity) in {
-        "negative",
-        "prohibited",
-        "forbidden",
-        "금지",
-    }:
+    if relation.polarity is Polarity.NEGATIVE:
         return True
     return re.search(
         r"(?:할|하여|하는|를|을)\s*수\s*없|하지\s*아니|하지\s*않|불가|금지|아니다|없다",
