@@ -125,11 +125,15 @@ PROPOSITION_MODEL = ROOT / "scripts" / "legal_proposition.py"
 PROPOSITION_RENDERING = ROOT / "scripts" / "proposition_rendering.py"
 PROPOSITION_RECONCILIATION = ROOT / "scripts" / "proposition_reconciliation.py"
 PROPOSITION_REGISTRY = ROOT / "scripts" / "proposition_registry.py"
+ACTIVATION = ROOT / "scripts" / "jdipt_activation.py"
+PROPOSITION_RELATIONS = ROOT / "scripts" / "proposition_relations.py"
 REQUIRED_RUNTIME_FILES = (
     PROPOSITION_MODEL,
     PROPOSITION_RENDERING,
     PROPOSITION_RECONCILIATION,
     PROPOSITION_REGISTRY,
+    ACTIVATION,
+    PROPOSITION_RELATIONS,
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
@@ -147,6 +151,9 @@ RUNTIME_PRODUCTION_MARKERS = {
         "synthesis-runtime",
         "schema_version",
         "registry_active",
+        "registry_required",
+        "registry_completed",
+        "registry_enforcement_count",
         "os.replace",
     ),
     "scripts/stop_synthesis_gate.py": (
@@ -156,6 +163,9 @@ RUNTIME_PRODUCTION_MARKERS = {
         "continue",
         "build_render_contract",
         "reconcile_render_contracts",
+        "reconcile_range_exception_relation",
+        "record_reconciliation",
+        "update_registry_enforcement_count",
         "update_repair_count",
     ),
     "scripts/jdipt_runtime_mcp.py": (
@@ -164,6 +174,8 @@ RUNTIME_PRODUCTION_MARKERS = {
         "tools/call",
         "render_contract",
         "temporal_status",
+        "registry_required",
+        "registry_completed",
     ),
 }
 REQUIRED_OUTPUT_SKILL_MARKERS = {

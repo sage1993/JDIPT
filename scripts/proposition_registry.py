@@ -50,6 +50,8 @@ _REGISTRY_FIELDS = frozenset(
         "relation_type",
         "base_proposition_id",
         "exception_proposition_id",
+        "base_rule",
+        "exception_rule",
         *_EVIDENCE_FIELDS,
     }
 )
@@ -112,6 +114,8 @@ def _build_proposition(fields: Mapping[str, Any]) -> LegalProposition:
         relation_type=_text_arg(fields, "relation_type"),
         base_proposition_id=_text_arg(fields, "base_proposition_id"),
         exception_proposition_id=_text_arg(fields, "exception_proposition_id"),
+        base_rule=_text_arg(fields, "base_rule"),
+        exception_rule=_text_arg(fields, "exception_rule"),
         evidence=_build_evidence(fields),
     )
 
@@ -131,6 +135,11 @@ def _merge_state(
             registry_active=True,
             repair_count=0,
             propositions=[proposition],
+            activation_state="ACTIVE",
+            registry_required=True,
+            registry_completed=True,
+            registry_invocation_count=1,
+            registry_enforcement_count=0,
         )
     else:
         propositions = list(existing.propositions)
@@ -140,7 +149,16 @@ def _merge_state(
                 break
         else:
             propositions.append(proposition)
-        state = replace(existing, registry_active=True, propositions=propositions)
+        state = replace(
+            existing,
+            registry_active=True,
+            activation_state="ACTIVE",
+            registry_required=True,
+            registry_completed=True,
+            registry_required_operations=("register_material_proposition",),
+            registry_invocation_count=existing.registry_invocation_count + 1,
+            propositions=propositions,
+        )
     save_runtime_state(state, plugin_data)
     return state
 

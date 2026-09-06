@@ -1,0 +1,69 @@
+{
+  "run_id": "task1r-r2-staged-run-01",
+  "session_id": "task1r-session-01",
+  "turn_id": "task1r-turn-01",
+  "relation": {
+    "relation_id": "range_exception_relation",
+    "relation_type": "range_exception_relation",
+    "base_proposition_id": "BASE_RANGE",
+    "exception_proposition_id": "EXCEPTION_RANGE",
+    "base_rule": "승강장 경계로부터 100m 이내",
+    "exception_rule": "승강장 경계로부터 150m 이내",
+    "base_value": "100m",
+    "exception_value": "150m",
+    "condition": "특정 입지 요건을 충족하는 경우",
+    "procedure": "통합심의를 거치면",
+    "legal_actor": "행정청",
+    "legal_action": "designate",
+    "operative_verb_lexeme": "지정",
+    "legal_object": "사업대상지",
+    "legal_effect": "예외 대상 지정",
+    "modality": "may",
+    "polarity": "positive",
+    "source_id": "law-001",
+    "source_locator": "법령 식별자/조문",
+    "evidence_span": "확인된 원문"
+  },
+  "negative_separated_span": {
+    "relation_id": "range_exception_relation",
+    "relation_type": "range_exception_relation",
+    "covered": false,
+    "missing_fields": [
+      "base_rule",
+      "exception_rule",
+      "condition",
+      "procedure",
+      "legal_effect",
+      "relation_span"
+    ],
+    "source_proposition_ids": [
+      "BASE_RANGE",
+      "EXCEPTION_RANGE"
+    ],
+    "source_id": "law-001",
+    "failure_reason": "base/exception rule, condition, procedure, legal act, legal object, and legal effect must remain in one source-linked relation span"
+  },
+  "final_persisted_summary": {
+    "covered": true,
+    "missing_slots": [],
+    "overall_covered": true,
+    "range_exception_relation": {
+      "covered": true,
+      "failure_reason": "",
+      "missing_fields": [],
+      "relation_id": "range_exception_relation",
+      "relation_type": "range_exception_relation",
+      "source_id": "law-001",
+      "source_proposition_ids": [
+        "BASE_RANGE",
+        "EXCEPTION_RANGE"
+      ]
+    }
+  },
+  "final_stop": {
+    "run_id": "task1r-r2-staged-run-01",
+    "session_id": "task1r-session-01",
+    "turn_id": "task1r-turn-01",
+    "response": {}
+  }
+}

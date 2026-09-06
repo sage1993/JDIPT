@@ -30,6 +30,11 @@ def _is_material(proposition: LegalProposition) -> bool:
         "material",
         "중요",
         "material proposition",
+        "high",
+        "headline",
+        "핵심",
+        "중요도 높음",
+        "중요도높음",
     }
 
 

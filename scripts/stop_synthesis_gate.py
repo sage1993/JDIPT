@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -13,10 +14,17 @@ if __package__ in {None, ""}:
 
 from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
+from scripts.proposition_relations import (
+    reconcile_range_exception_relation,
+)
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
+    create_pending_runtime_state,
     load_runtime_state,
+    record_reconciliation,
+    record_stop_disposition,
     update_repair_count,
+    update_registry_enforcement_count,
 )
 
 
@@ -32,7 +40,7 @@ def _block(reason: str) -> dict[str, str]:
     return {"decision": "block", "reason": reason}
 
 
-def _failure_reason(result) -> str:
+def _failure_reason(result, relation_result=None) -> str:
     grouped: dict[str, list[str]] = {}
     for slot in result.missing_slots:
         grouped.setdefault(slot.proposition_id, []).append(slot.expected_text.strip())
@@ -40,6 +48,13 @@ def _failure_reason(result) -> str:
         f"{proposition_id}: " + " ; ".join(texts)
         for proposition_id, texts in grouped.items()
     )
+    if relation_result is not None and not relation_result.covered:
+        relation_details = ", ".join(relation_result.missing_fields)
+        details = (
+            f"range_exception_relation: {relation_details}"
+            if relation_details
+            else "range_exception_relation"
+        ) + (f" | {details}" if details else "")
     if not details:
         details = "material proposition render slots are missing"
     return (
@@ -47,6 +62,55 @@ def _failure_reason(result) -> str:
         "render slots without weakening their legal action, modality, temporal "
         "status, or uncertainty. "
         + details
+    )
+
+
+def _looks_like_jdipt_answer(draft: str) -> bool:
+    if not isinstance(draft, str):
+        return False
+    return all(
+        re.search(rf"(?m)^\s*#\s*{number}\.\s*", draft) is not None
+        for number in range(1, 5)
+    )
+
+
+def _registry_enforcement_response(
+    state,
+    event: Mapping[str, Any],
+    plugin_data: str | None,
+) -> dict[str, Any] | None:
+    if not state.registry_required or state.registry_completed:
+        return None
+    if (
+        state.registry_enforcement_count == 0
+        and event.get("stop_hook_active") is not True
+    ):
+        try:
+            updated = update_registry_enforcement_count(state, 1, plugin_data)
+            record_stop_disposition(updated, "REGISTRY_ENFORCEMENT", plugin_data)
+        except (OSError, RuntimeStateError, ValueError):
+            return _fail_closed(
+                "JDIPT synthesis validation failed-closed; registry enforcement "
+                "state could not be persisted."
+            )
+        return _block(
+            "REGISTRY_ENFORCEMENT: complete the required exact-turn "
+            "register_material_proposition contract before final synthesis."
+        )
+    try:
+        record_stop_disposition(
+            state,
+            "REGISTRY_ENFORCEMENT_EXHAUSTED",
+            plugin_data,
+        )
+    except (OSError, RuntimeStateError, ValueError):
+        return _fail_closed(
+            "JDIPT synthesis validation failed-closed; registry enforcement "
+            "exhaustion could not be persisted."
+        )
+    return _fail_closed(
+        "REGISTRY_ENFORCEMENT_EXHAUSTED: the required exact-turn registry "
+        "completion was not proven after one bounded continuation."
     )
 
 
@@ -63,7 +127,15 @@ def handle_stop_event(
 
     session_id = event.get("session_id")
     turn_id = event.get("turn_id")
+    draft = event.get("last_assistant_message")
+    if not isinstance(draft, str):
+        draft = ""
     if not isinstance(session_id, str) or not isinstance(turn_id, str):
+        if _looks_like_jdipt_answer(draft):
+            return _fail_closed(
+                "ACTIVATION_BYPASS: JDIPT-shaped output has no exact session/turn "
+                "identity for registry validation."
+            )
         return {}
 
     try:
@@ -72,34 +144,95 @@ def handle_stop_event(
         return _fail_closed(
             "JDIPT synthesis validation failed closed; runtime state was invalid."
         )
-    if state is None or not state.registry_active:
+    if state is None:
+        if not _looks_like_jdipt_answer(draft):
+            return {}
+        try:
+            state = create_pending_runtime_state(session_id, turn_id, plugin_data)
+            record_stop_disposition(state, "ACTIVATION_BYPASS", plugin_data)
+        except (OSError, RuntimeStateError, ValueError):
+            return _fail_closed(
+                "JDIPT synthesis validation failed closed; pending activation "
+                "state could not be persisted."
+            )
+        return _fail_closed(
+            "ACTIVATION_BYPASS: JDIPT-shaped output was observed without an "
+            "explicit activation/registry completion for this exact turn."
+        )
+
+    enforcement_response = _registry_enforcement_response(
+        state,
+        event,
+        plugin_data,
+    )
+    if enforcement_response is not None:
+        return enforcement_response
+    if not state.registry_active:
         return {}
 
-    draft = event.get("last_assistant_message")
-    if not isinstance(draft, str):
-        draft = ""
     contracts = [
         contract
         for proposition in state.propositions
         if (contract := build_render_contract(proposition)).slots
     ]
     result = reconcile_render_contracts(contracts, draft)
-    if result.covered:
+    relation_result = reconcile_range_exception_relation(state.propositions, draft)
+    overall_covered = result.covered and (
+        relation_result is None or relation_result.covered
+    )
+    phase = "second" if state.repair_count else "first"
+    if overall_covered:
+        try:
+            record_reconciliation(
+                state,
+                phase,
+                result,
+                plugin_data,
+                relation_result=relation_result,
+                stop_disposition="COMPLETED",
+            )
+        except (OSError, RuntimeStateError, ValueError):
+            return _fail_closed(
+                "JDIPT synthesis validation failed-closed; reconciliation "
+                "evidence could not be persisted."
+            )
         return {}
 
     if state.repair_count != 0 or event.get("stop_hook_active") is True:
+        try:
+            record_reconciliation(
+                state,
+                "second",
+                result,
+                plugin_data,
+                relation_result=relation_result,
+                stop_disposition="REPAIR_EXHAUSTED",
+            )
+        except (OSError, RuntimeStateError, ValueError):
+            return _fail_closed(
+                "JDIPT synthesis validation failed-closed; final reconciliation "
+                "evidence could not be persisted."
+            )
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; the bounded repair did not "
             "produce an acceptable final answer."
         )
 
     try:
-        update_repair_count(state, 1, plugin_data)
+        updated = update_repair_count(state, 1, plugin_data)
+        record_reconciliation(
+            updated,
+            "first",
+            result,
+            plugin_data,
+            relation_result=relation_result,
+            stop_disposition="REPAIR_REQUESTED",
+        )
     except (OSError, RuntimeStateError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; repair state could not be persisted."
         )
-    return _block(_failure_reason(result))
+    return _block(_failure_reason(result, relation_result))
 
 
 def _main() -> int:

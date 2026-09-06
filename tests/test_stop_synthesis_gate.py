@@ -8,6 +8,7 @@ from scripts.legal_proposition import EvidenceRef, LegalProposition
 from scripts.proposition_rendering import build_render_contract
 from scripts.stop_synthesis_gate import handle_stop_event
 from scripts.synthesis_runtime_state import (
+    RUNTIME_STATE_SCHEMA_VERSION,
     RuntimeTurnState,
     load_runtime_state,
     save_runtime_state,
@@ -52,7 +53,7 @@ def _proposition(*, proposition_id: str = "P1", status: str = "CLOSED", conditio
 
 def _state(*, repair_count: int = 0, active: bool = True, propositions=None):
     return RuntimeTurnState(
-        schema_version=2,
+        schema_version=RUNTIME_STATE_SCHEMA_VERSION,
         session_id="session-a",
         turn_id="turn-1",
         registry_active=active,

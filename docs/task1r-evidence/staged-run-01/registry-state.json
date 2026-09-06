@@ -1,0 +1,234 @@
+{
+  "run_id": "task1r-r2-staged-run-01",
+  "session_id": "task1r-session-01",
+  "turn_id": "task1r-turn-01",
+  "repository_head": "1acf04472b071282959f4f9f3dbace35c3fcdaec",
+  "runtime_state_path": "C:\\Users\\KSH\\.codex\\visualizations\\2026\\09\\06\\01a0769a-1b77-7a83-990e-e8f32ba44634\\jdipt-correctness-stabilization\\docs\\task1r-evidence\\staged-run-01\\runtime\\synthesis-runtime\\task1r-session-01\\task1r-turn-01.json",
+  "states": {
+    "after_activation": {
+      "schema_version": 3,
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "registry_active": false,
+      "repair_count": 0,
+      "propositions": [],
+      "activation_state": "PENDING",
+      "registry_required": true,
+      "registry_completed": false,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 0,
+      "registry_enforcement_count": 0,
+      "first_reconciliation": null,
+      "second_reconciliation": null,
+      "stop_disposition": null
+    },
+    "after_first_stop": {
+      "schema_version": 3,
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "registry_active": false,
+      "repair_count": 0,
+      "propositions": [],
+      "activation_state": "PENDING",
+      "registry_required": true,
+      "registry_completed": false,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 0,
+      "registry_enforcement_count": 1,
+      "first_reconciliation": null,
+      "second_reconciliation": null,
+      "stop_disposition": "REGISTRY_ENFORCEMENT"
+    },
+    "after_second_stop": {
+      "schema_version": 3,
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "registry_active": false,
+      "repair_count": 0,
+      "propositions": [],
+      "activation_state": "PENDING",
+      "registry_required": true,
+      "registry_completed": false,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 0,
+      "registry_enforcement_count": 1,
+      "first_reconciliation": null,
+      "second_reconciliation": null,
+      "stop_disposition": "REGISTRY_ENFORCEMENT_EXHAUSTED"
+    },
+    "after_registry": {
+      "schema_version": 3,
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "registry_active": true,
+      "repair_count": 0,
+      "propositions": [
+        {
+          "proposition_id": "BASE_RANGE",
+          "status": "CLOSED",
+          "materiality": "material",
+          "subject": "행정청",
+          "condition": "요건 C",
+          "procedure": "절차 P",
+          "modality": "may",
+          "legal_action": "designate",
+          "operative_verb_lexeme": "지정",
+          "legal_object": "대상 O",
+          "legal_effect": "지위 Z",
+          "polarity": "positive",
+          "relation_type": "base",
+          "base_proposition_id": null,
+          "exception_proposition_id": "EXCEPTION_RANGE",
+          "evidence": {
+            "source_id": "law-001",
+            "authority_kind": "statute",
+            "source_title": "검증 법령",
+            "source_locator": "법령 식별자/조문",
+            "evidence_span": "확인된 원문",
+            "temporal_status": "CURRENT_CONFIRMED",
+            "temporal_render_text": "현행 기준에 따른다."
+          },
+          "base_rule": "승강장 경계로부터 100m 이내",
+          "exception_rule": null
+        },
+        {
+          "proposition_id": "EXCEPTION_RANGE",
+          "status": "CLOSED",
+          "materiality": "material",
+          "subject": "행정청",
+          "condition": "특정 입지 요건을 충족하는 경우",
+          "procedure": "통합심의를 거치면",
+          "modality": "may",
+          "legal_action": "designate",
+          "operative_verb_lexeme": "지정",
+          "legal_object": "사업대상지",
+          "legal_effect": "예외 대상 지정",
+          "polarity": "positive",
+          "relation_type": "exception to BASE_RANGE",
+          "base_proposition_id": "BASE_RANGE",
+          "exception_proposition_id": null,
+          "evidence": {
+            "source_id": "law-001",
+            "authority_kind": "statute",
+            "source_title": "검증 법령",
+            "source_locator": "법령 식별자/조문",
+            "evidence_span": "확인된 원문",
+            "temporal_status": "CURRENT_CONFIRMED",
+            "temporal_render_text": "현행 기준에 따른다."
+          },
+          "base_rule": "승강장 경계로부터 100m 이내",
+          "exception_rule": "승강장 경계로부터 150m 이내"
+        }
+      ],
+      "activation_state": "ACTIVE",
+      "registry_required": true,
+      "registry_completed": true,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 2,
+      "registry_enforcement_count": 1,
+      "first_reconciliation": null,
+      "second_reconciliation": null,
+      "stop_disposition": "REGISTRY_ENFORCEMENT_EXHAUSTED"
+    },
+    "final": {
+      "schema_version": 3,
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "registry_active": true,
+      "repair_count": 0,
+      "propositions": [
+        {
+          "proposition_id": "BASE_RANGE",
+          "status": "CLOSED",
+          "materiality": "material",
+          "subject": "행정청",
+          "condition": "요건 C",
+          "procedure": "절차 P",
+          "modality": "may",
+          "legal_action": "designate",
+          "operative_verb_lexeme": "지정",
+          "legal_object": "대상 O",
+          "legal_effect": "지위 Z",
+          "polarity": "positive",
+          "relation_type": "base",
+          "base_proposition_id": null,
+          "exception_proposition_id": "EXCEPTION_RANGE",
+          "evidence": {
+            "source_id": "law-001",
+            "authority_kind": "statute",
+            "source_title": "검증 법령",
+            "source_locator": "법령 식별자/조문",
+            "evidence_span": "확인된 원문",
+            "temporal_status": "CURRENT_CONFIRMED",
+            "temporal_render_text": "현행 기준에 따른다."
+          },
+          "base_rule": "승강장 경계로부터 100m 이내",
+          "exception_rule": null
+        },
+        {
+          "proposition_id": "EXCEPTION_RANGE",
+          "status": "CLOSED",
+          "materiality": "material",
+          "subject": "행정청",
+          "condition": "특정 입지 요건을 충족하는 경우",
+          "procedure": "통합심의를 거치면",
+          "modality": "may",
+          "legal_action": "designate",
+          "operative_verb_lexeme": "지정",
+          "legal_object": "사업대상지",
+          "legal_effect": "예외 대상 지정",
+          "polarity": "positive",
+          "relation_type": "exception to BASE_RANGE",
+          "base_proposition_id": "BASE_RANGE",
+          "exception_proposition_id": null,
+          "evidence": {
+            "source_id": "law-001",
+            "authority_kind": "statute",
+            "source_title": "검증 법령",
+            "source_locator": "법령 식별자/조문",
+            "evidence_span": "확인된 원문",
+            "temporal_status": "CURRENT_CONFIRMED",
+            "temporal_render_text": "현행 기준에 따른다."
+          },
+          "base_rule": "승강장 경계로부터 100m 이내",
+          "exception_rule": "승강장 경계로부터 150m 이내"
+        }
+      ],
+      "activation_state": "ACTIVE",
+      "registry_required": true,
+      "registry_completed": true,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 2,
+      "registry_enforcement_count": 1,
+      "first_reconciliation": {
+        "covered": true,
+        "missing_slots": [],
+        "overall_covered": true,
+        "range_exception_relation": {
+          "covered": true,
+          "failure_reason": "",
+          "missing_fields": [],
+          "relation_id": "range_exception_relation",
+          "relation_type": "range_exception_relation",
+          "source_id": "law-001",
+          "source_proposition_ids": [
+            "BASE_RANGE",
+            "EXCEPTION_RANGE"
+          ]
+        }
+      },
+      "second_reconciliation": null,
+      "stop_disposition": "COMPLETED"
+    }
+  }
+}

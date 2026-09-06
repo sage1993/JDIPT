@@ -1,0 +1,31 @@
+# Task 1R pre-change commands and exit codes
+
+Working directory:
+C:\Users\KSH\.codex\visualizations\2026\09\06\01a0769a-1b77-7a83-990e-e8f32ba44634\jdipt-correctness-stabilization
+
+git rev-parse HEAD
+exit=0
+1acf04472b071282959f4f9f3dbace35c3fcdaec
+
+git status --short --branch
+exit=0 before the Task 1R plan was created; afterward the only intended new file was the Task 1R plan/evidence documentation.
+
+python scripts/plugin_integrity.py
+exit=1
+INSTALLATION_INTEGRITY: FAIL
+Key observations: installed cache `sage1993/jdipt/0.2.4`; R2 proposition modules missing from installed manifest; multiple existing runtime/Skill digests mismatched.
+
+python scripts/validate_repo.py
+exit=0
+PASS
+
+python scripts/validate_authority_temporal_contract.py
+exit=0
+PASS
+
+python -m pytest -q
+exit=1
+Collection/cache permission errors were observed for two inaccessible `pytest-cache-files-*` directories; pytest emitted WinError 5 warnings.
+
+R1/L1 comparison evidence
+The existing user-worktree Task 14D/14E evidence was read-only. It contains distinct session/turn IDs and a final9 source gap; it is not merged into this R2 evidence bundle.

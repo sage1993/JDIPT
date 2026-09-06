@@ -1,0 +1,209 @@
+{
+  "run_id": "task1r-r2-staged-run-01",
+  "session_id": "task1r-session-01",
+  "turn_id": "task1r-turn-01",
+  "repository_head": "1acf04472b071282959f4f9f3dbace35c3fcdaec",
+  "runtime": {
+    "kind": "staged-probe-process",
+    "executable": "C:\\Program Files\\Python313\\python.exe",
+    "source_root": "C:\\Users\\KSH\\.codex\\visualizations\\2026\\09\\06\\01a0769a-1b77-7a83-990e-e8f32ba44634\\jdipt-correctness-stabilization",
+    "source_manifest_sha256": "e078540a742940c3836050a5bae39d1bf9549ce7e00f362666b654ef7d5cd072"
+  },
+  "installed_runtime": {
+    "root": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4\\skills\\law-interpretation-request",
+    "manifest_sha256": "8ec8d1d238f2bb533d306a31bf7b76583be9827f7de304dedfb1afd1db56d382",
+    "manifest_file_count": 18
+  },
+  "registry_required": {
+    "expected": true,
+    "actual": true,
+    "scope": [
+      "task1r-session-01",
+      "task1r-turn-01"
+    ],
+    "transition": "UserPromptSubmit -> PENDING",
+    "verdict": "PASS"
+  },
+  "registry_completed": {
+    "expected": true,
+    "actual": true,
+    "mcp_base": {
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "proposition_id": "BASE_RANGE",
+      "status": "CLOSED",
+      "registry_active": true,
+      "activation_state": "ACTIVE",
+      "registry_required": true,
+      "registry_completed": true,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 1,
+      "registry_enforcement_count": 1,
+      "repair_count": 0,
+      "render_contract": {
+        "proposition_id": "BASE_RANGE",
+        "slots": [
+          {
+            "slot_id": "BASE_RANGE:effect",
+            "proposition_id": "BASE_RANGE",
+            "kind": "effect",
+            "text": "기본 기준으로 요건 C을 충족하고 절차 P를 거치면 행정청는 대상 O를 지위 Z로 지정할 수 있다."
+          },
+          {
+            "slot_id": "BASE_RANGE:temporal",
+            "proposition_id": "BASE_RANGE",
+            "kind": "temporal",
+            "text": "현행 기준에 따른다."
+          }
+        ]
+      }
+    },
+    "mcp_exception": {
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "proposition_id": "EXCEPTION_RANGE",
+      "status": "CLOSED",
+      "registry_active": true,
+      "activation_state": "ACTIVE",
+      "registry_required": true,
+      "registry_completed": true,
+      "registry_required_operations": [
+        "register_material_proposition"
+      ],
+      "registry_invocation_count": 2,
+      "registry_enforcement_count": 1,
+      "repair_count": 0,
+      "render_contract": {
+        "proposition_id": "EXCEPTION_RANGE",
+        "slots": [
+          {
+            "slot_id": "EXCEPTION_RANGE:effect",
+            "proposition_id": "EXCEPTION_RANGE",
+            "kind": "effect",
+            "text": "다만, 예외로 특정 입지 요건을 충족하는 경우을 충족하고 통합심의를 거치면를 거치면 행정청는 사업대상지를 예외 대상 지정로 지정할 수 있다."
+          },
+          {
+            "slot_id": "EXCEPTION_RANGE:temporal",
+            "proposition_id": "EXCEPTION_RANGE",
+            "kind": "temporal",
+            "text": "현행 기준에 따른다."
+          }
+        ]
+      }
+    },
+    "scope": [
+      "task1r-session-01",
+      "task1r-turn-01"
+    ],
+    "transition": "canonical registry write -> ACTIVE/COMPLETE",
+    "verdict": "PASS"
+  },
+  "enforcement_count": {
+    "expected": 1,
+    "actual": 1,
+    "first_stop": {
+      "run_id": "task1r-r2-staged-run-01",
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "response": {
+        "decision": "block",
+        "reason": "REGISTRY_ENFORCEMENT: complete the required exact-turn register_material_proposition contract before final synthesis."
+      }
+    },
+    "second_stop": {
+      "run_id": "task1r-r2-staged-run-01",
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "response": {
+        "continue": false,
+        "stopReason": "JDIPT synthesis render-slot validation failed",
+        "systemMessage": "REGISTRY_ENFORCEMENT_EXHAUSTED: the required exact-turn registry completion was not proven after one bounded continuation."
+      }
+    },
+    "scope": [
+      "task1r-session-01",
+      "task1r-turn-01"
+    ],
+    "transition": "0 -> 1 exactly once; second incomplete Stop exhausted",
+    "verdict": "PASS"
+  },
+  "range_exception_relation": {
+    "expected": "source-linked ordered base -> range -> exception in one span",
+    "actual": {
+      "relation_id": "range_exception_relation",
+      "relation_type": "range_exception_relation",
+      "base_proposition_id": "BASE_RANGE",
+      "exception_proposition_id": "EXCEPTION_RANGE",
+      "base_rule": "승강장 경계로부터 100m 이내",
+      "exception_rule": "승강장 경계로부터 150m 이내",
+      "base_value": "100m",
+      "exception_value": "150m",
+      "condition": "특정 입지 요건을 충족하는 경우",
+      "procedure": "통합심의를 거치면",
+      "legal_actor": "행정청",
+      "legal_action": "designate",
+      "operative_verb_lexeme": "지정",
+      "legal_object": "사업대상지",
+      "legal_effect": "예외 대상 지정",
+      "modality": "may",
+      "polarity": "positive",
+      "source_id": "law-001",
+      "source_locator": "법령 식별자/조문",
+      "evidence_span": "확인된 원문"
+    },
+    "negative_control": {
+      "relation_id": "range_exception_relation",
+      "relation_type": "range_exception_relation",
+      "covered": false,
+      "missing_fields": [
+        "base_rule",
+        "exception_rule",
+        "condition",
+        "procedure",
+        "legal_effect",
+        "relation_span"
+      ],
+      "source_proposition_ids": [
+        "BASE_RANGE",
+        "EXCEPTION_RANGE"
+      ],
+      "source_id": "law-001",
+      "failure_reason": "base/exception rule, condition, procedure, legal act, legal object, and legal effect must remain in one source-linked relation span"
+    },
+    "final_persisted": {
+      "covered": true,
+      "failure_reason": "",
+      "missing_fields": [],
+      "relation_id": "range_exception_relation",
+      "relation_type": "range_exception_relation",
+      "source_id": "law-001",
+      "source_proposition_ids": [
+        "BASE_RANGE",
+        "EXCEPTION_RANGE"
+      ]
+    },
+    "scope": [
+      "task1r-session-01",
+      "task1r-turn-01"
+    ],
+    "transition": "registry propositions -> relation reconciliation -> COMPLETED",
+    "verdict": "PASS"
+  },
+  "final_synthesis": {
+    "stop_response": {
+      "run_id": "task1r-r2-staged-run-01",
+      "session_id": "task1r-session-01",
+      "turn_id": "task1r-turn-01",
+      "response": {}
+    },
+    "stop_disposition": "COMPLETED",
+    "draft_sha256": "2fb96e471cd8b9d6fb844ff11418b90bce70680810b149a5a1712ac7e519e383",
+    "draft_length": 275
+  },
+  "oracle": {
+    "status": "NOT_RUN",
+    "reason": "Task 1R staged parity probe validates runtime/relation contracts; no case oracle was executed."
+  }
+}

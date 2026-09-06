@@ -5,6 +5,7 @@ import pytest
 
 from scripts.legal_proposition import EvidenceRef, LegalProposition
 from scripts.synthesis_runtime_state import (
+    RUNTIME_STATE_SCHEMA_VERSION,
     RuntimeStateError,
     RuntimeTurnState,
     load_runtime_state,
@@ -49,7 +50,7 @@ def _proposition(*, proposition_id: str = "P1") -> LegalProposition:
 
 def _state(*, repair_count: int = 0) -> RuntimeTurnState:
     return RuntimeTurnState(
-        schema_version=2,
+        schema_version=RUNTIME_STATE_SCHEMA_VERSION,
         session_id="session-a",
         turn_id="turn-1",
         registry_active=True,
@@ -76,7 +77,7 @@ def test_runtime_state_uses_canonical_proposition_type(tmp_path):
     loaded = load_runtime_state("session-a", "turn-1", tmp_path)
 
     assert isinstance(loaded.propositions[0], LegalProposition)
-    assert loaded.schema_version == 2
+    assert loaded.schema_version == RUNTIME_STATE_SCHEMA_VERSION
     assert loaded.registry_active is True
 
 
@@ -149,7 +150,7 @@ def test_update_repair_count_is_atomic_and_bounded(tmp_path):
 def test_open_proposition_is_preserved_as_open(tmp_path):
     proposition = replace(_proposition(), status="OPEN", evidence=None)
     state = RuntimeTurnState(
-        schema_version=2,
+        schema_version=RUNTIME_STATE_SCHEMA_VERSION,
         session_id="session-a",
         turn_id="turn-1",
         registry_active=False,

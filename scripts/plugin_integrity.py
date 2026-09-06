@@ -19,6 +19,8 @@ PLUGIN_RUNTIME_FILES = (
     "scripts/proposition_reconciliation.py",
     "scripts/proposition_registry.py",
     "scripts/synthesis_runtime_state.py",
+    "scripts/jdipt_activation.py",
+    "scripts/proposition_relations.py",
     "scripts/jdipt_runtime_mcp.py",
     "scripts/inject_registry_runtime.py",
     "scripts/stop_synthesis_gate.py",

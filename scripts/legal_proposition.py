@@ -121,6 +121,8 @@ class LegalProposition:
     exception_proposition_id: str | None
 
     evidence: EvidenceRef | None
+    base_rule: str | None = None
+    exception_rule: str | None = None
 
     def __post_init__(self) -> None:
         _validate_identifier(self.proposition_id, "proposition_id")
@@ -141,6 +143,8 @@ class LegalProposition:
             "relation_type",
             "base_proposition_id",
             "exception_proposition_id",
+            "base_rule",
+            "exception_rule",
         ):
             value = getattr(self, name)
             if value is not None:

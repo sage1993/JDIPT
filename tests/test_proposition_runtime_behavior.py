@@ -6,7 +6,11 @@ from scripts.legal_proposition import EvidenceRef, LegalProposition
 from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
 from scripts.stop_synthesis_gate import handle_stop_event
-from scripts.synthesis_runtime_state import RuntimeTurnState, save_runtime_state
+from scripts.synthesis_runtime_state import (
+    RUNTIME_STATE_SCHEMA_VERSION,
+    RuntimeTurnState,
+    save_runtime_state,
+)
 
 
 def _evidence(source_id: str = "law-001") -> EvidenceRef:
@@ -138,7 +142,7 @@ def test_mandatory_effect_slot_precedes_optional_explanatory_text():
 def test_stop_gate_requests_slots_instead_of_rewriting_the_draft(tmp_path):
     proposition = designation_fixture()
     state = RuntimeTurnState(
-        schema_version=2,
+        schema_version=RUNTIME_STATE_SCHEMA_VERSION,
         session_id="session-a",
         turn_id="turn-1",
         registry_active=True,
