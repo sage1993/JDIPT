@@ -1,0 +1,3006 @@
+[
+  {
+    "path": ".task14d-activation-core.patch",
+    "sha256": "17921ee0ad793e9227bd4f2f9281d82848ea84d2f4cf19c835cde9c9c1ba1c21",
+    "size": 3561
+  },
+  {
+    "path": ".task14d-activation-main-tiny.patch",
+    "sha256": "40c986b9da2815bc250717ef4aec09c57c4bb79410e1fc4f202ecca48e0c9959",
+    "size": 263
+  },
+  {
+    "path": ".task14d-activation-main-v2.patch",
+    "sha256": "b6e30746786238b5532aa05387dcb49b13db911175b0cd5ab3fdd9b786a6d1b2",
+    "size": 1043
+  },
+  {
+    "path": ".task14d-activation-main-v3.patch",
+    "sha256": "732c1529873c4cf03a3c5d030db72416bb3bebe70972aebeae6efabb4e6d30fa",
+    "size": 1272
+  },
+  {
+    "path": ".task14d-activation-main-v4.patch",
+    "sha256": "9ce027edcfdf8c41c7e98549caa11675be9a64b2afbdac3442f2219fd510c16d",
+    "size": 1272
+  },
+  {
+    "path": ".task14d-activation-main.patch",
+    "sha256": "e00749080818cd1d3524c1138b32864ac8a91a1d22e7f5cb0b94f536daf3181c",
+    "size": 1041
+  },
+  {
+    "path": ".task14d-activation-test-hooks.patch",
+    "sha256": "b1c33e7b6bc87c012e265a504cc421a843870189adf97d82dcbbc310e96f4490",
+    "size": 401
+  },
+  {
+    "path": ".task14d-activation-v2.patch",
+    "sha256": "411ee368a1afd4f206c9c53ecd92568b6641b720144a8a7d82c0d2d67377e25b",
+    "size": 4498
+  },
+  {
+    "path": ".task14d-external-update.patch",
+    "sha256": "7b11e65c0fb698560c7c1393ef303285fb747158210e21f38c4d0b0593b2ab98",
+    "size": 145
+  },
+  {
+    "path": ".task14d-final-restart-helper.ps1",
+    "sha256": "8d0e5b1367aa8aa063f2bd8164791df650781218dcc4b30462f2ebeecad35b71",
+    "size": 1000
+  },
+  {
+    "path": ".task14d-hook-import.patch",
+    "sha256": "3bdbc9435c2fc61b75ede95b87a75b7ad952f71895dbd7bd8344616cdd0efee5",
+    "size": 480
+  },
+  {
+    "path": ".task14d-hooks-activation.patch",
+    "sha256": "3b81859c63d50447cc23b5cb4783b237192d28777acf97d750a954df404cefe5",
+    "size": 560
+  },
+  {
+    "path": ".task14d-hooks-request-v2.jsonl",
+    "sha256": "59dec01fb3635a760f2d7f89c41f9d59e0972366c7ca58d1e59feebce38de090",
+    "size": 217
+  },
+  {
+    "path": ".task14d-hooks-request.jsonl",
+    "sha256": "864a2a776343b6eec73c32f9b4c09aa98f7a2c25b122c8445aa4068e283097aa",
+    "size": 254
+  },
+  {
+    "path": ".task14d-import.patch",
+    "sha256": "f6aa5590c4c1a46e44453add9053a8a17b989efc721607b567f97542405a13e6",
+    "size": 408
+  },
+  {
+    "path": ".task14d-schema/ApplyPatchApprovalParams.json",
+    "sha256": "179d91081c3c84d0f79fc544a3d6d423f280c0f9d93512cdd0344c80e09b99a3",
+    "size": 2657
+  },
+  {
+    "path": ".task14d-schema/ApplyPatchApprovalResponse.json",
+    "sha256": "a5e145b4794ea91da6eb478626fac96bbbd4485c3399fabd1c9972d53d2d9010",
+    "size": 4278
+  },
+  {
+    "path": ".task14d-schema/AttestationGenerateParams.json",
+    "sha256": "b85df8f169cfbca98724df3a5f7550fc4649fa69b23f5160aafdb52e027133a8",
+    "size": 118
+  },
+  {
+    "path": ".task14d-schema/AttestationGenerateResponse.json",
+    "sha256": "2eb86b2a37bca01a8cb5d0822f28cf13d46dd106c8b1d38e7ba097e436b5ab30",
+    "size": 277
+  },
+  {
+    "path": ".task14d-schema/ChatgptAuthTokensRefreshParams.json",
+    "sha256": "03b7a734b8b3180d9cb477b33564385d29b22a2528165a614891f13849060503",
+    "size": 971
+  },
+  {
+    "path": ".task14d-schema/ChatgptAuthTokensRefreshResponse.json",
+    "sha256": "06d6b30436fc962d80b5d7920f8f323de12a052214d9148c5f0dfbaedd5eec6c",
+    "size": 406
+  },
+  {
+    "path": ".task14d-schema/ClientNotification.json",
+    "sha256": "706cf248d75027c84a3c63348d0ed507182e8eba40069dd17541793de029145a",
+    "size": 431
+  },
+  {
+    "path": ".task14d-schema/ClientRequest.json",
+    "sha256": "05c82ead1a820c765c23d3a1d262e4ae54889785276ee1acf7c494141fd94d70",
+    "size": 275861
+  },
+  {
+    "path": ".task14d-schema/CommandExecutionRequestApprovalParams.json",
+    "sha256": "c9728280b8f3204fd729d0fb3d1ca7bb05b1150de26b3653f7163e6a9bd941e7",
+    "size": 16106
+  },
+  {
+    "path": ".task14d-schema/CommandExecutionRequestApprovalResponse.json",
+    "sha256": "6d0767113e22f311381809b6b236b0dde2b99b01992879c26bf7b1ea0e003cb7",
+    "size": 3202
+  },
+  {
+    "path": ".task14d-schema/CurrentTimeReadParams.json",
+    "sha256": "2e1a0e6b766f9a31fa937c957cf0b3c0505e8b01503d559b41022a4d523d4c95",
+    "size": 220
+  },
+  {
+    "path": ".task14d-schema/CurrentTimeReadResponse.json",
+    "sha256": "9a858fdc278ba457ff86f1408a7a99b008f3d8364b33bd95b45ea79906f57896",
+    "size": 318
+  },
+  {
+    "path": ".task14d-schema/DynamicToolCallParams.json",
+    "sha256": "401bba20cfbd95762bef0467d840430c46be53369093ad9f26425ba757e34efc",
+    "size": 519
+  },
+  {
+    "path": ".task14d-schema/DynamicToolCallResponse.json",
+    "sha256": "abb082cad67f11fcc98ba75f2eff75d7d1723af0c657655329b83ff160451a02",
+    "size": 2010
+  },
+  {
+    "path": ".task14d-schema/ExecCommandApprovalParams.json",
+    "sha256": "653116614df1aa5011c3cc399cf79bae6b9eb28c1d527df27275abf61ceb1365",
+    "size": 3768
+  },
+  {
+    "path": ".task14d-schema/ExecCommandApprovalResponse.json",
+    "sha256": "80dba6d9f28d19c57960db72340554c193624f014cd496714a0c7aabe1120046",
+    "size": 4279
+  },
+  {
+    "path": ".task14d-schema/FileChangeRequestApprovalParams.json",
+    "sha256": "13848b26814c286ad6425a20d01c1691c86790e1f9e2529399677a8a22fe0d18",
+    "size": 968
+  },
+  {
+    "path": ".task14d-schema/FileChangeRequestApprovalResponse.json",
+    "sha256": "b95b03ee6be674e25cee2e863cc135a28620e1070addd2f34685aadee27cde08",
+    "size": 1158
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchParams.json",
+    "sha256": "0291dbb87a7c3d8ef7f7cdf8d5d61f929deabab8c0ea79f064da95984d7d5f4f",
+    "size": 413
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchResponse.json",
+    "sha256": "4984c3dba591e240407c39531d41c6b499c4816017de70a3371c7d6fa2d0951f",
+    "size": 1332
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionCompletedNotification.json",
+    "sha256": "d3af2e301142ac0cb2462d95b052162ff4f25d83f9c1b21e319d5ce9c860d401",
+    "size": 244
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionStartParams.json",
+    "sha256": "5478b30d07638eae3befbf8ced3a0413ca984785b665d7aefff92c5bcb0c6ebe",
+    "size": 342
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionStartResponse.json",
+    "sha256": "396bc50ae21f418bdded994321b54ca184c718521c2de0698b939adf75961670",
+    "size": 128
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionStopParams.json",
+    "sha256": "f9bb71dd45717a673bc6dd682ed04335a960433badaca1ed70aedbafdaf31b6c",
+    "size": 233
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionStopResponse.json",
+    "sha256": "808dd79e9bb5e0463abc18d34c4a3c4ee2341199ba5ee924dd96e602988b7130",
+    "size": 127
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionUpdateParams.json",
+    "sha256": "492893ca73a4979f92feea2b659af3d7577472514f70fa0204e71140e8efbae8",
+    "size": 293
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionUpdateResponse.json",
+    "sha256": "c3032906065fd9d513926088a685da71a645d104c0157887297f1db2ff166d46",
+    "size": 129
+  },
+  {
+    "path": ".task14d-schema/FuzzyFileSearchSessionUpdatedNotification.json",
+    "sha256": "b8626521028e0c68611c57d458f27dbc9bf8be542e804865ae0d14acd78cf2e6",
+    "size": 1474
+  },
+  {
+    "path": ".task14d-schema/JSONRPCError.json",
+    "sha256": "d7ea353d4875ae204625da5a00a1ecb5afc69101d5778b9acc253a49f8932992",
+    "size": 893
+  },
+  {
+    "path": ".task14d-schema/JSONRPCErrorError.json",
+    "sha256": "12cc5cd5d9df9246defa609c472375020fe5250f3aeabd7d529076cecd9f541e",
+    "size": 314
+  },
+  {
+    "path": ".task14d-schema/JSONRPCMessage.json",
+    "sha256": "6da4cc373a7ccd01f5608ad4496eeb4d44b6a9b0d3158e85ed66b59f3c0b5114",
+    "size": 2888
+  },
+  {
+    "path": ".task14d-schema/JSONRPCNotification.json",
+    "sha256": "c2b43f26880db331393fe09f34bdd76dfeb4dc30d8418d1c26e18db166d6c8c8",
+    "size": 303
+  },
+  {
+    "path": ".task14d-schema/JSONRPCRequest.json",
+    "sha256": "31bd6f360b2dd8a7ceaf682708105d40d38cb0b9d0821357a04da67028438f73",
+    "size": 1093
+  },
+  {
+    "path": ".task14d-schema/JSONRPCResponse.json",
+    "sha256": "4796738c04c74288213a08fb8d820c7b4df19e0977cdcd35b65ffcb43cfc93ab",
+    "size": 520
+  },
+  {
+    "path": ".task14d-schema/McpServerElicitationRequestParams.json",
+    "sha256": "5cbeb6bc702d2efa076da4c1dfb00672c970c1bad747031eb880b9ab907815c0",
+    "size": 13636
+  },
+  {
+    "path": ".task14d-schema/McpServerElicitationRequestResponse.json",
+    "sha256": "792a012fdfe53ac211575a6c37ffbd492be848d15cb313d1bb4b534ade1f54ac",
+    "size": 741
+  },
+  {
+    "path": ".task14d-schema/PermissionsRequestApprovalParams.json",
+    "sha256": "c6d165e1b0c65d5dcf1e099b4c226c7e4dad79fe2b88b03621a1fc6c1d3c86c2",
+    "size": 7719
+  },
+  {
+    "path": ".task14d-schema/PermissionsRequestApprovalResponse.json",
+    "sha256": "23f3f24e9dbf35db3e0b85703f0d934da5a1cff3cbb611fba8bcd41f3b4a04b0",
+    "size": 7068
+  },
+  {
+    "path": ".task14d-schema/RequestId.json",
+    "sha256": "9c72d59a306d827113020c6d31a14c326d55210d9bd6954f825196a52009f1c7",
+    "size": 197
+  },
+  {
+    "path": ".task14d-schema/ServerNotification.json",
+    "sha256": "1a59e2cecb8e7930c4358f7a92245d9d52c96adb0e02b210fc39772ed10610fc",
+    "size": 201174
+  },
+  {
+    "path": ".task14d-schema/ServerRequest.json",
+    "sha256": "38bb1c9dbb1dda2a688a7c8712b04319fe6ee2ed28b54acd2f5fd341d25567ff",
+    "size": 51758
+  },
+  {
+    "path": ".task14d-schema/ToolRequestUserInputParams.json",
+    "sha256": "fda15b62e7446105b59c8ed85c908abed2a47db70653e57c92c47a2f204fa77a",
+    "size": 2143
+  },
+  {
+    "path": ".task14d-schema/ToolRequestUserInputResponse.json",
+    "sha256": "5073b245f741fa8ce62ec52e4dd1809b7831f9c4284c279a78abc9b171f8e3f2",
+    "size": 793
+  },
+  {
+    "path": ".task14d-schema/codex_app_server_protocol.schemas.json",
+    "sha256": "b06f77062369d481a59cc70720c12b89cb9dd49c385863923262102d3ad6c978",
+    "size": 815279
+  },
+  {
+    "path": ".task14d-schema/codex_app_server_protocol.v2.schemas.json",
+    "sha256": "e5f798fd1343c539f01fedea0e8a84a43c080fcca4615c80eb04a5edab4f7d0a",
+    "size": 706653
+  },
+  {
+    "path": ".task14d-schema/v1/InitializeParams.json",
+    "sha256": "6f0094be9a65242ec779a40794cbd4fdfa32fca1e45084a16adfb50501d33ea2",
+    "size": 2143
+  },
+  {
+    "path": ".task14d-schema/v1/InitializeResponse.json",
+    "sha256": "62ad689c2cb6379913c1d72749cfd8de5089d35760214123518eb92eef11acc9",
+    "size": 1286
+  },
+  {
+    "path": ".task14d-schema/v2/AccountLoginCompletedNotification.json",
+    "sha256": "d81e8821fd5a4a9ad118dfc3506ea156d32dcb18da388b336501bbc6a5ccb4a6",
+    "size": 720
+  },
+  {
+    "path": ".task14d-schema/v2/AccountRateLimitsUpdatedNotification.json",
+    "sha256": "c50daa6abb4723ca1edffdae9d0d6ca452770669ed045fae48d0fe9b20c6ea81",
+    "size": 4532
+  },
+  {
+    "path": ".task14d-schema/v2/AccountUpdatedNotification.json",
+    "sha256": "9bf450d9d9ea23a2bac9c9cb0a68c2de8f89a97bdeb4485c91762bb4d43295b8",
+    "size": 2745
+  },
+  {
+    "path": ".task14d-schema/v2/AgentMessageDeltaNotification.json",
+    "sha256": "996e6c0ea65e57bed5a00f410b94381fe5ebf804333e5d00c2b6e6d47e5c55f6",
+    "size": 406
+  },
+  {
+    "path": ".task14d-schema/v2/AppListUpdatedNotification.json",
+    "sha256": "2c67a3bc676309afdd0d6952ad454c2a040a3d4c09d38c8f63ca7fb632034cce",
+    "size": 5703
+  },
+  {
+    "path": ".task14d-schema/v2/AppsInstalledParams.json",
+    "sha256": "c2027510d5d041c2205349036f9c2bea10b20df309de5330beab9de8a9e50bdb",
+    "size": 570
+  },
+  {
+    "path": ".task14d-schema/v2/AppsInstalledResponse.json",
+    "sha256": "d8ef8dd14dcba8aaaaaf2b0b80db90d66edf8f4ff422589b844ae2b0edcb46d4",
+    "size": 1343
+  },
+  {
+    "path": ".task14d-schema/v2/AppsListParams.json",
+    "sha256": "e880d0c24811118a2d3c2c7f0569a14aae5b12a31b0efe56809ccca8bbd85802",
+    "size": 904
+  },
+  {
+    "path": ".task14d-schema/v2/AppsListResponse.json",
+    "sha256": "5811fda68d6274decfc11744ad72bbe93e601d8514549e94f361ba3131d1adeb",
+    "size": 5888
+  },
+  {
+    "path": ".task14d-schema/v2/AppsReadParams.json",
+    "sha256": "61e6a9d35515f3164a7f7e7a5b0c5ac92817c5a3b5d7fb27e9a704fe2935ddf7",
+    "size": 823
+  },
+  {
+    "path": ".task14d-schema/v2/AppsReadResponse.json",
+    "sha256": "f3b73c2c31f16a2cff013c9682dfea48f26571f94002195c93ce10722a288791",
+    "size": 2443
+  },
+  {
+    "path": ".task14d-schema/v2/AuthRecoveryNotification.json",
+    "sha256": "c19238d43cf8bf610ea346afefc390b9ffa4f01e98ec6b42af0addf29d6cb7d5",
+    "size": 409
+  },
+  {
+    "path": ".task14d-schema/v2/BedrockDiscoverParams.json",
+    "sha256": "ef0eb4b2393219944e5df3a0cda9970b19487e734de7cd45df8ff26dee02c321",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/BedrockDiscoverResponse.json",
+    "sha256": "621a651585d1d1f89e18f9ba337f4c84e34f811a7189cfb7597fd191d1d29bcc",
+    "size": 1244
+  },
+  {
+    "path": ".task14d-schema/v2/BedrockSetupParams.json",
+    "sha256": "079c1d038c57eb40a6ca5453a4042691bf65c42b4f2301c0f5ec109d6866e828",
+    "size": 1000
+  },
+  {
+    "path": ".task14d-schema/v2/BedrockSetupResponse.json",
+    "sha256": "245ac1cc67ba7d7b89477c46bb19e7c95411113b50604f365c2ec3705a16d03b",
+    "size": 113
+  },
+  {
+    "path": ".task14d-schema/v2/CancelLoginAccountParams.json",
+    "sha256": "a4570a7542b82b918f69199f1e214ef747151c678473a5af58c58b088fdf58b6",
+    "size": 221
+  },
+  {
+    "path": ".task14d-schema/v2/CancelLoginAccountResponse.json",
+    "sha256": "06bc17624df01600fdc399d3c0f222f875c010d2d952c1d1191cb84de9b59014",
+    "size": 404
+  },
+  {
+    "path": ".task14d-schema/v2/CollaborationModeListParams.json",
+    "sha256": "20991b8d69722b301ef860307a4df89f20c475e4a4f1cd5212d6b71ab1507655",
+    "size": 188
+  },
+  {
+    "path": ".task14d-schema/v2/CollaborationModeListResponse.json",
+    "sha256": "d51cd5bd1b7cdf93a1a665adc333867ee12fa85ee811a873cb0131bf5d49d3e6",
+    "size": 1682
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecOutputDeltaNotification.json",
+    "sha256": "28e74454b211ab677a256129e623fc5a2a29ce5394da1c69d3bc5136f7e37c57",
+    "size": 1585
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecParams.json",
+    "sha256": "fd034b4c85d7b6f466e30a3cbb73db86be1263aca3f81b89b547f14817dfb62e",
+    "size": 7673
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecResizeParams.json",
+    "sha256": "b748fee19979d2c32ac17a460ccfdc761e125cc2939bc551945e1e2c2af34197",
+    "size": 1216
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecResizeResponse.json",
+    "sha256": "01da20d70957fa5b43cf41365c5fee4fb3a69927947a45f92866f9bcf0895d0f",
+    "size": 188
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecResponse.json",
+    "sha256": "dec52d187121e8dd48124b47a4a8d8428ef3717b98b9200345bb404f73b62c9d",
+    "size": 699
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecTerminateParams.json",
+    "sha256": "979ece7059c6713d0909ab1690daec27149510f4ea2ec10014600bfb1d631c97",
+    "size": 404
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecTerminateResponse.json",
+    "sha256": "d46aa76d952bb3ac95d0bd64de609fb8a82efd98d9ee38264fe3673fd184ce5d",
+    "size": 194
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecWriteParams.json",
+    "sha256": "3e8e849ce321c85987bbe96ce1f913df0047696a5207bc97dfa1409b0142eda8",
+    "size": 716
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecWriteResponse.json",
+    "sha256": "22887250f84443b2a6f5fc6f9c46cf9e2af072ff631574340018c48771411571",
+    "size": 186
+  },
+  {
+    "path": ".task14d-schema/v2/CommandExecutionOutputDeltaNotification.json",
+    "sha256": "841fa94098ddb63a71acf1bf5f9e3fac1b0491f4ed3fa8ef86f9a6ca1260b539",
+    "size": 416
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigBatchWriteParams.json",
+    "sha256": "d11e244258ffaf8a37a0ca4afdbe589d07cb7881b72f06b7f730fddbab9ad613",
+    "size": 1325
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigReadParams.json",
+    "sha256": "257c54a423b47c1d209ff1076765a1564d82322fd5161670fd489a2874de1bac",
+    "size": 495
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigReadResponse.json",
+    "sha256": "96a04a3f7fff2dc7fafc9f831e8bcd422e021d697dd2c14c801f098a9f21396d",
+    "size": 27697
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigRequirementsReadResponse.json",
+    "sha256": "14ae1953f5077a5d37399aa467f6e08c74601af5fa0c4ffc703b8a2858b0cc81",
+    "size": 24193
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigValueWriteParams.json",
+    "sha256": "b9032e35bf64d4628bfc72e22b58b71bbcf754aeb720a86eacb091e0137547c9",
+    "size": 763
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigWarningNotification.json",
+    "sha256": "533e713405b582cce4d772d0b4ebbc75e840f0fe71cedbb17c2c83da285a21d4",
+    "size": 1640
+  },
+  {
+    "path": ".task14d-schema/v2/ConfigWriteResponse.json",
+    "sha256": "1d690287d9e8a0c552f664038d3810dfc3903ec8042eb2c0f772856414f59954",
+    "size": 8685
+  },
+  {
+    "path": ".task14d-schema/v2/ConsumeAccountRateLimitResetCreditParams.json",
+    "sha256": "ce36a9f59ce3b8138fccdca042538f723e93d0e34d08441e6846d3153ee0b291",
+    "size": 594
+  },
+  {
+    "path": ".task14d-schema/v2/ConsumeAccountRateLimitResetCreditResponse.json",
+    "sha256": "6d4144c00dcb7f73be6ad24693ff7e539bad56064e4432f7f2bf8d20b3bab724",
+    "size": 1177
+  },
+  {
+    "path": ".task14d-schema/v2/ContextCompactedNotification.json",
+    "sha256": "c9f9a58ef680e09d568cff5f24b45895841e1cf138b650bae64dcf6c85f177af",
+    "size": 362
+  },
+  {
+    "path": ".task14d-schema/v2/DeprecationNoticeNotification.json",
+    "sha256": "29fdb44fc0a09bfdc5c4924ff34e33679acc9201730fa4fe9be7ed1978af0b72",
+    "size": 457
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentAddParams.json",
+    "sha256": "0019c91a9d4952d37ab14f33daa54b2be5bde5b86787fa85ebe66ec480e2eefc",
+    "size": 546
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentAddResponse.json",
+    "sha256": "d3cc7b30fa2505d2e75322ce904574984c63bb0b809b691b6b075509b1c8c300",
+    "size": 115
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentConnectionNotification.json",
+    "sha256": "007e9a6ccae0003a56476bb7cdc9a097141e964c168e7ae43d213a763c93fb56",
+    "size": 306
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentInfoParams.json",
+    "sha256": "1d9c3b2fcfbdf3a4952e825a2fd084cf8bd87189126e1b339efaa33803fdf320",
+    "size": 230
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentInfoResponse.json",
+    "sha256": "9b3fdf205daedad7ce230c8b8b2423b325a087b9b960ea3f82289667ecc2e7d4",
+    "size": 1018
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentStatusParams.json",
+    "sha256": "27fd22e3c478b3fe1a53e7adadbd9647f0f86d78abfde8c63be5b0cd1799e008",
+    "size": 376
+  },
+  {
+    "path": ".task14d-schema/v2/EnvironmentStatusResponse.json",
+    "sha256": "43798149b75ee5c6fb8e3113019f9b0db9860102ec87be4f17fb84d8f10068b6",
+    "size": 2178
+  },
+  {
+    "path": ".task14d-schema/v2/ErrorNotification.json",
+    "sha256": "d77732536ef8864799e4fbb5bf6965a9f1970a6195e523f144252a82287c08e7",
+    "size": 6895
+  },
+  {
+    "path": ".task14d-schema/v2/ExperimentalFeatureEnablementSetParams.json",
+    "sha256": "00aaf2ef719cc336e4d20eb26dd6158be1eb26161fb7647372804b80a02e3131",
+    "size": 509
+  },
+  {
+    "path": ".task14d-schema/v2/ExperimentalFeatureEnablementSetResponse.json",
+    "sha256": "5ecd92ee95380d7cadc4c109091530aa71245e41b9f1b530a5e9d5c5c9eda95b",
+    "size": 386
+  },
+  {
+    "path": ".task14d-schema/v2/ExperimentalFeatureListParams.json",
+    "sha256": "4db92977e59fea4125710babb4cd2128dc2cebef8292e3619d0844089e7fc1f5",
+    "size": 827
+  },
+  {
+    "path": ".task14d-schema/v2/ExperimentalFeatureListResponse.json",
+    "sha256": "4084a25f32333b3f58eb5e9803a5983739b57f945c4e7e4002e85851622ce597",
+    "size": 3066
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigDetectParams.json",
+    "sha256": "db6c6ea654efb4095dc745a1e65bee76d0d063b03f2bc3202b9077a1569211f8",
+    "size": 1414
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigDetectResponse.json",
+    "sha256": "36c4173d5f30ebd04be3d40389c904bc4ecadfbb8e5d1dd46b9b589254f7e1d9",
+    "size": 5240
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportCompletedNotification.json",
+    "sha256": "c54702d40c3a40bcb3e3e835d99860473831725acbd3576fc26d2d4fa3a7617a",
+    "size": 3025
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportHistoriesReadResponse.json",
+    "sha256": "1c09641e957333a2f602a350532acd99cf538a73ea45f39a2294289907a0bd96",
+    "size": 3890
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportHistoryRecordParams.json",
+    "sha256": "6a3e8071854771b0f34c6623fb7dcfbeaa7518a90779cc4a40c97fe92ac6f3ed",
+    "size": 3237
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportHistoryRecordResponse.json",
+    "sha256": "a252a2c2a03b4460bf3635d517c0735fa487a2f8a97de1aa0637f930419ae656",
+    "size": 245
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportParams.json",
+    "sha256": "6b8d0a8fbd5a7ddd455ec0dea6d1b578f56841480c8a5fffbfcd045db79458ee",
+    "size": 5152
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportProgressNotification.json",
+    "sha256": "dae7bfc12026811ba24cc6f32dc01ae9ffaee7d9340d7768f9afce94575c23d2",
+    "size": 3024
+  },
+  {
+    "path": ".task14d-schema/v2/ExternalAgentConfigImportResponse.json",
+    "sha256": "0ad2fc7dff7b1bdc471cc365985f559490f253ea127263417f0a0a1edcb33cef",
+    "size": 232
+  },
+  {
+    "path": ".task14d-schema/v2/FeedbackUploadParams.json",
+    "sha256": "aa958cd74b37fb28cc49ce22345a1efcda9d4cf5fa47e7cce6949e5366ff8b2e",
+    "size": 726
+  },
+  {
+    "path": ".task14d-schema/v2/FeedbackUploadResponse.json",
+    "sha256": "604390e864944eed2c4268675978dd8082f0884909d73cc79fda59dbe03a2d58",
+    "size": 221
+  },
+  {
+    "path": ".task14d-schema/v2/FileChangeOutputDeltaNotification.json",
+    "sha256": "04c3df83d46725ffc048577e7a5aa25de9a6c8ea9eff713bbae2b408672481c5",
+    "size": 544
+  },
+  {
+    "path": ".task14d-schema/v2/FileChangePatchUpdatedNotification.json",
+    "sha256": "cfb69d18658610a0510f213e09c6847f70517410ed91cf99cc4713c15a795213",
+    "size": 2159
+  },
+  {
+    "path": ".task14d-schema/v2/FsChangedNotification.json",
+    "sha256": "197693fcb852a85fedfbcf1cd00c9a3cc74dddfa09bdf6b11fdafebbcd12ea2d",
+    "size": 1061
+  },
+  {
+    "path": ".task14d-schema/v2/FsCopyParams.json",
+    "sha256": "bc1135070827681e4d9a14f79b5b06a4f5652e538ae6a89642d27dbc8b2a2af1",
+    "size": 1198
+  },
+  {
+    "path": ".task14d-schema/v2/FsCopyResponse.json",
+    "sha256": "c88392d6c3ff394441231cdf5614794ba0c2b4ba683811f6033a01fe65528a59",
+    "size": 162
+  },
+  {
+    "path": ".task14d-schema/v2/FsCreateDirectoryParams.json",
+    "sha256": "405fd718ebafe7f47ffd82c86540ab4af663659c737ea2b25acd3e04a1bc94ea",
+    "size": 1047
+  },
+  {
+    "path": ".task14d-schema/v2/FsCreateDirectoryResponse.json",
+    "sha256": "a658fbd34d5e3d6300bcb7015f10fc1764aa8aca3088abc79af9caa2e848e527",
+    "size": 184
+  },
+  {
+    "path": ".task14d-schema/v2/FsGetMetadataParams.json",
+    "sha256": "382bbf3a8b5c7e8cb16a1a29f853ce49c2904e563325e33a9e41dcbf632dab5e",
+    "size": 851
+  },
+  {
+    "path": ".task14d-schema/v2/FsGetMetadataResponse.json",
+    "sha256": "b8355f112eda37d7ff25ad0eda7dae912dba695961855c5cb8444a7f867d66c2",
+    "size": 1005
+  },
+  {
+    "path": ".task14d-schema/v2/FsReadDirectoryParams.json",
+    "sha256": "c4ca6cdc129d70375fe638c723c1b1bb07a9716101525970cf77bf7560fec657",
+    "size": 862
+  },
+  {
+    "path": ".task14d-schema/v2/FsReadDirectoryResponse.json",
+    "sha256": "2cfb28c3c1ab1487f6b778f4d76871e3a9f590597bdf0da502cc41b202269dbc",
+    "size": 1139
+  },
+  {
+    "path": ".task14d-schema/v2/FsReadFileParams.json",
+    "sha256": "74b325108195fe955e6ffcb6032e9380d3bfdee8aed7d115f5f1e4b127c5d706",
+    "size": 844
+  },
+  {
+    "path": ".task14d-schema/v2/FsReadFileResponse.json",
+    "sha256": "fd67dd725b5bf5c7f27e78cc3d66fe24314f08913fc00ace9dbb663bf2f487e1",
+    "size": 354
+  },
+  {
+    "path": ".task14d-schema/v2/FsRemoveParams.json",
+    "sha256": "c453f8ae4b3311f5da88f67f743fdabbcdc323dc3d9eaa40d750ceae147bb630",
+    "size": 1199
+  },
+  {
+    "path": ".task14d-schema/v2/FsRemoveResponse.json",
+    "sha256": "6371aba2cae2f92be487be05c1ce531ca4139da5004b740a0010ccfdba548100",
+    "size": 166
+  },
+  {
+    "path": ".task14d-schema/v2/FsUnwatchParams.json",
+    "sha256": "3134d42c231f40769a4d1ac4adcf051be5205e7a1b70bb32c4a8655fea730175",
+    "size": 368
+  },
+  {
+    "path": ".task14d-schema/v2/FsUnwatchResponse.json",
+    "sha256": "9c59c3473df1f1873ee0d87ed33cecec0766b24c8357ee7dc8b29a57ca21e104",
+    "size": 168
+  },
+  {
+    "path": ".task14d-schema/v2/FsWatchParams.json",
+    "sha256": "10bd9c01b3819db1ed8e2487a277f20b35e3a9f74ae77214654f1a529fc1444d",
+    "size": 1042
+  },
+  {
+    "path": ".task14d-schema/v2/FsWatchResponse.json",
+    "sha256": "d32e77e7d6f619c5f4183c335ecddd3c4ffb95a51761198985c47838ae891a6c",
+    "size": 864
+  },
+  {
+    "path": ".task14d-schema/v2/FsWriteFileParams.json",
+    "sha256": "2167e05c7f3eb26d475f9c1ce71697ba3b635efd8761a00b22abfd6af175bd2f",
+    "size": 970
+  },
+  {
+    "path": ".task14d-schema/v2/FsWriteFileResponse.json",
+    "sha256": "0e4153ee7baa5c1203c2c573504baaa40e1dd8738d78e4c1e3a179fb49df6b16",
+    "size": 172
+  },
+  {
+    "path": ".task14d-schema/v2/GetAccountParams.json",
+    "sha256": "30b545275f60975b55bd6fbaafd70f15505801d14168ee82d3931b6e93c78aab",
+    "size": 485
+  },
+  {
+    "path": ".task14d-schema/v2/GetAccountRateLimitsResponse.json",
+    "sha256": "a28d4d0e9181a498c58d4ae3b6b49aaa6ee7a33c0c9f81c1ad0bff223bfbbe3b",
+    "size": 7670
+  },
+  {
+    "path": ".task14d-schema/v2/GetAccountResponse.json",
+    "sha256": "08a7dd8c570c905b0bb6998d43ed133e72e2445f08125f86dfc96887e288701a",
+    "size": 2399
+  },
+  {
+    "path": ".task14d-schema/v2/GetAccountTokenUsageResponse.json",
+    "sha256": "a58e58c852c888e5de925d99a66688d55ebb2fff038e795aadf04f8a8426dff8",
+    "size": 3838
+  },
+  {
+    "path": ".task14d-schema/v2/GetWorkspaceMessagesResponse.json",
+    "sha256": "3ebd00f0acca088e5ee0309ec09b9a571e7f2eea5b63a32cda67be01c6886d67",
+    "size": 1565
+  },
+  {
+    "path": ".task14d-schema/v2/GuardianWarningNotification.json",
+    "sha256": "5325551d2efb47d578665e3deb846f6369e05f98fbc5bfbffc5d9fe0cb0bd167",
+    "size": 423
+  },
+  {
+    "path": ".task14d-schema/v2/HookCompletedNotification.json",
+    "sha256": "1f146d70303cea6e59752191179e36a273650d63a74d4f9338f9a399da6597d2",
+    "size": 4287
+  },
+  {
+    "path": ".task14d-schema/v2/HookStartedNotification.json",
+    "sha256": "913ca61da2ab299d5f3318f6ea4d842d22708fc9308a9b10cdfad5e757098f2f",
+    "size": 4285
+  },
+  {
+    "path": ".task14d-schema/v2/HooksListParams.json",
+    "sha256": "07638c3a8a3690cf368fa92c7ff697fdd0132865e8c59d53f6e5789e5a260053",
+    "size": 311
+  },
+  {
+    "path": ".task14d-schema/v2/HooksListResponse.json",
+    "sha256": "891dd10ef7f78e59631fce05fff2becddb8004b3c0338dbbbd6b4f17ef1fa64f",
+    "size": 5850
+  },
+  {
+    "path": ".task14d-schema/v2/ItemCompletedNotification.json",
+    "sha256": "69aba3fe5f72f38bf5c541e7e2c09de40778abe65ff969d9fc73372037812091",
+    "size": 45968
+  },
+  {
+    "path": ".task14d-schema/v2/ItemGuardianApprovalReviewCompletedNotification.json",
+    "sha256": "bcf94662d3589c36ac3a13c0d919fa33c2b85f452d5098a8093360884d768a02",
+    "size": 16903
+  },
+  {
+    "path": ".task14d-schema/v2/ItemGuardianApprovalReviewStartedNotification.json",
+    "sha256": "baf4e17938f94e2cf4d86d31f02f66d69d394b00594e3e04ed03dfe901014543",
+    "size": 16405
+  },
+  {
+    "path": ".task14d-schema/v2/ItemStartedNotification.json",
+    "sha256": "c4c34f47db6326cd4841bae428f23d08eb285077ffad35be9772b928c65bb912",
+    "size": 45960
+  },
+  {
+    "path": ".task14d-schema/v2/ListMcpServerStatusParams.json",
+    "sha256": "33b1933595d844c61f76bdcfbc874c8456b65079877fed6e86e2710ea3d49f1b",
+    "size": 1030
+  },
+  {
+    "path": ".task14d-schema/v2/ListMcpServerStatusResponse.json",
+    "sha256": "d581e9ba17f6da0d686d0e730cddd51fda091f361a8c119317b2138a3ecdb612",
+    "size": 5588
+  },
+  {
+    "path": ".task14d-schema/v2/LoginAccountParams.json",
+    "sha256": "48fb9bea54d7e0890052653ac06737efb3200ba2261515b2c4014027f36bea3d",
+    "size": 4353
+  },
+  {
+    "path": ".task14d-schema/v2/LoginAccountResponse.json",
+    "sha256": "72e6d77f49bc5809c3af50f183e2a0862dd8f7836816d4796ff69bb13eae0e89",
+    "size": 2521
+  },
+  {
+    "path": ".task14d-schema/v2/LogoutAccountResponse.json",
+    "sha256": "ac14ddfca2ec6092b0039be8720262d5a9930484d23e62544d2ef0b7e1db7926",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/MarketplaceAddParams.json",
+    "sha256": "e6c92ca2a3889641ca2281cca7684569b1187653b25b57f9beabf85519d638a2",
+    "size": 431
+  },
+  {
+    "path": ".task14d-schema/v2/MarketplaceAddResponse.json",
+    "sha256": "a37633e9ecc2fdd87ea582861bcdcbf7963a8fab6db9fbc1bc8eac7d2f7f9a8b",
+    "size": 865
+  },
+  {
+    "path": ".task14d-schema/v2/MarketplaceRemoveParams.json",
+    "sha256": "220c2475a96f32ca095f80f3ecbad427477b4ba37dfad7fb48a0acabdeb1f4eb",
+    "size": 236
+  },
+  {
+    "path": ".task14d-schema/v2/MarketplaceRemoveResponse.json",
+    "sha256": "98deb2f721d57ed727f7cc7b4f478db5f604b6b6d40e6261928dfd5f586405e3",
+    "size": 869
+  },
+  {
+    "path": ".task14d-schema/v2/MarketplaceUpgradeParams.json",
+    "sha256": "93fc5d331d353b1b89262625c38eed54c6c16b2fb8aa0eac718245c7bdcbe4dc",
+    "size": 228
+  },
+  {
+    "path": ".task14d-schema/v2/MarketplaceUpgradeResponse.json",
+    "sha256": "2402379cb0ed1168a7dc327c412fd61bafdea2ad13ea7a3b3ebaee3b43c45963",
+    "size": 1348
+  },
+  {
+    "path": ".task14d-schema/v2/McpResourceReadParams.json",
+    "sha256": "a8241b056a65473b2b9bf0a14c1a49146de52dbc1cfc276549f52f4db13f3be6",
+    "size": 608
+  },
+  {
+    "path": ".task14d-schema/v2/McpResourceReadResponse.json",
+    "sha256": "a48af749203ed3307414750d5070facb5ae6ef8b00253f1cfd9a8124bdfcfe41",
+    "size": 1664
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerEventStreamNotification.json",
+    "sha256": "44b04b6cc079ec0b99b4d29af1a69d99037505c19a2a07cff955aa298d7c181b",
+    "size": 614
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerEventStreamStartParams.json",
+    "sha256": "cb138f1f98b619f887efd692067af6f3c9c03041887daa928c3362e1f8c22e54",
+    "size": 481
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerEventStreamStartResponse.json",
+    "sha256": "6a5ed2ae51b16912331a249d4c71c88bcd259d135adc6fd2e04a5a17b74d1b90",
+    "size": 126
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerEventStreamStopParams.json",
+    "sha256": "90fc3c3bdb33ae0dab0e9c17ccbb73ab2fe85fa6ebd6cdb8767cdb278487bc5f",
+    "size": 241
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerEventStreamStopResponse.json",
+    "sha256": "71af082ca05d2d7af9671d28e9ee53df0d9f484f54ef1afebdd0455107bec2d2",
+    "size": 125
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerOauthLoginCompletedNotification.json",
+    "sha256": "d3b7ca4f2626a623b4b5a97eeedc711cc27d41b3ee56fed8b0304857c5c9b13c",
+    "size": 455
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerOauthLoginParams.json",
+    "sha256": "83446fb61e04a361691f84fe236a51fff2ee4fb12a8f58e2e828a32cf6f6cc75",
+    "size": 1003
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerOauthLoginResponse.json",
+    "sha256": "95d7d00622866ac49dbe459164b8be665b2c9ad7b26772eadfc610a0537aa6d4",
+    "size": 242
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerRefreshResponse.json",
+    "sha256": "54a77812db02175dc69053870e582d3b314af6f161f0c76846f3563b0f9487c4",
+    "size": 117
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerStatusUpdatedNotification.json",
+    "sha256": "d6f4cb120b2363d321247592f03b9afbbf2762ad6d8af31b88c1b1bf39c4c7aa",
+    "size": 973
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerToolCallParams.json",
+    "sha256": "7039a7583a1cbf38e9e0f5fe6398ff3711acd4d654b81b0be562514087fce6ba",
+    "size": 380
+  },
+  {
+    "path": ".task14d-schema/v2/McpServerToolCallResponse.json",
+    "sha256": "04a59b2064922c37b0c49bdb2470b8fff08d943e56dba4f7280a6b34bfa52c68",
+    "size": 374
+  },
+  {
+    "path": ".task14d-schema/v2/McpToolCallProgressNotification.json",
+    "sha256": "64a32b8282226876e749bc107a81db89d20d5ce5cb86ee6a043b960763214b1d",
+    "size": 412
+  },
+  {
+    "path": ".task14d-schema/v2/MemoryResetResponse.json",
+    "sha256": "e73baacf6ef4858e859079d060e405c3ee5a58881db6e4e9cb46a7ea439404b3",
+    "size": 112
+  },
+  {
+    "path": ".task14d-schema/v2/MockExperimentalMethodParams.json",
+    "sha256": "e78079b0190db35f07b927bae64f8c4e5a17de7f02d17395df0b7e2ffaa197c3",
+    "size": 271
+  },
+  {
+    "path": ".task14d-schema/v2/MockExperimentalMethodResponse.json",
+    "sha256": "7d6b4770b687f0a2a6fb2ab78cba71429c24e8f693fd4688cf39e088e9388a43",
+    "size": 275
+  },
+  {
+    "path": ".task14d-schema/v2/ModelListParams.json",
+    "sha256": "de29a536c00a5b8f46f34dba417dabd93365305571a8ed200e33bea85db68b5a",
+    "size": 688
+  },
+  {
+    "path": ".task14d-schema/v2/ModelListResponse.json",
+    "sha256": "c7b58b332f6cf18fd64235409a6daf27bb9e6c09d12dcd0daa2f3dc628b55f6f",
+    "size": 6002
+  },
+  {
+    "path": ".task14d-schema/v2/ModelProviderCapabilitiesReadParams.json",
+    "sha256": "9db732188a15476cabb42cf05e495ae0803a1ada993fca7348c21c30a998388d",
+    "size": 128
+  },
+  {
+    "path": ".task14d-schema/v2/ModelProviderCapabilitiesReadResponse.json",
+    "sha256": "5c42590f728289daaa441b947617398a0ca3aa17479013b3c564a5d314a3c9cf",
+    "size": 395
+  },
+  {
+    "path": ".task14d-schema/v2/ModelReroutedNotification.json",
+    "sha256": "37cd3c1b3a3560b85b01d4061a07d830fc9ed93b80e4663f975f9197cdb501ef",
+    "size": 636
+  },
+  {
+    "path": ".task14d-schema/v2/ModelSafetyBufferingUpdatedNotification.json",
+    "sha256": "4cf853e3a2f968fdfde75206fd497d3d530b26769026bee343c3ef09ce438cfd",
+    "size": 746
+  },
+  {
+    "path": ".task14d-schema/v2/ModelVerificationNotification.json",
+    "sha256": "4f27a99d0c8664c29abb4d65384ab16853bbc29b61de5e749111cefdc6994655",
+    "size": 574
+  },
+  {
+    "path": ".task14d-schema/v2/NullableGetAccountTokenUsageParams.json",
+    "sha256": "a992c6ea0fe02b0e9f46b18afb51b8ee2635e7f0c7d546f71e7f95e2a98bebba",
+    "size": 573
+  },
+  {
+    "path": ".task14d-schema/v2/NullableRemoteControlDisableParams.json",
+    "sha256": "13ebf6bd89cb651240be24aa648613acc29115a0a037b69508474a9dc0312202",
+    "size": 410
+  },
+  {
+    "path": ".task14d-schema/v2/NullableRemoteControlEnableParams.json",
+    "sha256": "44c7965add2bc02d9d28b770b6178c386cd737fe63405bb2d4c48156b0fe3d1f",
+    "size": 407
+  },
+  {
+    "path": ".task14d-schema/v2/PermissionProfileListParams.json",
+    "sha256": "576d405f6c94cbde982a9f65c9301717043683b83ca35d564247907feb16b1b4",
+    "size": 667
+  },
+  {
+    "path": ".task14d-schema/v2/PermissionProfileListResponse.json",
+    "sha256": "4a290b5b9d47c2fc671033e22754671161bc563027ba387e861bd935398f0def",
+    "size": 1174
+  },
+  {
+    "path": ".task14d-schema/v2/PlanDeltaNotification.json",
+    "sha256": "a5cf42ccfc6cf905ede0fa9041e9c951ea7870aba4e3a7c7f68d85f01416d3af",
+    "size": 565
+  },
+  {
+    "path": ".task14d-schema/v2/PluginInstallParams.json",
+    "sha256": "d6a8ff6356aed22c916cfd5a791ecce34ee2ac509750f690e7d0ef483fec7472",
+    "size": 1136
+  },
+  {
+    "path": ".task14d-schema/v2/PluginInstallResponse.json",
+    "sha256": "ae283e1ecb9f454f7614c6a4348fda5a7aba5af99e9ab9177b9a0cd3e1cd7db7",
+    "size": 1190
+  },
+  {
+    "path": ".task14d-schema/v2/PluginInstalledParams.json",
+    "sha256": "0b56f55a817b6e82ea104496281cd43714ee96800f9b984412a3a858f444f68c",
+    "size": 1174
+  },
+  {
+    "path": ".task14d-schema/v2/PluginInstalledResponse.json",
+    "sha256": "8afc8a16fa5c21d67f66d1855bf29890bad10a6229bafc960b3503281fc878e2",
+    "size": 15679
+  },
+  {
+    "path": ".task14d-schema/v2/PluginListParams.json",
+    "sha256": "bc6b499161306df7082c5a8cc51fd793cd6d28dda93555b12ae299445132270a",
+    "size": 1629
+  },
+  {
+    "path": ".task14d-schema/v2/PluginListResponse.json",
+    "sha256": "a405d2514d6236df75130c87c749e0e070b946a889f143a0448bbcd27d1d8501",
+    "size": 15802
+  },
+  {
+    "path": ".task14d-schema/v2/PluginReadParams.json",
+    "sha256": "f15952a2828c90501cc32f347c1e1691ea65cd2d97f503ab40e7be08757de74d",
+    "size": 947
+  },
+  {
+    "path": ".task14d-schema/v2/PluginReadResponse.json",
+    "sha256": "1651d8136fbbbb00878c4c1f8adbf279d050bf25b4454e6db4fa46f192f953d2",
+    "size": 23636
+  },
+  {
+    "path": ".task14d-schema/v2/PluginReconcileParams.json",
+    "sha256": "91dfe0967326b876e50ddf8d896c6c516440c43a36b08efd4746c0bd770882dc",
+    "size": 314
+  },
+  {
+    "path": ".task14d-schema/v2/PluginReconcileResponse.json",
+    "sha256": "ba2a8e317c9098beed39d4decc433d9dc29ba0c8164e8d4c229481b9243c5ec8",
+    "size": 2424
+  },
+  {
+    "path": ".task14d-schema/v2/PluginSearchParams.json",
+    "sha256": "9a531ed727cf716302e611d98153f4ed09598b7b27a5629074648c0e57f24e09",
+    "size": 1345
+  },
+  {
+    "path": ".task14d-schema/v2/PluginSearchResponse.json",
+    "sha256": "d98f7926f5bf62c228f8c39e83214e2140e80ea7a1db3c221eb1babe26ff8fed",
+    "size": 14650
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareCheckoutParams.json",
+    "sha256": "25fd868fff9500ff244150a4ecd36322c0d31b339a4709649594b79aa1349185",
+    "size": 236
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareCheckoutResponse.json",
+    "sha256": "d6271afa9bba5531574ba255d22b03f70fe10b8ef159185355625d92b6f9fac6",
+    "size": 1187
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareDeleteParams.json",
+    "sha256": "d422a3fdecf91612bdf839d4fea6f1cddccb794869dc03ad3b8998bcb8e27fff",
+    "size": 234
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareDeleteResponse.json",
+    "sha256": "ae881a7f898f5287354de5adf6f42094cef9029a9b9376bfd12aa1b0fe0b3106",
+    "size": 118
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareListParams.json",
+    "sha256": "0d71280d2a655ffc26375044ec1693203848614f99fdb4563e0cb5a4ee40122b",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareListResponse.json",
+    "sha256": "d349a496947956fd5f4d125b8348faa2ef0c91daf7f3cd74ae0616f55c8e328b",
+    "size": 14477
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareSaveParams.json",
+    "sha256": "ec937521a40437506ceb2dcfe79cedd03812dd1b8233c651b89c2ddd76e148fe",
+    "size": 1974
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareSaveResponse.json",
+    "sha256": "3eb7c0ed6e6c72126c7bb3d845e73d5de98ad0d4ea8639d2f227fecd16c15411",
+    "size": 417
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareUpdateTargetsParams.json",
+    "sha256": "0ecf16212022bca115211cbf13a1302f8995d7be5664ca268b926b7d00add7b0",
+    "size": 1369
+  },
+  {
+    "path": ".task14d-schema/v2/PluginShareUpdateTargetsResponse.json",
+    "sha256": "caf42dec67940f9e686ac7b4e77484921d62fee400b3af73fc85e6f46eaa03f4",
+    "size": 1380
+  },
+  {
+    "path": ".task14d-schema/v2/PluginSkillReadParams.json",
+    "sha256": "8850a9a45b9cf6e8b016f014c7c65f7062937be896d4fa0eafdaccc816909a56",
+    "size": 388
+  },
+  {
+    "path": ".task14d-schema/v2/PluginSkillReadResponse.json",
+    "sha256": "dedaf95c4a8f70c022f5cac6fe3882603ed2b27d5efef710b52ae370869956cc",
+    "size": 220
+  },
+  {
+    "path": ".task14d-schema/v2/PluginUninstallParams.json",
+    "sha256": "4c9e1da7048fc99ef5269d4c3f4c6c3297dac01992c2756340fa210ae8f800cc",
+    "size": 220
+  },
+  {
+    "path": ".task14d-schema/v2/PluginUninstallResponse.json",
+    "sha256": "f6a0c9c8dfd9e3fc4a535ecfa606f12922c09e469a37d6b1c6e189f45cacb89e",
+    "size": 116
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessExitedNotification.json",
+    "sha256": "06cb5f39c67f84c227063d7f40e5e78fb62afdb76778c3d603687181896e8440",
+    "size": 1419
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessKillParams.json",
+    "sha256": "b4b86a505dc6013c3379deab0f55eeb312f0b104c7b1c1fa011bcc66ebea62d9",
+    "size": 388
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessKillResponse.json",
+    "sha256": "e61f339de76aec9c17ce83113bff71fbc30e3de6d535efc05da4bb75cd48e2aa",
+    "size": 175
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessOutputDeltaNotification.json",
+    "sha256": "c31714aa83297b83fd69dee98db877be7d4a3f98551dbeb517750efba0ecd79d",
+    "size": 1436
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessResizePtyParams.json",
+    "sha256": "0abb0b6c6b37859e8eed9ed9ab7bb8cf6e932de6c43cc8ccda47934cf28c7234",
+    "size": 1201
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessResizePtyResponse.json",
+    "sha256": "4c8a640c34225bfd6f9a677f3498fda1d05a5fecd0a208c79e46a7b6b0e422b3",
+    "size": 185
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessSpawnParams.json",
+    "sha256": "eee34185e44cde6355516d9347e6bde6801efd19f06887406c0b10823003fa28",
+    "size": 3904
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessSpawnResponse.json",
+    "sha256": "d74557d195c802651fdb55815a40851f7c146800c2773a32eaede3fe57f18c92",
+    "size": 174
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessWriteStdinParams.json",
+    "sha256": "e9c640afc816330019daf79bff5bed4a71d166a5669394b5588319ffea5fb277",
+    "size": 710
+  },
+  {
+    "path": ".task14d-schema/v2/ProcessWriteStdinResponse.json",
+    "sha256": "80acb093e2877783ac59e1292f50a44c98d4c6a737bd616ffe196f2123aaa31e",
+    "size": 187
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectChangedNotification.json",
+    "sha256": "b32151fcb7ef78fc5c969db44255756e5e6e1754398a5b6b09244dcff0c1eab9",
+    "size": 481
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectCreateParams.json",
+    "sha256": "4fb1b90646d4af61d486b3616d09ff98909e446d14b5e6f3c5c6567341de9188",
+    "size": 1225
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectCreateResponse.json",
+    "sha256": "c78d0b2412d3a3778955a037ba2521460a54fb5f49752c958056b9a2934455d5",
+    "size": 2038
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectDeleteParams.json",
+    "sha256": "8c4c0f12d3605e9c2dc61d773d52a7e4ed3d72bcd86012e5541f4e79b245ba19",
+    "size": 220
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectDeleteResponse.json",
+    "sha256": "aade653dd65fdacd246b1a312e20e0de9a3dc76e11f15f9c4362b13931ceac78",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectImportParams.json",
+    "sha256": "1f52ce36a40b6e09ff4a002cb322cbd6bea86946e79ac4624655a8ebc1706ee8",
+    "size": 1356
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectImportResponse.json",
+    "sha256": "338fe248907b392f296324b9a7a54ffc0350a7c0c58231e85ab32656c33e4b99",
+    "size": 2038
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectListParams.json",
+    "sha256": "852330150c7e62724842b5fe39cc880ccd98f89179d34ba51cb95699b60e8656",
+    "size": 1115
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectListResponse.json",
+    "sha256": "ce2b78869a985bb7bdbc910fae2509a1799bd0d30956a886b7d10858cda6e64e",
+    "size": 2164
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectMoveParams.json",
+    "sha256": "fa0975a08c1a5dc65faf346f98d611c121104163c9df5d5a6253bd1f27674f26",
+    "size": 307
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectMoveResponse.json",
+    "sha256": "767cb254e71f4be818896fb4331091fafcf793b913afdb16219c53d8a1835ad8",
+    "size": 112
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectReadParams.json",
+    "sha256": "e999c102295041ea24c1b0b9e80a9d9897e6661c8daa4cf38658d93841046e60",
+    "size": 218
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectReadResponse.json",
+    "sha256": "69e7ffd4075ea8f01649aab9d2370c31fe68eda7febdf6ee9ec92faa769b9ac0",
+    "size": 2036
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectUpdateParams.json",
+    "sha256": "f1a0ad152dc8a3bee8ad6f4d0955154914fc24df3bf44f73199413bcac487acf",
+    "size": 1258
+  },
+  {
+    "path": ".task14d-schema/v2/ProjectUpdateResponse.json",
+    "sha256": "9551485fecc461d28801665965b4ff9b357dc9a05852fa41d5f2179dea6771f0",
+    "size": 2038
+  },
+  {
+    "path": ".task14d-schema/v2/RawResponseCompletedNotification.json",
+    "sha256": "aba140e87952c900f96e0308a8849d3e313d985de1f1aa2b77f193884a76357c",
+    "size": 1998
+  },
+  {
+    "path": ".task14d-schema/v2/RawResponseItemCompletedNotification.json",
+    "sha256": "cbcffe7b3f2dffb607f7e20ac1f1196509ff42e7d0cd9e6961d7c19b25506899",
+    "size": 31359
+  },
+  {
+    "path": ".task14d-schema/v2/ReasoningSummaryPartAddedNotification.json",
+    "sha256": "c8dfcb82d773d0f5d297ae1a47749e2b719013e82030a3af5d4550f9feb8eed6",
+    "size": 454
+  },
+  {
+    "path": ".task14d-schema/v2/ReasoningSummaryTextDeltaNotification.json",
+    "sha256": "895bdca00b4674634c25a5c4d1f82e55e65767d81ddcac4bb7b00aa3d438e62f",
+    "size": 512
+  },
+  {
+    "path": ".task14d-schema/v2/ReasoningTextDeltaNotification.json",
+    "sha256": "16cdc13080a7523b44f00fb6fdb660c56a7c4c8cda96b2f9b87b7e72264170fb",
+    "size": 505
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlClientsListParams.json",
+    "sha256": "1fd48133e06991ca7507a0a313ac91f2b58951809ce1c1454a6f38807134fa94",
+    "size": 771
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlClientsListResponse.json",
+    "sha256": "f8b283a238c8b5ef6eb543af2f659cfa4ed42ec0ad696eabbcba8c8cae74c8ea",
+    "size": 1389
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlClientsRevokeParams.json",
+    "sha256": "9de7576f92d72ec179e1cd760988beca64a95eefd7a9e57e9218610906eeceac",
+    "size": 305
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlClientsRevokeResponse.json",
+    "sha256": "66968cc1d1a9e2ec01168b459bac90ebe8e58f14755d3b14fb2dc5ab02e3ed65",
+    "size": 127
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlDisableResponse.json",
+    "sha256": "a8a61df25583fa0a32f0ab90efa56ab256c712adc461174eaf8ad01781cefd7b",
+    "size": 689
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlEnableResponse.json",
+    "sha256": "955555c2bd534d6e404eb86b52a23af91ec8af0af9f32ca79d0a3eb903703750",
+    "size": 688
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlPairingStartParams.json",
+    "sha256": "d5c2ad19e70385d16e0238e75376d4c3bd216640505f5895b18ac20d223689ef",
+    "size": 197
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlPairingStartResponse.json",
+    "sha256": "9a1adbbed53d369cfc95e285ba8f1db9f64a1308aef5c92b79d63b5d7a77a435",
+    "size": 495
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlPairingStatusParams.json",
+    "sha256": "336a75c4cada29be925cb3d5dafa715bcb6d8051e57051c49bb1ed51be01ea36",
+    "size": 323
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlPairingStatusResponse.json",
+    "sha256": "298061860624a52b245c824e9f7fda08fddecb0e7fdb1c2dd0736854d2950759",
+    "size": 232
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlStatusChangedNotification.json",
+    "sha256": "56aa1d58294238557cd8b16199909c2c157a7542b9259ef2deddf40fe4c02c91",
+    "size": 800
+  },
+  {
+    "path": ".task14d-schema/v2/RemoteControlStatusReadResponse.json",
+    "sha256": "6504a09081b79fc0c222ff72be6a983bd553bf4712151e37a77daf106e04be90",
+    "size": 692
+  },
+  {
+    "path": ".task14d-schema/v2/ReviewStartParams.json",
+    "sha256": "c55c510988a34d2e95752aeb95e5d165f7083724a0945d7fccd1c568ad85dbb0",
+    "size": 3200
+  },
+  {
+    "path": ".task14d-schema/v2/ReviewStartResponse.json",
+    "sha256": "d6d5c99473b695fff0f58a896bee11ddcddca23304523fba878860324b7f07df",
+    "size": 54982
+  },
+  {
+    "path": ".task14d-schema/v2/SendAddCreditsNudgeEmailParams.json",
+    "sha256": "91b380293f5685573f8dcdf46c99eba6f8a2adb7a206df9ac987f7fe6cb282a1",
+    "size": 420
+  },
+  {
+    "path": ".task14d-schema/v2/SendAddCreditsNudgeEmailResponse.json",
+    "sha256": "389978f741476c7cbcaec716b11a5bfb7f17581a28013e18cbf7a73ec8a45ae6",
+    "size": 417
+  },
+  {
+    "path": ".task14d-schema/v2/ServerDiagnosticsParams.json",
+    "sha256": "5a4235de371d1a58a45300e14fbfbc9ab0a3ecef3078ae35d60f1470b6e4e4f1",
+    "size": 116
+  },
+  {
+    "path": ".task14d-schema/v2/ServerDiagnosticsResponse.json",
+    "sha256": "0b3b35e623761a05bcd4a20085be8395986d2b98037c8ebda4dcda2204689d1d",
+    "size": 1338
+  },
+  {
+    "path": ".task14d-schema/v2/ServerRequestResolvedNotification.json",
+    "sha256": "4f03d586a5af04edd912cad08cc97eceb658e7e06744565e6d41a93e04a55966",
+    "size": 514
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsChangedNotification.json",
+    "sha256": "84f7f1d327c5c774899992f32c98e9e95ee3e010a410d233ec0c33221e4ccbfb",
+    "size": 341
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsConfigWriteParams.json",
+    "sha256": "6e7dea83b649bfd118828b60446eb2eab2f5ce3cafe287c933b830c9cae9b170",
+    "size": 1011
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsConfigWriteResponse.json",
+    "sha256": "628bc112ca64f5475eb02a0eda718e82d670c40299444494e02a8dc278a772c7",
+    "size": 241
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsExtraRootsSetParams.json",
+    "sha256": "bb60389a0c7d4b73f625b9a40965e5e67b56b6503989f2d732cae12e9ca9698a",
+    "size": 761
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsExtraRootsSetResponse.json",
+    "sha256": "b659ec17a196eaa3a23273a3e2d5596460ea329bc3ade249971576bc723d9e96",
+    "size": 120
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsListParams.json",
+    "sha256": "1d245374e64c5acc9739dfc68a4fe5114c6c9147af04c480886f1846d2ca6239",
+    "size": 453
+  },
+  {
+    "path": ".task14d-schema/v2/SkillsListResponse.json",
+    "sha256": "230f125d6c36ec1b1514018a0bb6d0627f7308ea82f1ef04cad85490de482bae",
+    "size": 5295
+  },
+  {
+    "path": ".task14d-schema/v2/StrictReviewRequiredNotification.json",
+    "sha256": "16b50621c0982d84bd83b6e85586c1038ff309337e4253219895be7c118df470",
+    "size": 470
+  },
+  {
+    "path": ".task14d-schema/v2/TerminalInteractionNotification.json",
+    "sha256": "5383b3d9681d3c071c9845fd4f043afd60fbe1bcc3650939356cb03848a7d627",
+    "size": 474
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadApproveGuardianDeniedActionParams.json",
+    "sha256": "082e5278ed4fb1fc23eafbe658e95ec21d81c446bb6daf2b57e25e8cd3aebd5e",
+    "size": 360
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadApproveGuardianDeniedActionResponse.json",
+    "sha256": "628336c7cdabd508d5202695502bb0f9ce42fdde380f5efdd4b033cf215d93e5",
+    "size": 134
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadArchiveParams.json",
+    "sha256": "dc2c0b133b814a5d9d543cc37afdb3f4f22feca35b7cea4272834b20a1e47705",
+    "size": 218
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadArchiveResponse.json",
+    "sha256": "2e021dabd0930ae3e2beb68cd0ddbafc40fc20cfbf8dbcb5e2f9c0493d06a08c",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadArchivedNotification.json",
+    "sha256": "54ca94956719ade8682c766f31419ee9953dee8f4587b5b30efd0927de6ca26e",
+    "size": 225
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadBackgroundTerminalsCleanParams.json",
+    "sha256": "e07820971c6e4ef8ee1ca5565a6eb78b04a96e001a5828e136b8aca927096a51",
+    "size": 235
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadBackgroundTerminalsCleanResponse.json",
+    "sha256": "a594a65b4eb1ddf4613e868e382d7cda24daaa09b86de919fbece99e75b55478",
+    "size": 131
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadBackgroundTerminalsListParams.json",
+    "sha256": "7ac232410d59afd308dca04f8c0b08f20fa6e87f00bd0d3b5892b7ce8b31d2ee",
+    "size": 564
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadBackgroundTerminalsListResponse.json",
+    "sha256": "b56b1cbcb1d60079ee9f9caaeef29cad869a25b4a6d356566f7c9f672faa7bf4",
+    "size": 1529
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadBackgroundTerminalsTerminateParams.json",
+    "sha256": "4af4973b4e965228e7c6ffdff341c22c227c26bc48d4b44a8696993869b64103",
+    "size": 305
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadBackgroundTerminalsTerminateResponse.json",
+    "sha256": "1f5dfb3fdd3c1fef2ef9b9b2c26eb2f2c7346cdf695d4ca291ede076050d1bc7",
+    "size": 246
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadClosedNotification.json",
+    "sha256": "d504cceb70e3397ad684924b08d3bff328a927be02ef4e3d482a18e27bab73de",
+    "size": 223
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadCompactStartParams.json",
+    "sha256": "684b20adf20213a9fcbca31b59108feadcd5a8b693c16431c20d701049df3737",
+    "size": 223
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadCompactStartResponse.json",
+    "sha256": "74674e47f33e37d7d97d144eac1789ef0580a1fc12d45a5675bb97caa08d803a",
+    "size": 119
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadDecrementElicitationParams.json",
+    "sha256": "52e26befe05ab05767107f9f43724505b889016de3ea663be08d561d199a2e41",
+    "size": 390
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadDecrementElicitationResponse.json",
+    "sha256": "202c2995634aef062ce9d1195808f4d2f59011af064646f4ae5fe2463fd41a4b",
+    "size": 558
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadDeleteParams.json",
+    "sha256": "0d5425d94af95e3dd20971cee052b2cb8c7d0d23195db1d17fde4e59cfbdec4a",
+    "size": 217
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadDeleteResponse.json",
+    "sha256": "333c0c5df96d78d1bcbdb19b57ddfa941de9a02bdae1c29d13c5311c2cdf6527",
+    "size": 113
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadDeletedNotification.json",
+    "sha256": "6f8d6fa96700ec6fff4b8c2bddf6768539b7ec7ba5dc05483aba53f5183386f9",
+    "size": 224
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadForkParams.json",
+    "sha256": "674134467796c011068b9dd5efc912de4560fa31f65c0fb2163f14e352be7a61",
+    "size": 6584
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadForkResponse.json",
+    "sha256": "80a8ccc6ea9614d01c1e69efa30c6b5228a064acac6be9efb691cbf0bf22afc4",
+    "size": 76252
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalClearParams.json",
+    "sha256": "896c8b1997edf913382393f7d0f20ced4344714b9f0e8ce1f6564a11403e1675",
+    "size": 220
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalClearResponse.json",
+    "sha256": "2652c2d0072be8ccb71c8dcaaa054aa74f974e68156a73451baf72c8597669c2",
+    "size": 221
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalClearedNotification.json",
+    "sha256": "ad6c2cf53970e45cae55d36dbddd84ecc7b34837846616493efa7b132a35a051",
+    "size": 228
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalGetParams.json",
+    "sha256": "1a5de89b3c5c49528af404a65411a73ef05dc7c9c49c3f00c90d9926dfe34137",
+    "size": 218
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalGetResponse.json",
+    "sha256": "f610000963194731c96ce2b45e46722ca700f1b6ccc1fc55a2fd95e526018fd9",
+    "size": 1491
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalSetParams.json",
+    "sha256": "93162f095e9b3b5a051ceb24318b8922c663edefc1f8c67bd378085c0d6c01d2",
+    "size": 804
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalSetResponse.json",
+    "sha256": "b1c61b6068b3b73dd3d97b38f8a269593f8f7added4643bfdb2016315b71ad8e",
+    "size": 1428
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadGoalUpdatedNotification.json",
+    "sha256": "52010479c7efcc6dc749e2d9bf1e27c134453d92a1f0b367193d8125eec1fedc",
+    "size": 1580
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadIncrementElicitationParams.json",
+    "sha256": "1fa0353a274885581bc242eb7a00a4f4e26ce99a24a89184381f0cccbcca73a0",
+    "size": 390
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadIncrementElicitationResponse.json",
+    "sha256": "b6f12f99d3a99fd48e66aa3a1c062941b5dd7db3160fa2cc6aec640c0b12013d",
+    "size": 553
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadInjectItemsParams.json",
+    "sha256": "8d7e754402a2bb71bd817882076d2f8ac4cd75d4573306db082a83b841aa3532",
+    "size": 397
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadInjectItemsResponse.json",
+    "sha256": "93d909e5b49b44da02072d340f8ad0ecd417d448ccf27fe50be7e369c7864159",
+    "size": 118
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadItemsListParams.json",
+    "sha256": "ff56040c327ecdd30ef02affac9bc71fab64031e8980f2b4fea9fd8a888160b4",
+    "size": 1138
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadItemsListResponse.json",
+    "sha256": "886369490fec07067597460301b3d5c1dc9aedc41ea42522cae397d8babe6156",
+    "size": 46506
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadListParams.json",
+    "sha256": "e321f00bbc81b7e65e8596b8c286deaf2f5c48e76fa179db3abc4ff337d85199",
+    "size": 4322
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadListResponse.json",
+    "sha256": "13d1130dcf015695391879c8000ee9e8aa35b8fab49c45b3f80a94ca37e739ee",
+    "size": 69001
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadLoadedListParams.json",
+    "sha256": "42c2d124ab2b2998d84f0126daae2d32b0bf9c5a7ea7266e3a0814e5e37cf00d",
+    "size": 489
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadLoadedListResponse.json",
+    "sha256": "1ea02c4710083e552b2a3a89b931b9049d5bf05b7db46278b8352cf9fd80cd52",
+    "size": 565
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadMemoryModeSetParams.json",
+    "sha256": "12d62f765492ef7fdbdbd5ea9cbb3b3d3ff2ca5ef6a52fca9a82379eb4dadb79",
+    "size": 446
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadMemoryModeSetResponse.json",
+    "sha256": "908b6eadcd2909936ff1a44152721baee9400f8bebd4ea99dc613551824236d9",
+    "size": 120
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadMetadataUpdateParams.json",
+    "sha256": "4698633f92f107083311d0924cf730bc31cdd56ba4c2950a30f06ce30ba7fab8",
+    "size": 1690
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadMetadataUpdateResponse.json",
+    "sha256": "e0617c85dc4c0c4919719afbd7e99b7971eb56d5b0607e19c07889ed4bc12cb1",
+    "size": 68347
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadNameUpdatedNotification.json",
+    "sha256": "06d5e6b0e1eaf03eb88891af58eff14368a76e300a40a9bed71bacce2093b960",
+    "size": 312
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadProjectUpdatedNotification.json",
+    "sha256": "ad31b029957a9259f26352ce879219cbe25f0314ae883d02ab811a0c6427a1e5",
+    "size": 331
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueAddParams.json",
+    "sha256": "39bda9d790b315eea17fc04298afb0135a8b43e7d375b54eaa4a2e88ad0d4aff",
+    "size": 5753
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueAddResponse.json",
+    "sha256": "c42b0adfa32874c341a2012216a5f5b9949b50f840ffc666e606fa65b117bd22",
+    "size": 6021
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueChangedNotification.json",
+    "sha256": "0a960da43fb14f69dae2550ac4f8517760464eedbf95a9977718548739fdcf21",
+    "size": 229
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueDeleteParams.json",
+    "sha256": "35d17cc17897a7f560250d0148ec9df0482ba3d33bdcca039dde8391d3b4edbe",
+    "size": 306
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueDeleteResponse.json",
+    "sha256": "5983c0a94e89f93340caecfe96e16d8f535edca39142920bc0ba60ec90a52919",
+    "size": 223
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueListParams.json",
+    "sha256": "b4c889089eee8a0f785ff85e0128a4d3f347353870fa848221096a472223773b",
+    "size": 598
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueListResponse.json",
+    "sha256": "fe3251d1d4099a1642ff9df36f92a15cb5d4e8187d7f012a11c73cda16627fbd",
+    "size": 6227
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueReorderParams.json",
+    "sha256": "524bc69a166160f234c7f7de9f6386ace09ce8165b1409504c5164fbaf9267a6",
+    "size": 359
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueReorderResponse.json",
+    "sha256": "161491f6310bcdeac60cd7cb0594cebc51857e9caccb592b7f96cefaa5f4a061",
+    "size": 119
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueStartParams.json",
+    "sha256": "d92f1e985c183fa3f261bbfa004416f0f572a225a53e5de1744682e154cce936",
+    "size": 313
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueStartResponse.json",
+    "sha256": "4df331d0b5484294d028ea09a2645c8c9e1c959d0748de38dab9040e9dd38f41",
+    "size": 54724
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueUpdateParams.json",
+    "sha256": "55899d99d56f089bcf82b8d55d5328d2479f46efd2669c9bfad4e5de3cc6b60c",
+    "size": 5754
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadQueueUpdateResponse.json",
+    "sha256": "da62310ccda19d279b9acd20fdbe177727e6cbd607e047cba3a9966cc55efb64",
+    "size": 6024
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadReadParams.json",
+    "sha256": "dfe040c6ac71d30795b8be3f3ff232e66f362a37f883b491e5d1ea367f470db4",
+    "size": 502
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadReadResponse.json",
+    "sha256": "de0ec065bbe9c6288d76517cbab64949b544074ed782a314ccea872b70bbfa48",
+    "size": 68337
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeAppendAudioParams.json",
+    "sha256": "10e3a38def5978afe7417d5754f28fda86863126ba7ae2746e77d56520c84130",
+    "size": 1239
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeAppendAudioResponse.json",
+    "sha256": "e1e020945423a35d6feb7d529f6d75462bb220c4ec42fa54fbda07b62445b602",
+    "size": 206
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeAppendSpeechParams.json",
+    "sha256": "864db8a10d2a390e257db29eb0530e80f4e3e569b0d29011b1893083deeab926",
+    "size": 364
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeAppendSpeechResponse.json",
+    "sha256": "deceb9fdcc69931ed293c977976ceaa7734297bcb1f68dae3eb7e671bf518096",
+    "size": 202
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeAppendTextParams.json",
+    "sha256": "27f2531b0b441253ad3adfc03fa3c75e4063005aeabddbf0ca2eac1e56d19b46",
+    "size": 669
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeAppendTextResponse.json",
+    "sha256": "b160a533fc2dbe9ac987413b0b142d4c4b8041b66e3054bcda2c085f4e8c565b",
+    "size": 204
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeClosedNotification.json",
+    "sha256": "5290a73f8d4652b59d2f82d89c7bd289003fe2981fb0c628a61e801fa2123364",
+    "size": 393
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeErrorNotification.json",
+    "sha256": "aeba7e4b477b4825b41990a4da69b0f3cb3a00f44cf9e2e42e275b944b7cb040",
+    "size": 377
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeItemAddedNotification.json",
+    "sha256": "48aabfcbfd2361b5830a93257bc9eb31a6933f6e390694e188bfb287acbad9b4",
+    "size": 358
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeItemCompletedNotification.json",
+    "sha256": "b2a5e38840b8afc2111620c332801603e832b91ad4c95dd1f13c926923b760ef",
+    "size": 5063
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeItemStartedNotification.json",
+    "sha256": "ef1a68a635ce680b321e276fd9144ef614b37bab16942368bdc16bb8ee217f46",
+    "size": 5063
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeItemTranscriptDeltaNotification.json",
+    "sha256": "42f2456726367b90a2626a32f3f88495de87032243beecd9bfbad28734f4b62d",
+    "size": 450
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeListVoicesParams.json",
+    "sha256": "ef4d55618412bfb2c95179e0a8441996b48d7b1311d395996517be1abeb85d53",
+    "size": 200
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeListVoicesResponse.json",
+    "sha256": "8fff8adbc97b4d6d38eca88c2edf71ad3fcf1ecf6f78939d5347b568c4a58124",
+    "size": 1382
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeOutputAudioDeltaNotification.json",
+    "sha256": "4f73a5c606fda4984da4fc14e4cd98f62c8f9aa75b2db17cff76562c2d176ec0",
+    "size": 1261
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeSdpNotification.json",
+    "sha256": "1e276f48d346e6cace65551f84ef9b0bc8daba2a3ce93499f3a902551de239fc",
+    "size": 376
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeStartParams.json",
+    "sha256": "361860050b1f6d301b3b8d951cefff16f9e9fd62999f95038ef670ae36447d23",
+    "size": 7810
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeStartResponse.json",
+    "sha256": "2133c6226dbd546189da197a30f60df910b5b5e197f61b1bbfc5679a92377d65",
+    "size": 194
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeStartedNotification.json",
+    "sha256": "483d324381a8ced04c8ab158c825bca2b64c06a4e85b350a086730050fe8f188",
+    "size": 661
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeStopParams.json",
+    "sha256": "da0e765e71d37c3c0b331e7666ad5c32483e2b0775e8439b642ec63602c974cb",
+    "size": 280
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeStopResponse.json",
+    "sha256": "0a138fb932680fd38add3e74473ff998266fb7c79e1dcec1d8762b42a29b9562",
+    "size": 193
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeTranscriptDeltaNotification.json",
+    "sha256": "1a6add677534de891026eb56aac815b2585fbd4a6d6475f679a722c52b778703",
+    "size": 533
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRealtimeTranscriptDoneNotification.json",
+    "sha256": "0000453425e300fd19ac2bc5fba4ebf3fbce48ac9a9b62ceb8bc5db8b6c77fff",
+    "size": 528
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadResumeParams.json",
+    "sha256": "324e96004c49de35935cade3386958431c93a4fd3997a839f9796772ea4c8072",
+    "size": 39470
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadResumeResponse.json",
+    "sha256": "1d40932ee38f92f363424542d7581985cc627ea0ab2beff89663772c5f9f29c7",
+    "size": 77685
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRevertParams.json",
+    "sha256": "3a5e85a67906c8ea3ad9f5065559d263d968a28a957739e7a1d9e4e1981e4eb8",
+    "size": 579
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRevertResponse.json",
+    "sha256": "33bde802b47a12391edafc02f0e59d7cf94138559b3ced3326d70e116b54e172",
+    "size": 69147
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRevertedNotification.json",
+    "sha256": "570995a91a4436d403bafbf9a4c34ead666b137ecd5406803e14826a6d84cf22",
+    "size": 225
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRollbackParams.json",
+    "sha256": "27002ceab514bcbab10ad2e0a7b9b842f9ae51bd5e8c084ed14960889b422ebd",
+    "size": 667
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadRollbackResponse.json",
+    "sha256": "ebe224a2882bda742234207d4c1b6b88eb7e706f86ed79a9935d47d00de36b9c",
+    "size": 68668
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSearchOccurrencesParams.json",
+    "sha256": "ea50391f431b2a4361635e9f62cf9cb70fcf162a217a4b79d6f8c53394f7acb9",
+    "size": 886
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSearchOccurrencesResponse.json",
+    "sha256": "193e1f78e427a93f5a6471b7b69ea3f6d980c924ca26e20845992bc5b33d9dd9",
+    "size": 2040
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSearchParams.json",
+    "sha256": "5c3bbb9d37d7d83f3f7747423427ff9c8b0f1154ac8cd7c832995a763dfa8e61",
+    "size": 2314
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSearchResponse.json",
+    "sha256": "cc97c283199c4d39f2939448f996cf5c7a7ffd14424f87b709a0a7221a10b80a",
+    "size": 69299
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionCreateParams.json",
+    "sha256": "e3bf941ceab7a4dd39ce1b4063168621d60162aa97f7171cef59819c999c501e",
+    "size": 969
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionCreateResponse.json",
+    "sha256": "2b0b0e7a2651354aac35aa5d1a423b9f207ee8d46b2de077df747f4ed4f4c8de",
+    "size": 1548
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionDeleteParams.json",
+    "sha256": "93cc3d12bd5580966b59bbab8f2ccddd31b3b4bce56f76d49cfe41f1916b5deb",
+    "size": 401
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionDeleteResponse.json",
+    "sha256": "9bbee5cca1fca02e4a65c2481dc3b24f090bca7afb786923ee481017b133b091",
+    "size": 201
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionListParams.json",
+    "sha256": "6aea71b3fba46351fcaf648eab0da564080ba424599a012648abd9fd44464cf8",
+    "size": 570
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionListResponse.json",
+    "sha256": "dc3b5e5501a56ea2a1a83cb97c5221b355629f8c9468793d94e22673424140bc",
+    "size": 1760
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionMoveParams.json",
+    "sha256": "48bc921055838df25c5595c96be7bd25beef3accb8bd1d28026fcaa7d81487b1",
+    "size": 768
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionMoveResponse.json",
+    "sha256": "243299d7eebd4fb264d4e75efeb5058982681202371c2b83ff1a63b3369ddbb6",
+    "size": 118
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionUpdateParams.json",
+    "sha256": "6cc7b7e486026a59d6fcc0701407d9293c0fe8b96e41894630c3a39fee967980",
+    "size": 1211
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSectionUpdateResponse.json",
+    "sha256": "4588cbf0374204c17f02f15eecb5390cd5346bc551675e07e541bbfd28d020bf",
+    "size": 1552
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSetNameParams.json",
+    "sha256": "8e334c816bbaeb80f807aca61bf659246f3f60c245c21b5cb7e3ca4ee3ce4820",
+    "size": 274
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSetNameResponse.json",
+    "sha256": "f8763716433feea94f7c1ebd59b6cea4c261432e83240c13a8d49ba8185aa567",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSettingsUpdateParams.json",
+    "sha256": "a3abd34e80b3e9473fc1ed68d1e3738001733898405da816d7494be0e307c789",
+    "size": 10691
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSettingsUpdateResponse.json",
+    "sha256": "adb6c5232ff2474b61ac1811c9fe0faf8beae7f629c9bb2182190679d82bf0b1",
+    "size": 121
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadSettingsUpdatedNotification.json",
+    "sha256": "f7865eabaa34c7895a1ae345e51c1ba181a63c649237d36583b80f9d759b0f53",
+    "size": 10618
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadShellCommandParams.json",
+    "sha256": "dc646457ca36be601c8c3d15c44d14907d9a165ccf2b9635a8e9a878f0ca0727",
+    "size": 917
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadShellCommandResponse.json",
+    "sha256": "fd4911613f6a6da2ca13b75342501d4d61f64e00a1083c6d60038369b8caeefe",
+    "size": 119
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadStartParams.json",
+    "sha256": "25f490368ec6df52a2a3b82a5469d2413307eb93439121b309f415b5648eee7a",
+    "size": 12971
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadStartResponse.json",
+    "sha256": "a338467af5fc271ace917f9d1262405642c3df3b66116aa105343db86cc9a76d",
+    "size": 76253
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadStartedNotification.json",
+    "sha256": "0ef98c391c7f43aeda056ad2bf326864c0e2626f477630cf8444bea1dcd2cfcb",
+    "size": 68344
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadStatusChangedNotification.json",
+    "sha256": "26f3c60c1b73f7fa2d31c74429cdc36f8746c76c33e3d314b3fb61d3661f05f6",
+    "size": 2207
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadTimelineListParams.json",
+    "sha256": "c585f0e23ed65406dd80f0e0b2956f3f87e7a7aa03627e5e002c61bfc4e1f6c5",
+    "size": 526
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadTimelineListResponse.json",
+    "sha256": "bc801f0c5a0b0f2426caf7e4941c846a719855eee7ec2d7e0b93414b1c5c92f7",
+    "size": 61104
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadTokenUsageUpdatedNotification.json",
+    "sha256": "aba4f6c7e4a19b2b842c08ee793b57000c07dafd57b922ad0d8e7c76609108c2",
+    "size": 1727
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadTurnsListParams.json",
+    "sha256": "2a8b93d7d4437cc25e16a1dde16d8db3c338d39e16c5eece2a56e943a21577d7",
+    "size": 1889
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadTurnsListResponse.json",
+    "sha256": "45bffd91efc358859a1a54b8165c0a8b1c21ebc2a312da9f25d05ff27af798ee",
+    "size": 55347
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadUnarchiveParams.json",
+    "sha256": "a1d5d847b61ea16ab09d5b9d1c1461134a7829292aae02a7e11b0a69b00c76ca",
+    "size": 220
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadUnarchiveResponse.json",
+    "sha256": "80ec101740ee1b39db25be005d52e9feb23db36e9c4c38b69e4bca954284c14f",
+    "size": 68342
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadUnarchivedNotification.json",
+    "sha256": "fc00949cdc588b84800a26403647eda0e22d6f28663dc032a90db9c20dfa822d",
+    "size": 227
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadUnsubscribeParams.json",
+    "sha256": "77c67e0dc0a729af2d4612f30ed63f1297160232e96cd32b7cb9cc3e7fff0233",
+    "size": 222
+  },
+  {
+    "path": ".task14d-schema/v2/ThreadUnsubscribeResponse.json",
+    "sha256": "9cad5e71a589c3c20e0980ce34a894a29e2898a075b10b1493bc87f32500081a",
+    "size": 431
+  },
+  {
+    "path": ".task14d-schema/v2/TurnCompletedNotification.json",
+    "sha256": "78af2a37391e8e669a4020cb58593e4d3e378756ced79d5fec72374fa69fb94b",
+    "size": 54789
+  },
+  {
+    "path": ".task14d-schema/v2/TurnDiffUpdatedNotification.json",
+    "sha256": "59a02535094b591b926cdc11a8e5f5babf73b442323a02cace1661c62f0c2918",
+    "size": 494
+  },
+  {
+    "path": ".task14d-schema/v2/TurnInterruptParams.json",
+    "sha256": "6dff382dae73d1dbc58406ed045605f647e7a49660e2540fbd2c6c24d60c5f2b",
+    "size": 278
+  },
+  {
+    "path": ".task14d-schema/v2/TurnInterruptResponse.json",
+    "sha256": "531de6be06fe979b5963f249bab82498a175e614bf65ac12fb2e849dfe60bcf1",
+    "size": 114
+  },
+  {
+    "path": ".task14d-schema/v2/TurnModerationMetadataNotification.json",
+    "sha256": "90fe9ade83c46fd42af9d023737a9990595dac71e059158744950f538e802876",
+    "size": 331
+  },
+  {
+    "path": ".task14d-schema/v2/TurnPlanUpdatedNotification.json",
+    "sha256": "2522f743be0a1e9666dec5ad4f18d8ecba3c4f16e66d510b1491d4117d1dd0ba",
+    "size": 948
+  },
+  {
+    "path": ".task14d-schema/v2/TurnSettingsUpdateParams.json",
+    "sha256": "3c0198540df66802752daa59680733221e0bc2deaf3cd0ab2c5b9daa6332ef7a",
+    "size": 3130
+  },
+  {
+    "path": ".task14d-schema/v2/TurnSettingsUpdateResponse.json",
+    "sha256": "504e2ef2c3d06b13a107bf94a74791ff7f61c4a234f0beff78dca406ae2d1181",
+    "size": 816
+  },
+  {
+    "path": ".task14d-schema/v2/TurnStartParams.json",
+    "sha256": "b36fb37326b1cf69f75c8b306f1f886d53a57c4b1b985e08e298e2407ea2ad02",
+    "size": 23746
+  },
+  {
+    "path": ".task14d-schema/v2/TurnStartResponse.json",
+    "sha256": "6fc49c3e5d0ce11a3a109ae194619b04d6e3ff98fa29bac683fdb754608958be",
+    "size": 54717
+  },
+  {
+    "path": ".task14d-schema/v2/TurnStartedNotification.json",
+    "sha256": "d4b59fd396cadfc2377f60c9f9f4c9367dca95362baadf7817c74e1b9c910c4d",
+    "size": 54787
+  },
+  {
+    "path": ".task14d-schema/v2/TurnSteerParams.json",
+    "sha256": "2e0cdcea6a90d6c8bc584fdc2ff838e824754b1eef0d2d16aa71bec4276fef44",
+    "size": 7248
+  },
+  {
+    "path": ".task14d-schema/v2/TurnSteerResponse.json",
+    "sha256": "866ba9a77c12b5d570c837d58f73bf40b24e50fa93404bdf792dd984d313b1aa",
+    "size": 212
+  },
+  {
+    "path": ".task14d-schema/v2/WarningNotification.json",
+    "sha256": "f83c400591b923400ca0beaaaab1341c712d5ac0dee4ce6868a8e590f46490f9",
+    "size": 454
+  },
+  {
+    "path": ".task14d-schema/v2/WindowsSandboxReadinessResponse.json",
+    "sha256": "077f60a3d6d1fc226c45059472b29caf675fdc3fdebb29569eaab94bd05ceb00",
+    "size": 435
+  },
+  {
+    "path": ".task14d-schema/v2/WindowsSandboxSetupCompletedNotification.json",
+    "sha256": "dc5383ae8fc2a46badbc2dab3ccd0447fed97729c2d5a177e28c4a7e2a60c329",
+    "size": 556
+  },
+  {
+    "path": ".task14d-schema/v2/WindowsSandboxSetupStartParams.json",
+    "sha256": "8610d077fff4fc5811f2e33dea82617a15ffb82f08e55e1540aef877133f5b4f",
+    "size": 1002
+  },
+  {
+    "path": ".task14d-schema/v2/WindowsSandboxSetupStartResponse.json",
+    "sha256": "830bf89deac3e73e36b7d9799ceed32ee25e782c30b1d25266374aa020d3bc7e",
+    "size": 230
+  },
+  {
+    "path": ".task14d-schema/v2/WindowsWorldWritableWarningNotification.json",
+    "sha256": "bfa34d4890c8121a04412b8d53314a13adf98289fdd948857fd97b808dcbe79e",
+    "size": 478
+  },
+  {
+    "path": ".task14d-stop-insert-wrapper.patch",
+    "sha256": "25edc947680724c617aac547e87540095f6d33ee686c77e39b2ef8af7d12fc13",
+    "size": 5558
+  },
+  {
+    "path": ".task14d-stop-integration-v2.patch",
+    "sha256": "27f518af1751eff957b590859aabc3779b650b79d0ceb6b25e45ddc9b9ce2e65",
+    "size": 7832
+  },
+  {
+    "path": ".task14d-stop-integration.patch",
+    "sha256": "7383fef1472a695927b43873cf2703d81a7b1fe39471cdef724ab29650edfd89",
+    "size": 7854
+  },
+  {
+    "path": ".task14d-stop-main-v2.patch",
+    "sha256": "a2c70443aa6aebe08f27027231303f394817f687fd91ffc37257042e05ff1998",
+    "size": 1621
+  },
+  {
+    "path": ".task14d-stop-main-v3.patch",
+    "sha256": "d39884ea2933c271e832dea61481f5aad775b1a1eeffe1660e04bf6eada7e097",
+    "size": 1623
+  },
+  {
+    "path": ".task14d-stop-main.patch",
+    "sha256": "1623d52c29ab91cb05b24bdff1918f08d6dd2519e2d75a695f140da2c944fd4a",
+    "size": 1621
+  },
+  {
+    "path": ".task14d-stop-pipeline-defaults-v2.patch",
+    "sha256": "9d5d55e59b5c854be9e5cafd5c798419d958920047529d9f8bb5ea9c4edda172",
+    "size": 1086
+  },
+  {
+    "path": ".task14d-stop-pipeline-defaults.patch",
+    "sha256": "b2f965a06ccc56dca89205af8cb026bf2a341377ec4b0c7aa2da6b94ac843710",
+    "size": 1098
+  },
+  {
+    "path": ".task14d-stop-rename.patch",
+    "sha256": "d03184b616d4c92d19a198ee7fcb349648c72c2d61a5924e9505c618f70f99d5",
+    "size": 386
+  },
+  {
+    "path": ".task14d-stop-trace-fix-v2.patch",
+    "sha256": "9a2521f488c4b131dc82ef15dd0c0a39d39a49c2a7c7f645dd55c676f60563dd",
+    "size": 1156
+  },
+  {
+    "path": ".task14d-stop-trace-fix-v3.patch",
+    "sha256": "6700b540ecc93383790a9f629688d07e12a7798f88b537c95245dd7b0f3a8560",
+    "size": 1165
+  },
+  {
+    "path": ".task14d-stop-trace-fix.patch",
+    "sha256": "922f4ac6414d8e901720c5dd7510127ce3cd29690a7aed743be2d56fd704225a",
+    "size": 1184
+  },
+  {
+    "path": ".task14d-stop-wrapper.patch",
+    "sha256": "fff3c39831a928f8b0d5533e32b3cbd1216a04cfa41c8f3e552ee19c5370f0f8",
+    "size": 7246
+  },
+  {
+    "path": ".task14d-validator.patch",
+    "sha256": "96bd43e1706657df2e30f8b61e8c80c6352fa854e47554785affa007b66ad508",
+    "size": 2599
+  },
+  {
+    "path": ".worktrees/legal-proposition-core/",
+    "missing_or_nonfile": true
+  },
+  {
+    "path": "docs/JDIPT Legal Proposition Runtime v2 Design.md",
+    "sha256": "5f760a3b88a14ace95002662ba6783020e85e31dc6dcf52486b63ffc3d39a05c",
+    "size": 11138
+  },
+  {
+    "path": "docs/JDIPT Legal Proposition Runtime v2 Refactor Implementation Plan.md",
+    "sha256": "291286452d7508f99aa69e9e017fd2b58a8ffcb2fb347d595e54266f43906db0",
+    "size": 39096
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-05-ash06-runtime-activation-repair.md",
+    "sha256": "05f2b2d101b075ad0e9b59e916cedff87a9722329c4ae897d7eacc49e2256585",
+    "size": 6837
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-05-jdipt-windows-hook-compatibility.md",
+    "sha256": "e7eb925f77c06cae3d2e5f7f3a99585c7fcfe7612301d4110dca38cfdc634fb3",
+    "size": 6264
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-05-task14-runtime-hook-trace.md",
+    "sha256": "9928f2c8727b5bfd015e260aa3f896f9d47105ff3c427ac649445efe84b384ec",
+    "size": 4898
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-06-task14d-active-hook-runtime-forensic-closure.md",
+    "sha256": "d451385518f44d7a16fc883c5b9776603e94b3ab3b94325af01b6aad0339d6a6",
+    "size": 4658
+  },
+  {
+    "path": "docs/task14d-baseline.txt",
+    "sha256": "6fa560462d852833ef1546c813d5c8415b6d308298512279e4e31a3b4435a000",
+    "size": 24119
+  },
+  {
+    "path": "docs/task14d-evidence/active-hooks-list-final.md",
+    "sha256": "83ba4557257bed7283314f7a5073f02120c652deaf9656934f1c0e3cb432e534",
+    "size": 1506
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/jdipt-stop-payload.jsonl",
+    "sha256": "61646e818b4a37a3f0ea2e15744e52e12e55adb0c36bd8fc10e309459b12571c",
+    "size": 5328
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/E06.case.md",
+    "sha256": "e60c483221b992442d80b380a5e3d1d13318536d345e3ed907052d51881830cb",
+    "size": 4704
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/E06.log.txt",
+    "sha256": "5116cac45be2b68ff09f6c44399a7d9b9112c700eac4a2f571c453cd994a9142",
+    "size": 225774
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/E06.md",
+    "sha256": "77644af3d0bf60c0ab71e6a631ef80136383476d02b3b3c3d7cc875a811736ef",
+    "size": 4202
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "0c31bbd38272dc6ed51922b58108a4dd1a3024bca5d63e6a8f8e4514a63f4d05",
+    "size": 443
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/E06.case.md",
+    "sha256": "9f18d86b4ec6e3c67021ea3fa394d70b546b7c10f94181aa6de37e335866f51c",
+    "size": 4882
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/E06.log.txt",
+    "sha256": "b8fb70e153874a0ba1c1d7603f021f693c7f0a52c24b78625b0602ac8e881f48",
+    "size": 344445
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/E06.md",
+    "sha256": "defee673cc6152ffe5cd320a7db744c31158587f2de76f8ff97dc7de5b7764bb",
+    "size": 4377
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "0c31bbd38272dc6ed51922b58108a4dd1a3024bca5d63e6a8f8e4514a63f4d05",
+    "size": 443
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/E06.case.md",
+    "sha256": "2fe6a47a5d71011964c320287ded4e74e65a4f67141f2fdcbb4d6dbe7af97fcb",
+    "size": 4791
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/E06.log.txt",
+    "sha256": "acb141a225976ddbb95fef4faf1592143cd1ac122d0fe0b0d2f2f9332a2a415b",
+    "size": 280552
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/E06.md",
+    "sha256": "96c10c355d3537baaca180e05897847ee549ad6affc7b0a617c9ae177625a51e",
+    "size": 4270
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/runtime-ledger.json",
+    "sha256": "0c31bbd38272dc6ed51922b58108a4dd1a3024bca5d63e6a8f8e4514a63f4d05",
+    "size": 443
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/oracle-findings.md",
+    "sha256": "6d823972d1074d9cd2b231434022f9223f0f28852d8519050d2552c7b4f704cb",
+    "size": 241
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run-after-registry-fix/runs/summary.json",
+    "sha256": "24cb5792bb322b49a681595fd47a17130046f1e82d3af9643b08278d36c54cc8",
+    "size": 718
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/jdipt-stop-payload.jsonl",
+    "sha256": "09f0ad65e9a43ce8acd11675584b580a7ef1fb15bb2c97e7b3fc4cd4983e2c94",
+    "size": 3198
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/E06.case.md",
+    "sha256": "92e1b13c382dce480c1ad2c1394405269a787f2ddeca63881a8735dca4a97d58",
+    "size": 5313
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/E06.log.txt",
+    "sha256": "7ce7c704e4c8dcc93999b3b7180462c80f2baea5e790497a41ed5baaae106051",
+    "size": 253809
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/E06.md",
+    "sha256": "4d26155ded73aab3b1593f791723dfdc1ce61a5c0b91a76774e2ad2cd06ad281",
+    "size": 4792
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "0c31bbd38272dc6ed51922b58108a4dd1a3024bca5d63e6a8f8e4514a63f4d05",
+    "size": 443
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/E06.case.md",
+    "sha256": "e2c1a064356e550a1b962b6c5235a4894c072578ee63ef3cc0d4a9a6c5e729db",
+    "size": 4337
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/E06.log.txt",
+    "sha256": "89c06367fcfc8ff2266a399842537d6d80a7930dc448089c24e92cc61255bdff",
+    "size": 158465
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/E06.md",
+    "sha256": "c27043c0984e1742d9a1e5e1481a0634e7787e6f2d4d8ea82c4b3790ff72c0c6",
+    "size": 3835
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "0c31bbd38272dc6ed51922b58108a4dd1a3024bca5d63e6a8f8e4514a63f4d05",
+    "size": 443
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/E06.case.md",
+    "sha256": "4950d4fd0fb59d908f13048cd27e0c87ea2bd53e3136194258fa6b338b14cd4b",
+    "size": 4719
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/E06.log.txt",
+    "sha256": "b6a80b7c89125142883d4a0c3cf8fbda47a837bb7e33c3e6d0e8d274ee3c4caf",
+    "size": 231173
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/E06.md",
+    "sha256": "4f36ef26362bbe31898cb680950a5622ddde37c0d76bf53db0712b9bc2a8c455",
+    "size": 4206
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/runtime-ledger.json",
+    "sha256": "0c31bbd38272dc6ed51922b58108a4dd1a3024bca5d63e6a8f8e4514a63f4d05",
+    "size": 443
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/oracle-findings.md",
+    "sha256": "fa19a19d238f5b01f6f72b44905fbbe481928e13c2f774d77939168742a4b875",
+    "size": 383
+  },
+  {
+    "path": "docs/task14d-evidence/ash06-3run/runs/summary.json",
+    "sha256": "384acdded8e91d715716238507d0d7de74f3ef23148588917613f28b83f4de84",
+    "size": 718
+  },
+  {
+    "path": "docs/task14d-evidence/probe-1/jdipt-stop-payload.jsonl",
+    "sha256": "94958bc116d933d679277b7cd95fa943667e7d59f45b66d5643a536e7ebaa6d5",
+    "size": 1196
+  },
+  {
+    "path": "docs/task14d-evidence/probe-2/jdipt-stop-payload.jsonl",
+    "sha256": "c665d400c1b6d8214a9053e209ffeb479a096a48040bf25d7c6b5adf7972ca5f",
+    "size": 1196
+  },
+  {
+    "path": "docs/task14d-evidence/probe-3/jdipt-stop-payload.jsonl",
+    "sha256": "913696a00622bd70a1b8db9396c87b5e810dfc6ce4b6b65b8c07c2feeda5c88b",
+    "size": 1196
+  },
+  {
+    "path": "docs/task14d-evidence/probe-4/jdipt-stop-payload.jsonl",
+    "sha256": "eb917200931af6370c92ef188c3dfd8b7d83b435a1fc88665fc839bf2beaf3aa",
+    "size": 1064
+  },
+  {
+    "path": "docs/task14d-evidence/probe-4/last.md",
+    "sha256": "990efa9f9d5afc3cc34fca6f3a54d98d03ead17182a0f5974df74e47248b192c",
+    "size": 13
+  },
+  {
+    "path": "docs/task14d-patch-helper-probe.txt",
+    "sha256": "e808765eabd7c43ab5214116655b836dca240de7bb70a790d8bd1ed7227a94c7",
+    "size": 19
+  },
+  {
+    "path": "docs/task14e-evidence/active-hooks-final.md",
+    "sha256": "fc4ac9cc114e21b2c5a1c9c6b5432a596eff73da633603862104df0d57247114",
+    "size": 869
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/E06.case.md",
+    "sha256": "cf0ca0d483502138e5dac3cc059fd4b62792f5ae6ee852439be278a361cb11b8",
+    "size": 5576
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/E06.log.txt",
+    "sha256": "4a2f31f0194a532184a878cad36e68c41f0f5db9baaa6310c11c06485823273f",
+    "size": 186231
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/E06.md",
+    "sha256": "d9ef0ea98691503e2fd2097289fa3c9c4238c36b9bfa1d7e377fa5fc2b7d2b04",
+    "size": 5065
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "e3e1917411157850a2acfbca619427a12f10710751382022ad9a4af4446d55e3",
+    "size": 40918
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/E06.case.md",
+    "sha256": "60f381a95352c2cbbeffd75da076716df6890c67acf60c62840d5205e0c14418",
+    "size": 5179
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/E06.log.txt",
+    "sha256": "0deea7da2dede70725644a2d5b851ab3ce7c758dc8edb064a1804c16fb20eeb0",
+    "size": 259695
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/E06.md",
+    "sha256": "fe6339eab262724bbf1c86224672ead1033667e800e0012b967c54acacd083fd",
+    "size": 4672
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "23a580cd84d99c5cf7342e1e677fbedbe80d3c7f49c1f06e2d4ca5e2b0af1ce3",
+    "size": 29976
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/E06.case.md",
+    "sha256": "8902becf2f8aa34038aead157925633b7ac6421d338075406ca467c46e9b543e",
+    "size": 3658
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/E06.log.txt",
+    "sha256": "b7fb61b8020be13622a20bb3671489199e94f67468a084b9dc7545df02a3a405",
+    "size": 231945
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/E06.md",
+    "sha256": "d9fd90a8c5d2004ad777138b9c5c9bb7785c733aaec9dd9074c3c100a743fe94",
+    "size": 3160
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "dc3290181ba671a1ee5592a8e408858d5a2abb215a6b84e6c4751d7f79a82e33",
+    "size": 13493
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/E06.case.md",
+    "sha256": "89db75d22b5726c658341f05931a91188e2a4133c002491f9df7fc0432f7216a",
+    "size": 4969
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/E06.log.txt",
+    "sha256": "69d364c9cbca2b875f8e198d0307fd659e06100dcb519e229d469ab8879a632d",
+    "size": 170096
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/E06.md",
+    "sha256": "e91427e14d72ef50703a6e0fb6bd19343cadd04de71d1898752bccd4fba1275f",
+    "size": 4455
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "d7c53f0f58ea179bffa5330d5653d6c4bd10d13a4856214523589a4ad8ecc220",
+    "size": 22299
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/E06.case.md",
+    "sha256": "f146982c79618641cff740c7a93a7359a9c07147639c88102ff67adb46d0ff1c",
+    "size": 4870
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/E06.log.txt",
+    "sha256": "4e1ee5c9ef62487dde54ea430b88d88049f75c229dfb342378cc872e7952b9d5",
+    "size": 272547
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/E06.md",
+    "sha256": "f10b09e5d7c711ee4f3ed3e4b2246f30632c54300b6b3b4b2feb73fd10116545",
+    "size": 4375
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "7d4b82308912e5ec841a17a18a462f84e6320fb5d3fab67317f002a96539a79e",
+    "size": 27327
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/E06.case.md",
+    "sha256": "c7116ec79a1d78d5e52c53f2d4b6eb7abeecc18c3c23f078a6b70dc6d82ed1c9",
+    "size": 4865
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/E06.log.txt",
+    "sha256": "057d7da298682aed246c103445dc07471336fc9223f165552b873e59f340d6d7",
+    "size": 221929
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/E06.md",
+    "sha256": "252008bfc7ada0208ecbadfa369c7b1262d84d6189955303570ac0dab3678f8c",
+    "size": 4357
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "60548c68e610d6d22a196b3d10be2743fa956efecd37cd5dd432b519670447c9",
+    "size": 20623
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/E06.case.md",
+    "sha256": "6d4fb43c6b6380d753000124104c9d34216c785c433fbb3e709664290c0670df",
+    "size": 4840
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/E06.log.txt",
+    "sha256": "ac75c8a74e75817900680ce87d41d1d7e02be59d3113a3de59cc55fe89a801e1",
+    "size": 246723
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/E06.md",
+    "sha256": "c90684d0d728ec9f30bfa472fa861cde7f612ff01f68f008e133e1afa96f3b45",
+    "size": 4331
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "49d11526740a1db936389c29e40fb754e4d5146ae43a8ce46666532a8e0af7c9",
+    "size": 30067
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/E06.case.md",
+    "sha256": "d55a7a9ab170d255f4f2e7fe6098883aae877ff648dea02d9f494ad5513ae862",
+    "size": 4463
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/E06.log.txt",
+    "sha256": "c31b39dbf30a82396c6917a71574e1b391b7c43694aeee0cd68c4513358105be",
+    "size": 232030
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/E06.md",
+    "sha256": "577d69152f35f5b628936f7a905359aec82d2ff43d6a79ff1989d049a8f35a75",
+    "size": 3960
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "444ca221acfe9016820cdd377128b08f45f145b489a3f7fdd480697f3188a830",
+    "size": 14198
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/E06.case.md",
+    "sha256": "ec5479db03a95572993626b935bdbf8fa4e9ffd90e72f1e83cc20143a1742c82",
+    "size": 5004
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/E06.log.txt",
+    "sha256": "d8aaa37c7337dcb037102ca86f2dc24404eeffece1b4ad6114727bf95a37f00e",
+    "size": 241994
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/E06.md",
+    "sha256": "a91cf013f371a819f5e267f7d1c5a13d19a19740f61e7688815412ff8a5e169d",
+    "size": 4496
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "1c52090a20b8a5329b0d6daa6fcdb597906657d60979af80cc717f6d75987bc5",
+    "size": 18840
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/E06.case.md",
+    "sha256": "faedcdb8742c8f96374305ba9654c0a007af208892a2163d74e8675a0edbaf26",
+    "size": 3587
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/E06.log.txt",
+    "sha256": "7cc2ac0452686dfbb795772b6c4d607d3f398cc81c76f0d90db4025dbbe868ff",
+    "size": 160125
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/E06.md",
+    "sha256": "e44e9bb91191c74d12927febc3c656336fbe2f502528146930a40ccb1cb95550",
+    "size": 3087
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "a498e4b55a029e39b4f17809fc25c24f069938ef2bcb04fc633e7e1d461fd6a9",
+    "size": 13547
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/E06.case.md",
+    "sha256": "2ae2dddb483deef18bf2ef6f8a0bfd69ed1773e21e395202469e76bdf5c40c74",
+    "size": 4574
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/E06.log.txt",
+    "sha256": "dff6b3101682a2f7cd0f3c81d20abcbca7c9b5df9170fc6c1bc6afdbd8572df1",
+    "size": 168554
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/E06.md",
+    "sha256": "6b347bb57cb11cbf90b717afddd38b937488a15aad42a737ccfc6a72e4e5611b",
+    "size": 4068
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "299e58f5fa71d2b6f14da8d43e3b3a09e648ae6409818d23bd241495cbbedf67",
+    "size": 17074
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/E06.case.md",
+    "sha256": "412fd4c6ba3a4a2968f2f3a5bde8d51e97456a09607a179f391ea63c9cab43c4",
+    "size": 5082
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/E06.log.txt",
+    "sha256": "3f1be849e9b444ed8a502bac5543a13e84859b89f9775ebda2a8efa869e10ce5",
+    "size": 236917
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/E06.md",
+    "sha256": "a64a59e7079053646025443485e8443c752743735019aabd2bb0be8df3cca9fe",
+    "size": 4573
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "e19367c3bbf62ae18bd64fd364b44bd5e2e5239e95e1b2bc73d540a19d59a4f9",
+    "size": 18299
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/E06.case.md",
+    "sha256": "a92fca6d29773e50428715e8a5d0ef3ef5e19573c1321a61b8993580bfc51ee4",
+    "size": 3710
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/E06.log.txt",
+    "sha256": "2283bb2e516f5087a84e4b303a7b706f21582c4853322fe0bf2a21d70ec77836",
+    "size": 161833
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/E06.md",
+    "sha256": "442d31f3e898c2bc2fe3499962c58e483f1895527331b30f2b421f30ce5ef504",
+    "size": 3206
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/runtime-ledger.json",
+    "sha256": "a4a5e14d94fc6b948e1e4a40f632802b3fca6eda1c607e669a8852db53d38193",
+    "size": 18742
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/E06.case.md",
+    "sha256": "803405bc6552afd846ee41739f6470ba82839db36564dc9e43f77d35ad853fe7",
+    "size": 4266
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/E06.log.txt",
+    "sha256": "9ffef7fd3cc9deea9507eb8d2961de2d4029e08748a74c4685fe81cc2de0569c",
+    "size": 291397
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/E06.md",
+    "sha256": "dcd9af838f275d8aecade38efff5030cb73ba8741f3c4e714e36ea9da96d1957",
+    "size": 3769
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/runtime-ledger.json",
+    "sha256": "85c1d7cac98c4bd4e0405d7b9c90831d95f42ea9188fda5f5f298bde00ebdc97",
+    "size": 20285
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/oracle-findings.md",
+    "sha256": "cba238a5c3621ca0129dc80744bbb8301642eaf203400f9dd947a64bde3a8df0",
+    "size": 439
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final8/summary.json",
+    "sha256": "e0104b99d8a17d91890228ce684a9affd63835723ba528edd50ac51d49b77efc",
+    "size": 718
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/E06.case.md",
+    "sha256": "95dc54f57fd0d620f21e858de6b7b05edc824dc255b98ded6cf326484a4e7b7c",
+    "size": 3797
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/E06.log.txt",
+    "sha256": "9a4e2887189d41e4c62423a4be8d4ef2261c5ba6b788347d3d8638b4aabbf14d",
+    "size": 230459
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/E06.md",
+    "sha256": "0a66eab49e58794627485fa3e47c1296d6ebb6c7ef55733f09ea1a28d74bee5a",
+    "size": 3299
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "9b665af8e55c1b1a9b0b1dbe1f2429f62e7c988f5edb641bf218edfcf7d26795",
+    "size": 20352
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final9/semantic-review.md",
+    "sha256": "3869bf40416680da2026d02993a4d887bcaff35b3660e2d695dd59812f1b61fb",
+    "size": 548
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run-final9/summary.json",
+    "sha256": "0d83acf1ad3333c130fdbc29a381a7a9e34d1d44bb272d4b08b168372a57764b",
+    "size": 1057
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run/ASH-06/run-01/E06.case.md",
+    "sha256": "3639d555a27957181597340d6502848fe15af38871eef3cb252c13a7864832c1",
+    "size": 5531
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run/ASH-06/run-01/E06.log.txt",
+    "sha256": "805e23551cc47ea54f774b2e6fe081632e27e99e5fb28ed31a49fd566ec9ca3a",
+    "size": 176470
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run/ASH-06/run-01/E06.md",
+    "sha256": "6fe33cb97ecbc791064e34bfeff5ad254a0ad4624d43d1a1275f7359cc7417fb",
+    "size": 5000
+  },
+  {
+    "path": "docs/task14e-evidence/ash06-3run/ASH-06/run-01/runtime-ledger.json",
+    "sha256": "107a39fc7409cb8acf2188f39a3fe4321b0a7aab65f0854abe3cc8addff50c33",
+    "size": 43060
+  },
+  {
+    "path": "docs/task14e-evidence/baseline.txt",
+    "sha256": "68f05cc466506f4272e464846e4c723e879d6710b5e6df2632dfde4df543dcd2",
+    "size": 5342
+  },
+  {
+    "path": "docs/task14e-evidence/installed-parity.txt",
+    "sha256": "91c94c2ccf6afe6a0498a9c1d73b874a667dd8edb0ce3726462c275e8ff8291b",
+    "size": 747
+  },
+  {
+    "path": "docs/task14e-evidence/root-cause.md",
+    "sha256": "7f1288c54058ee77aa4f4cd9d9d72b4b94a1c3b3290dd8e2072e0d2548f54f3e",
+    "size": 3551
+  },
+  {
+    "path": "docs/task14e-evidence/static-validation.txt",
+    "sha256": "14cee7743fe2492e4a05999cd20b0bda417a843ab931ff2b622819dd2877e9b5",
+    "size": 1327
+  },
+  {
+    "path": "hooks/hooks.json",
+    "sha256": "18055a4ab57aded02dd51f2475ce2af7eacc7eaeffc7134723e961df105365a5",
+    "size": 1469
+  },
+  {
+    "path": "scripts/activation_forensics.py",
+    "sha256": "d11172cbee2912dedb032c5860c530b89f7bbd17c66abe56ae59dd5d3168f9b8",
+    "size": 2896
+  },
+  {
+    "path": "scripts/ansim_housing_oracle.py",
+    "sha256": "82b28735e921742224883b0bdeed9d66fdfd1e6dd500fe538c2822b234f57c51",
+    "size": 21277
+  },
+  {
+    "path": "scripts/hook_forensics.py",
+    "sha256": "e0643faabc59a69a190b7f6a21d31288ac28909557ffe18ce399789e650909ad",
+    "size": 6622
+  },
+  {
+    "path": "scripts/inject_registry_runtime.py",
+    "sha256": "757cf999267096a8c1936baaccb34eb2e5884213a1eb8150c8cdd7cb04e60ad0",
+    "size": 5752
+  },
+  {
+    "path": "scripts/jdipt_activation.py",
+    "sha256": "71311bde931dfa79570c88f75afcc36171a6e5e66fc55146d761325eace29756",
+    "size": 4775
+  },
+  {
+    "path": "scripts/jdipt_activation_forensic_entry.py",
+    "sha256": "41ff81aa40332c9a753409bdc07ae048b45dc595f653d1a2e52b431f6b51b517",
+    "size": 3785
+  },
+  {
+    "path": "scripts/jdipt_runtime_mcp.py",
+    "sha256": "75df2c5d3feb1023ae3fd08c7626967b2d11ac5a19dc803651d55b4099de110f",
+    "size": 7853
+  },
+  {
+    "path": "scripts/plugin_integrity.py",
+    "sha256": "c6cab52f852aed3080cea91f2a46d33733175cdb74c33a89cb8a2ea13439594d",
+    "size": 6255
+  },
+  {
+    "path": "scripts/run_eval_suite.py",
+    "sha256": "bf21c6a17d1e3f46a40f484d1900645c7d4b60107f6b7887d6c0a166d5ff738c",
+    "size": 16124
+  },
+  {
+    "path": "scripts/runtime_acceptance.py",
+    "sha256": "6a7b0a025accc9727a113da76384765e2ae4402b818eeb313b632ffd0596c980",
+    "size": 9035
+  },
+  {
+    "path": "scripts/runtime_registry_state.py",
+    "sha256": "8a8176593460cd86c5b956722f741fd8bf86cba567557588178cd5dfefcbebeb",
+    "size": 8089
+  },
+  {
+    "path": "scripts/stop_synthesis_gate.py",
+    "sha256": "90ac0c28835231b6b7533e5adfc43dd47eb17f6d6527124fa2f4cde4dfa47964",
+    "size": 23192
+  },
+  {
+    "path": "scripts/synthesis_integrity.py",
+    "sha256": "e60a79c854b3f7fba24fae99f3e4eff30af026d998d5c4f7c73006b7c722e8d6",
+    "size": 40245
+  },
+  {
+    "path": "scripts/synthesis_runtime_state.py",
+    "sha256": "9bffeee59cfb0cdbcc292274acc6aa5d388b7d337ae483fc04d9d39aabeea20e",
+    "size": 26759
+  },
+  {
+    "path": "scripts/validate_repo.py",
+    "sha256": "e4c2f5e88178c6063851175de59b21cee8c2a0d91564c24b7e291996cca7b8d7",
+    "size": 41210
+  },
+  {
+    "path": "skills/law-interpretation-request/SKILL.md",
+    "sha256": "e57eddc4fb52d9ac772d0b37d0dfaa93fb75f88b1ca9dcd218885930c52a78c5",
+    "size": 34797
+  },
+  {
+    "path": "skills/law-interpretation-request/references/legal-issue-mapping.md",
+    "sha256": "911ee1310fb02f1c086d8783a1a88bde97dcdb75cefca9d3588e41f223aa0fc1",
+    "size": 21625
+  },
+  {
+    "path": "skills/law-interpretation-request/references/logic-validation.md",
+    "sha256": "fa67a69f47b5aa69a89fbefa2e6c999b194ab3711e7cb4cbe953f1d3f41bef70",
+    "size": 27904
+  },
+  {
+    "path": "skills/law-interpretation-request/references/source-policy.md",
+    "sha256": "2e0155b22db89537ab4985cc1391e1fb466cbfdf82bf46131ed452832c3b0ab2",
+    "size": 31014
+  },
+  {
+    "path": "tests/test_activation_forensic_trace.py",
+    "sha256": "72e83721d1ccc0385c54d9d02d3e6ccb8788ca212821a4f2fb6ef6d5194dce88",
+    "size": 2905
+  },
+  {
+    "path": "tests/test_ash06_activation_repair_contract.py",
+    "sha256": "fe148818e9507ff6ea0ce0961c4d8fed8099672a2cf6f24533dac9311aef5e73",
+    "size": 7898
+  },
+  {
+    "path": "tests/test_ash06_rule_relation.py",
+    "sha256": "f328b386722fa399db80ddb339b9af0dd9fc651df72d66c64b6b5381d06fe11b",
+    "size": 2329
+  },
+  {
+    "path": "tests/test_hook_command_windows_compatibility.py",
+    "sha256": "fe606661c68e0707f92747e0b41ba80193e0fd0c2fdab392d8bd8b55418fc9a5",
+    "size": 3018
+  },
+  {
+    "path": "tests/test_jdipt_activation.py",
+    "sha256": "22d77f22b7c42d705e5b2f7853555edcdb4bc1cdd3d4cb1fa120ecf2167c8816",
+    "size": 1663
+  },
+  {
+    "path": "tests/test_pending_registry_transition.py",
+    "sha256": "22f2fcb6d1692e1a8f22552933978cde7db98c3f6dfc554adfa62bb51e8e8ad9",
+    "size": 1625
+  },
+  {
+    "path": "tests/test_range_exception_relation.py",
+    "sha256": "21c817adaf3b879c6ce629dfed68cc8c3d4976f6ae5dd5c4d0e3ddbb754bb251",
+    "size": 24791
+  },
+  {
+    "path": "tests/test_range_exception_relation_gate.py",
+    "sha256": "37fac7e5d4ce8e49a6abbc400b9f62701b045adf3fecd98b91e45b39534755d3",
+    "size": 1546
+  },
+  {
+    "path": "tests/test_registry_field_aliases.py",
+    "sha256": "36182c92ccdd46cf84ece2db5eff50b966a2f8aeeb3ec9df67116b0425eaa96f",
+    "size": 684
+  },
+  {
+    "path": "tests/test_registry_runtime_bridge.py",
+    "sha256": "45bc0002464eb3806781cfd1f351cc60058f29dee0c3f68b4e577ba362bdc4dd",
+    "size": 7293
+  },
+  {
+    "path": "tests/test_runtime_acceptance.py",
+    "sha256": "e4bc6351025acee94add89edcbb80b48614b28308d153071eb7480ee94df6178",
+    "size": 1848
+  },
+  {
+    "path": "tests/test_stop_activation_fallback.py",
+    "sha256": "7cdd46e1a0fb7b9684aa09347af317ed9f6e6d0a833d57a047ba2a3a4ceac4cb",
+    "size": 1854
+  },
+  {
+    "path": "tests/test_stop_forensic_trace.py",
+    "sha256": "4bdea06748913bd28a3a3e298d1a28ef7033b7fb5c66b204bfef6efee0af0ba2",
+    "size": 4557
+  },
+  {
+    "path": "tests/test_stop_missing_identity.py",
+    "sha256": "1e99de2cd21b9517cd797d3ba57c71d3701dee953fbf2d99f174503d3bf44480",
+    "size": 571
+  },
+  {
+    "path": "tests/test_stop_pipeline_trace.py",
+    "sha256": "629cef2f43506da5f1f59a21401f7fd0197e711a98fe82e6b36ed703a1f466d2",
+    "size": 8314
+  },
+  {
+    "path": "tests/test_synthesis_polarity_regressions.py",
+    "sha256": "db04160fcb5938e725d88dd82b102a35e5ca228354f7ee291d105c2926688ce7",
+    "size": 1483
+  },
+  {
+    "path": "tests/test_synthesis_relation_regressions.py",
+    "sha256": "420d6e62de2f9fa0368c07ca34a7ff93085fb64cf6b796fdc82a0c455adf40df",
+    "size": 1591
+  },
+  {
+    "path": "tests/test_task14e_runtime_enforcement.py",
+    "sha256": "6c4408bb8d08caa61c2a864dee520892a15c8812c604873a8ee946fdb0a6674e",
+    "size": 6971
+  }
+]

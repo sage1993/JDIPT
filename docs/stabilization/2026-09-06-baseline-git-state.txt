@@ -1,0 +1,742 @@
+# Task 1 read-only baseline commands
+
+working_tree=F:/2026-PJ/JDIPT
+
+>>> git rev-parse --show-toplevel
+F:/2026-PJ/JDIPT
+exit=0
+
+>>> git branch --show-current
+fix/ansim-structural-behavior-stability
+exit=0
+
+>>> git rev-parse HEAD
+69dda97106cf094d93d7abb26753a76ed33ea773
+exit=0
+
+>>> git rev-parse origin/main
+5e4a79feee3514bc314a19f8987b441acb4470b9
+exit=0
+
+>>> git status --short
+ M hooks/hooks.json
+ M scripts/ansim_housing_oracle.py
+MM scripts/inject_registry_runtime.py
+ M scripts/jdipt_runtime_mcp.py
+ M scripts/plugin_integrity.py
+ M scripts/run_eval_suite.py
+ M scripts/runtime_registry_state.py
+ M scripts/stop_synthesis_gate.py
+ M scripts/synthesis_integrity.py
+ M scripts/synthesis_runtime_state.py
+ M scripts/validate_repo.py
+ M skills/law-interpretation-request/SKILL.md
+ M skills/law-interpretation-request/references/legal-issue-mapping.md
+ M skills/law-interpretation-request/references/logic-validation.md
+ M skills/law-interpretation-request/references/source-policy.md
+MM tests/test_registry_runtime_bridge.py
+?? .task14d-activation-core.patch
+?? .task14d-activation-main-tiny.patch
+?? .task14d-activation-main-v2.patch
+?? .task14d-activation-main-v3.patch
+?? .task14d-activation-main-v4.patch
+?? .task14d-activation-main.patch
+?? .task14d-activation-test-hooks.patch
+?? .task14d-activation-v2.patch
+?? .task14d-external-update.patch
+?? .task14d-final-restart-helper.ps1
+?? .task14d-hook-import.patch
+?? .task14d-hooks-activation.patch
+?? .task14d-hooks-request-v2.jsonl
+?? .task14d-hooks-request.jsonl
+?? .task14d-import.patch
+?? .task14d-schema/
+?? .task14d-stop-insert-wrapper.patch
+?? .task14d-stop-integration-v2.patch
+?? .task14d-stop-integration.patch
+?? .task14d-stop-main-v2.patch
+?? .task14d-stop-main-v3.patch
+?? .task14d-stop-main.patch
+?? .task14d-stop-pipeline-defaults-v2.patch
+?? .task14d-stop-pipeline-defaults.patch
+?? .task14d-stop-rename.patch
+?? .task14d-stop-trace-fix-v2.patch
+?? .task14d-stop-trace-fix-v3.patch
+?? .task14d-stop-trace-fix.patch
+?? .task14d-stop-wrapper.patch
+?? .task14d-validator.patch
+?? .worktrees/
+?? "docs/JDIPT Legal Proposition Runtime v2 Design.md"
+?? "docs/JDIPT Legal Proposition Runtime v2 Refactor Implementation Plan.md"
+?? docs/superpowers/plans/2026-09-05-ash06-runtime-activation-repair.md
+?? docs/superpowers/plans/2026-09-05-jdipt-windows-hook-compatibility.md
+?? docs/superpowers/plans/2026-09-05-task14-runtime-hook-trace.md
+?? docs/superpowers/plans/2026-09-06-task14d-active-hook-runtime-forensic-closure.md
+?? docs/task14d-baseline.txt
+?? docs/task14d-evidence/
+?? docs/task14d-patch-helper-probe.txt
+?? docs/task14e-evidence/
+?? scripts/activation_forensics.py
+?? scripts/hook_forensics.py
+?? scripts/jdipt_activation.py
+?? scripts/jdipt_activation_forensic_entry.py
+?? scripts/runtime_acceptance.py
+?? tests/test_activation_forensic_trace.py
+?? tests/test_ash06_activation_repair_contract.py
+?? tests/test_ash06_rule_relation.py
+?? tests/test_hook_command_windows_compatibility.py
+?? tests/test_jdipt_activation.py
+?? tests/test_pending_registry_transition.py
+?? tests/test_range_exception_relation.py
+?? tests/test_range_exception_relation_gate.py
+?? tests/test_registry_field_aliases.py
+?? tests/test_runtime_acceptance.py
+?? tests/test_stop_activation_fallback.py
+?? tests/test_stop_forensic_trace.py
+?? tests/test_stop_missing_identity.py
+?? tests/test_stop_pipeline_trace.py
+?? tests/test_synthesis_polarity_regressions.py
+?? tests/test_synthesis_relation_regressions.py
+?? tests/test_task14e_runtime_enforcement.py
+[stderr]
+warning: could not open directory '.pytest_cache/': Permission denied
+warning: could not open directory '.task14e-pytest-focused-final/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final2/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final3/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final4/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final5/': Permission denied
+warning: could not open directory '.task14e-pytest-task14e-focused/': Permission denied
+exit=0
+
+>>> git diff --name-status
+M	hooks/hooks.json
+M	scripts/ansim_housing_oracle.py
+M	scripts/inject_registry_runtime.py
+M	scripts/jdipt_runtime_mcp.py
+M	scripts/plugin_integrity.py
+M	scripts/run_eval_suite.py
+M	scripts/runtime_registry_state.py
+M	scripts/stop_synthesis_gate.py
+M	scripts/synthesis_integrity.py
+M	scripts/synthesis_runtime_state.py
+M	scripts/validate_repo.py
+M	skills/law-interpretation-request/SKILL.md
+M	skills/law-interpretation-request/references/legal-issue-mapping.md
+M	skills/law-interpretation-request/references/logic-validation.md
+M	skills/law-interpretation-request/references/source-policy.md
+M	tests/test_registry_runtime_bridge.py
+[stderr]
+warning: in the working copy of 'hooks/hooks.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/inject_registry_runtime.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/run_eval_suite.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/runtime_registry_state.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/stop_synthesis_gate.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/synthesis_integrity.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/synthesis_runtime_state.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/validate_repo.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'skills/law-interpretation-request/SKILL.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_registry_runtime_bridge.py', LF will be replaced by CRLF the next time Git touches it
+exit=0
+
+>>> git diff --cached --name-status
+M	scripts/inject_registry_runtime.py
+M	tests/test_registry_runtime_bridge.py
+exit=0
+
+>>> git ls-files --others --exclude-standard
+.task14d-activation-core.patch
+.task14d-activation-main-tiny.patch
+.task14d-activation-main-v2.patch
+.task14d-activation-main-v3.patch
+.task14d-activation-main-v4.patch
+.task14d-activation-main.patch
+.task14d-activation-test-hooks.patch
+.task14d-activation-v2.patch
+.task14d-external-update.patch
+.task14d-final-restart-helper.ps1
+.task14d-hook-import.patch
+.task14d-hooks-activation.patch
+.task14d-hooks-request-v2.jsonl
+.task14d-hooks-request.jsonl
+.task14d-import.patch
+.task14d-schema/ApplyPatchApprovalParams.json
+.task14d-schema/ApplyPatchApprovalResponse.json
+.task14d-schema/AttestationGenerateParams.json
+.task14d-schema/AttestationGenerateResponse.json
+.task14d-schema/ChatgptAuthTokensRefreshParams.json
+.task14d-schema/ChatgptAuthTokensRefreshResponse.json
+.task14d-schema/ClientNotification.json
+.task14d-schema/ClientRequest.json
+.task14d-schema/CommandExecutionRequestApprovalParams.json
+.task14d-schema/CommandExecutionRequestApprovalResponse.json
+.task14d-schema/CurrentTimeReadParams.json
+.task14d-schema/CurrentTimeReadResponse.json
+.task14d-schema/DynamicToolCallParams.json
+.task14d-schema/DynamicToolCallResponse.json
+.task14d-schema/ExecCommandApprovalParams.json
+.task14d-schema/ExecCommandApprovalResponse.json
+.task14d-schema/FileChangeRequestApprovalParams.json
+.task14d-schema/FileChangeRequestApprovalResponse.json
+.task14d-schema/FuzzyFileSearchParams.json
+.task14d-schema/FuzzyFileSearchResponse.json
+.task14d-schema/FuzzyFileSearchSessionCompletedNotification.json
+.task14d-schema/FuzzyFileSearchSessionStartParams.json
+.task14d-schema/FuzzyFileSearchSessionStartResponse.json
+.task14d-schema/FuzzyFileSearchSessionStopParams.json
+.task14d-schema/FuzzyFileSearchSessionStopResponse.json
+.task14d-schema/FuzzyFileSearchSessionUpdateParams.json
+.task14d-schema/FuzzyFileSearchSessionUpdateResponse.json
+.task14d-schema/FuzzyFileSearchSessionUpdatedNotification.json
+.task14d-schema/JSONRPCError.json
+.task14d-schema/JSONRPCErrorError.json
+.task14d-schema/JSONRPCMessage.json
+.task14d-schema/JSONRPCNotification.json
+.task14d-schema/JSONRPCRequest.json
+.task14d-schema/JSONRPCResponse.json
+.task14d-schema/McpServerElicitationRequestParams.json
+.task14d-schema/McpServerElicitationRequestResponse.json
+.task14d-schema/PermissionsRequestApprovalParams.json
+.task14d-schema/PermissionsRequestApprovalResponse.json
+.task14d-schema/RequestId.json
+.task14d-schema/ServerNotification.json
+.task14d-schema/ServerRequest.json
+.task14d-schema/ToolRequestUserInputParams.json
+.task14d-schema/ToolRequestUserInputResponse.json
+.task14d-schema/codex_app_server_protocol.schemas.json
+.task14d-schema/codex_app_server_protocol.v2.schemas.json
+.task14d-schema/v1/InitializeParams.json
+.task14d-schema/v1/InitializeResponse.json
+.task14d-schema/v2/AccountLoginCompletedNotification.json
+.task14d-schema/v2/AccountRateLimitsUpdatedNotification.json
+.task14d-schema/v2/AccountUpdatedNotification.json
+.task14d-schema/v2/AgentMessageDeltaNotification.json
+.task14d-schema/v2/AppListUpdatedNotification.json
+.task14d-schema/v2/AppsInstalledParams.json
+.task14d-schema/v2/AppsInstalledResponse.json
+.task14d-schema/v2/AppsListParams.json
+.task14d-schema/v2/AppsListResponse.json
+.task14d-schema/v2/AppsReadParams.json
+.task14d-schema/v2/AppsReadResponse.json
+.task14d-schema/v2/AuthRecoveryNotification.json
+.task14d-schema/v2/BedrockDiscoverParams.json
+.task14d-schema/v2/BedrockDiscoverResponse.json
+.task14d-schema/v2/BedrockSetupParams.json
+.task14d-schema/v2/BedrockSetupResponse.json
+.task14d-schema/v2/CancelLoginAccountParams.json
+.task14d-schema/v2/CancelLoginAccountResponse.json
+.task14d-schema/v2/CollaborationModeListParams.json
+.task14d-schema/v2/CollaborationModeListResponse.json
+.task14d-schema/v2/CommandExecOutputDeltaNotification.json
+.task14d-schema/v2/CommandExecParams.json
+.task14d-schema/v2/CommandExecResizeParams.json
+.task14d-schema/v2/CommandExecResizeResponse.json
+.task14d-schema/v2/CommandExecResponse.json
+.task14d-schema/v2/CommandExecTerminateParams.json
+.task14d-schema/v2/CommandExecTerminateResponse.json
+.task14d-schema/v2/CommandExecWriteParams.json
+.task14d-schema/v2/CommandExecWriteResponse.json
+.task14d-schema/v2/CommandExecutionOutputDeltaNotification.json
+.task14d-schema/v2/ConfigBatchWriteParams.json
+.task14d-schema/v2/ConfigReadParams.json
+.task14d-schema/v2/ConfigReadResponse.json
+.task14d-schema/v2/ConfigRequirementsReadResponse.json
+.task14d-schema/v2/ConfigValueWriteParams.json
+.task14d-schema/v2/ConfigWarningNotification.json
+.task14d-schema/v2/ConfigWriteResponse.json
+.task14d-schema/v2/ConsumeAccountRateLimitResetCreditParams.json
+.task14d-schema/v2/ConsumeAccountRateLimitResetCreditResponse.json
+.task14d-schema/v2/ContextCompactedNotification.json
+.task14d-schema/v2/DeprecationNoticeNotification.json
+.task14d-schema/v2/EnvironmentAddParams.json
+.task14d-schema/v2/EnvironmentAddResponse.json
+.task14d-schema/v2/EnvironmentConnectionNotification.json
+.task14d-schema/v2/EnvironmentInfoParams.json
+.task14d-schema/v2/EnvironmentInfoResponse.json
+.task14d-schema/v2/EnvironmentStatusParams.json
+.task14d-schema/v2/EnvironmentStatusResponse.json
+.task14d-schema/v2/ErrorNotification.json
+.task14d-schema/v2/ExperimentalFeatureEnablementSetParams.json
+.task14d-schema/v2/ExperimentalFeatureEnablementSetResponse.json
+.task14d-schema/v2/ExperimentalFeatureListParams.json
+.task14d-schema/v2/ExperimentalFeatureListResponse.json
+.task14d-schema/v2/ExternalAgentConfigDetectParams.json
+.task14d-schema/v2/ExternalAgentConfigDetectResponse.json
+.task14d-schema/v2/ExternalAgentConfigImportCompletedNotification.json
+.task14d-schema/v2/ExternalAgentConfigImportHistoriesReadResponse.json
+.task14d-schema/v2/ExternalAgentConfigImportHistoryRecordParams.json
+.task14d-schema/v2/ExternalAgentConfigImportHistoryRecordResponse.json
+.task14d-schema/v2/ExternalAgentConfigImportParams.json
+.task14d-schema/v2/ExternalAgentConfigImportProgressNotification.json
+.task14d-schema/v2/ExternalAgentConfigImportResponse.json
+.task14d-schema/v2/FeedbackUploadParams.json
+.task14d-schema/v2/FeedbackUploadResponse.json
+.task14d-schema/v2/FileChangeOutputDeltaNotification.json
+.task14d-schema/v2/FileChangePatchUpdatedNotification.json
+.task14d-schema/v2/FsChangedNotification.json
+.task14d-schema/v2/FsCopyParams.json
+.task14d-schema/v2/FsCopyResponse.json
+.task14d-schema/v2/FsCreateDirectoryParams.json
+.task14d-schema/v2/FsCreateDirectoryResponse.json
+.task14d-schema/v2/FsGetMetadataParams.json
+.task14d-schema/v2/FsGetMetadataResponse.json
+.task14d-schema/v2/FsReadDirectoryParams.json
+.task14d-schema/v2/FsReadDirectoryResponse.json
+.task14d-schema/v2/FsReadFileParams.json
+.task14d-schema/v2/FsReadFileResponse.json
+.task14d-schema/v2/FsRemoveParams.json
+.task14d-schema/v2/FsRemoveResponse.json
+.task14d-schema/v2/FsUnwatchParams.json
+.task14d-schema/v2/FsUnwatchResponse.json
+.task14d-schema/v2/FsWatchParams.json
+.task14d-schema/v2/FsWatchResponse.json
+.task14d-schema/v2/FsWriteFileParams.json
+.task14d-schema/v2/FsWriteFileResponse.json
+.task14d-schema/v2/GetAccountParams.json
+.task14d-schema/v2/GetAccountRateLimitsResponse.json
+.task14d-schema/v2/GetAccountResponse.json
+.task14d-schema/v2/GetAccountTokenUsageResponse.json
+.task14d-schema/v2/GetWorkspaceMessagesResponse.json
+.task14d-schema/v2/GuardianWarningNotification.json
+.task14d-schema/v2/HookCompletedNotification.json
+.task14d-schema/v2/HookStartedNotification.json
+.task14d-schema/v2/HooksListParams.json
+.task14d-schema/v2/HooksListResponse.json
+.task14d-schema/v2/ItemCompletedNotification.json
+.task14d-schema/v2/ItemGuardianApprovalReviewCompletedNotification.json
+.task14d-schema/v2/ItemGuardianApprovalReviewStartedNotification.json
+.task14d-schema/v2/ItemStartedNotification.json
+.task14d-schema/v2/ListMcpServerStatusParams.json
+.task14d-schema/v2/ListMcpServerStatusResponse.json
+.task14d-schema/v2/LoginAccountParams.json
+.task14d-schema/v2/LoginAccountResponse.json
+.task14d-schema/v2/LogoutAccountResponse.json
+.task14d-schema/v2/MarketplaceAddParams.json
+.task14d-schema/v2/MarketplaceAddResponse.json
+.task14d-schema/v2/MarketplaceRemoveParams.json
+.task14d-schema/v2/MarketplaceRemoveResponse.json
+.task14d-schema/v2/MarketplaceUpgradeParams.json
+.task14d-schema/v2/MarketplaceUpgradeResponse.json
+.task14d-schema/v2/McpResourceReadParams.json
+.task14d-schema/v2/McpResourceReadResponse.json
+.task14d-schema/v2/McpServerEventStreamNotification.json
+.task14d-schema/v2/McpServerEventStreamStartParams.json
+.task14d-schema/v2/McpServerEventStreamStartResponse.json
+.task14d-schema/v2/McpServerEventStreamStopParams.json
+.task14d-schema/v2/McpServerEventStreamStopResponse.json
+.task14d-schema/v2/McpServerOauthLoginCompletedNotification.json
+.task14d-schema/v2/McpServerOauthLoginParams.json
+.task14d-schema/v2/McpServerOauthLoginResponse.json
+.task14d-schema/v2/McpServerRefreshResponse.json
+.task14d-schema/v2/McpServerStatusUpdatedNotification.json
+.task14d-schema/v2/McpServerToolCallParams.json
+.task14d-schema/v2/McpServerToolCallResponse.json
+.task14d-schema/v2/McpToolCallProgressNotification.json
+.task14d-schema/v2/MemoryResetResponse.json
+.task14d-schema/v2/MockExperimentalMethodParams.json
+.task14d-schema/v2/MockExperimentalMethodResponse.json
+.task14d-schema/v2/ModelListParams.json
+.task14d-schema/v2/ModelListResponse.json
+.task14d-schema/v2/ModelProviderCapabilitiesReadParams.json
+.task14d-schema/v2/ModelProviderCapabilitiesReadResponse.json
+.task14d-schema/v2/ModelReroutedNotification.json
+.task14d-schema/v2/ModelSafetyBufferingUpdatedNotification.json
+.task14d-schema/v2/ModelVerificationNotification.json
+.task14d-schema/v2/NullableGetAccountTokenUsageParams.json
+.task14d-schema/v2/NullableRemoteControlDisableParams.json
+.task14d-schema/v2/NullableRemoteControlEnableParams.json
+.task14d-schema/v2/PermissionProfileListParams.json
+.task14d-schema/v2/PermissionProfileListResponse.json
+.task14d-schema/v2/PlanDeltaNotification.json
+.task14d-schema/v2/PluginInstallParams.json
+.task14d-schema/v2/PluginInstallResponse.json
+.task14d-schema/v2/PluginInstalledParams.json
+.task14d-schema/v2/PluginInstalledResponse.json
+.task14d-schema/v2/PluginListParams.json
+.task14d-schema/v2/PluginListResponse.json
+.task14d-schema/v2/PluginReadParams.json
+.task14d-schema/v2/PluginReadResponse.json
+.task14d-schema/v2/PluginReconcileParams.json
+.task14d-schema/v2/PluginReconcileResponse.json
+.task14d-schema/v2/PluginSearchParams.json
+.task14d-schema/v2/PluginSearchResponse.json
+.task14d-schema/v2/PluginShareCheckoutParams.json
+.task14d-schema/v2/PluginShareCheckoutResponse.json
+.task14d-schema/v2/PluginShareDeleteParams.json
+.task14d-schema/v2/PluginShareDeleteResponse.json
+.task14d-schema/v2/PluginShareListParams.json
+.task14d-schema/v2/PluginShareListResponse.json
+.task14d-schema/v2/PluginShareSaveParams.json
+.task14d-schema/v2/PluginShareSaveResponse.json
+.task14d-schema/v2/PluginShareUpdateTargetsParams.json
+.task14d-schema/v2/PluginShareUpdateTargetsResponse.json
+.task14d-schema/v2/PluginSkillReadParams.json
+.task14d-schema/v2/PluginSkillReadResponse.json
+.task14d-schema/v2/PluginUninstallParams.json
+.task14d-schema/v2/PluginUninstallResponse.json
+.task14d-schema/v2/ProcessExitedNotification.json
+.task14d-schema/v2/ProcessKillParams.json
+.task14d-schema/v2/ProcessKillResponse.json
+.task14d-schema/v2/ProcessOutputDeltaNotification.json
+.task14d-schema/v2/ProcessResizePtyParams.json
+.task14d-schema/v2/ProcessResizePtyResponse.json
+.task14d-schema/v2/ProcessSpawnParams.json
+.task14d-schema/v2/ProcessSpawnResponse.json
+.task14d-schema/v2/ProcessWriteStdinParams.json
+.task14d-schema/v2/ProcessWriteStdinResponse.json
+.task14d-schema/v2/ProjectChangedNotification.json
+.task14d-schema/v2/ProjectCreateParams.json
+.task14d-schema/v2/ProjectCreateResponse.json
+.task14d-schema/v2/ProjectDeleteParams.json
+.task14d-schema/v2/ProjectDeleteResponse.json
+.task14d-schema/v2/ProjectImportParams.json
+.task14d-schema/v2/ProjectImportResponse.json
+.task14d-schema/v2/ProjectListParams.json
+.task14d-schema/v2/ProjectListResponse.json
+.task14d-schema/v2/ProjectMoveParams.json
+.task14d-schema/v2/ProjectMoveResponse.json
+.task14d-schema/v2/ProjectReadParams.json
+.task14d-schema/v2/ProjectReadResponse.json
+.task14d-schema/v2/ProjectUpdateParams.json
+.task14d-schema/v2/ProjectUpdateResponse.json
+.task14d-schema/v2/RawResponseCompletedNotification.json
+.task14d-schema/v2/RawResponseItemCompletedNotification.json
+.task14d-schema/v2/ReasoningSummaryPartAddedNotification.json
+.task14d-schema/v2/ReasoningSummaryTextDeltaNotification.json
+.task14d-schema/v2/ReasoningTextDeltaNotification.json
+.task14d-schema/v2/RemoteControlClientsListParams.json
+.task14d-schema/v2/RemoteControlClientsListResponse.json
+.task14d-schema/v2/RemoteControlClientsRevokeParams.json
+.task14d-schema/v2/RemoteControlClientsRevokeResponse.json
+.task14d-schema/v2/RemoteControlDisableResponse.json
+.task14d-schema/v2/RemoteControlEnableResponse.json
+.task14d-schema/v2/RemoteControlPairingStartParams.json
+.task14d-schema/v2/RemoteControlPairingStartResponse.json
+.task14d-schema/v2/RemoteControlPairingStatusParams.json
+.task14d-schema/v2/RemoteControlPairingStatusResponse.json
+.task14d-schema/v2/RemoteControlStatusChangedNotification.json
+.task14d-schema/v2/RemoteControlStatusReadResponse.json
+.task14d-schema/v2/ReviewStartParams.json
+.task14d-schema/v2/ReviewStartResponse.json
+.task14d-schema/v2/SendAddCreditsNudgeEmailParams.json
+.task14d-schema/v2/SendAddCreditsNudgeEmailResponse.json
+.task14d-schema/v2/ServerDiagnosticsParams.json
+.task14d-schema/v2/ServerDiagnosticsResponse.json
+.task14d-schema/v2/ServerRequestResolvedNotification.json
+.task14d-schema/v2/SkillsChangedNotification.json
+.task14d-schema/v2/SkillsConfigWriteParams.json
+.task14d-schema/v2/SkillsConfigWriteResponse.json
+.task14d-schema/v2/SkillsExtraRootsSetParams.json
+.task14d-schema/v2/SkillsExtraRootsSetResponse.json
+.task14d-schema/v2/SkillsListParams.json
+.task14d-schema/v2/SkillsListResponse.json
+.task14d-schema/v2/StrictReviewRequiredNotification.json
+.task14d-schema/v2/TerminalInteractionNotification.json
+.task14d-schema/v2/ThreadApproveGuardianDeniedActionParams.json
+.task14d-schema/v2/ThreadApproveGuardianDeniedActionResponse.json
+.task14d-schema/v2/ThreadArchiveParams.json
+.task14d-schema/v2/ThreadArchiveResponse.json
+.task14d-schema/v2/ThreadArchivedNotification.json
+.task14d-schema/v2/ThreadBackgroundTerminalsCleanParams.json
+.task14d-schema/v2/ThreadBackgroundTerminalsCleanResponse.json
+.task14d-schema/v2/ThreadBackgroundTerminalsListParams.json
+.task14d-schema/v2/ThreadBackgroundTerminalsListResponse.json
+.task14d-schema/v2/ThreadBackgroundTerminalsTerminateParams.json
+.task14d-schema/v2/ThreadBackgroundTerminalsTerminateResponse.json
+.task14d-schema/v2/ThreadClosedNotification.json
+.task14d-schema/v2/ThreadCompactStartParams.json
+.task14d-schema/v2/ThreadCompactStartResponse.json
+.task14d-schema/v2/ThreadDecrementElicitationParams.json
+.task14d-schema/v2/ThreadDecrementElicitationResponse.json
+.task14d-schema/v2/ThreadDeleteParams.json
+.task14d-schema/v2/ThreadDeleteResponse.json
+.task14d-schema/v2/ThreadDeletedNotification.json
+.task14d-schema/v2/ThreadForkParams.json
+.task14d-schema/v2/ThreadForkResponse.json
+.task14d-schema/v2/ThreadGoalClearParams.json
+.task14d-schema/v2/ThreadGoalClearResponse.json
+.task14d-schema/v2/ThreadGoalClearedNotification.json
+.task14d-schema/v2/ThreadGoalGetParams.json
+.task14d-schema/v2/ThreadGoalGetResponse.json
+.task14d-schema/v2/ThreadGoalSetParams.json
+.task14d-schema/v2/ThreadGoalSetResponse.json
+.task14d-schema/v2/ThreadGoalUpdatedNotification.json
+.task14d-schema/v2/ThreadIncrementElicitationParams.json
+.task14d-schema/v2/ThreadIncrementElicitationResponse.json
+.task14d-schema/v2/ThreadInjectItemsParams.json
+.task14d-schema/v2/ThreadInjectItemsResponse.json
+.task14d-schema/v2/ThreadItemsListParams.json
+.task14d-schema/v2/ThreadItemsListResponse.json
+.task14d-schema/v2/ThreadListParams.json
+.task14d-schema/v2/ThreadListResponse.json
+.task14d-schema/v2/ThreadLoadedListParams.json
+.task14d-schema/v2/ThreadLoadedListResponse.json
+.task14d-schema/v2/ThreadMemoryModeSetParams.json
+.task14d-schema/v2/ThreadMemoryModeSetResponse.json
+.task14d-schema/v2/ThreadMetadataUpdateParams.json
+.task14d-schema/v2/ThreadMetadataUpdateResponse.json
+.task14d-schema/v2/ThreadNameUpdatedNotification.json
+.task14d-schema/v2/ThreadProjectUpdatedNotification.json
+.task14d-schema/v2/ThreadQueueAddParams.json
+.task14d-schema/v2/ThreadQueueAddResponse.json
+.task14d-schema/v2/ThreadQueueChangedNotification.json
+.task14d-schema/v2/ThreadQueueDeleteParams.json
+.task14d-schema/v2/ThreadQueueDeleteResponse.json
+.task14d-schema/v2/ThreadQueueListParams.json
+.task14d-schema/v2/ThreadQueueListResponse.json
+.task14d-schema/v2/ThreadQueueReorderParams.json
+.task14d-schema/v2/ThreadQueueReorderResponse.json
+.task14d-schema/v2/ThreadQueueStartParams.json
+.task14d-schema/v2/ThreadQueueStartResponse.json
+.task14d-schema/v2/ThreadQueueUpdateParams.json
+.task14d-schema/v2/ThreadQueueUpdateResponse.json
+.task14d-schema/v2/ThreadReadParams.json
+.task14d-schema/v2/ThreadReadResponse.json
+.task14d-schema/v2/ThreadRealtimeAppendAudioParams.json
+.task14d-schema/v2/ThreadRealtimeAppendAudioResponse.json
+.task14d-schema/v2/ThreadRealtimeAppendSpeechParams.json
+.task14d-schema/v2/ThreadRealtimeAppendSpeechResponse.json
+.task14d-schema/v2/ThreadRealtimeAppendTextParams.json
+.task14d-schema/v2/ThreadRealtimeAppendTextResponse.json
+.task14d-schema/v2/ThreadRealtimeClosedNotification.json
+.task14d-schema/v2/ThreadRealtimeErrorNotification.json
+.task14d-schema/v2/ThreadRealtimeItemAddedNotification.json
+.task14d-schema/v2/ThreadRealtimeItemCompletedNotification.json
+.task14d-schema/v2/ThreadRealtimeItemStartedNotification.json
+.task14d-schema/v2/ThreadRealtimeItemTranscriptDeltaNotification.json
+.task14d-schema/v2/ThreadRealtimeListVoicesParams.json
+.task14d-schema/v2/ThreadRealtimeListVoicesResponse.json
+.task14d-schema/v2/ThreadRealtimeOutputAudioDeltaNotification.json
+.task14d-schema/v2/ThreadRealtimeSdpNotification.json
+.task14d-schema/v2/ThreadRealtimeStartParams.json
+.task14d-schema/v2/ThreadRealtimeStartResponse.json
+.task14d-schema/v2/ThreadRealtimeStartedNotification.json
+.task14d-schema/v2/ThreadRealtimeStopParams.json
+.task14d-schema/v2/ThreadRealtimeStopResponse.json
+.task14d-schema/v2/ThreadRealtimeTranscriptDeltaNotification.json
+.task14d-schema/v2/ThreadRealtimeTranscriptDoneNotification.json
+.task14d-schema/v2/ThreadResumeParams.json
+.task14d-schema/v2/ThreadResumeResponse.json
+.task14d-schema/v2/ThreadRevertParams.json
+.task14d-schema/v2/ThreadRevertResponse.json
+.task14d-schema/v2/ThreadRevertedNotification.json
+.task14d-schema/v2/ThreadRollbackParams.json
+.task14d-schema/v2/ThreadRollbackResponse.json
+.task14d-schema/v2/ThreadSearchOccurrencesParams.json
+.task14d-schema/v2/ThreadSearchOccurrencesResponse.json
+.task14d-schema/v2/ThreadSearchParams.json
+.task14d-schema/v2/ThreadSearchResponse.json
+.task14d-schema/v2/ThreadSectionCreateParams.json
+.task14d-schema/v2/ThreadSectionCreateResponse.json
+.task14d-schema/v2/ThreadSectionDeleteParams.json
+.task14d-schema/v2/ThreadSectionDeleteResponse.json
+.task14d-schema/v2/ThreadSectionListParams.json
+.task14d-schema/v2/ThreadSectionListResponse.json
+.task14d-schema/v2/ThreadSectionMoveParams.json
+.task14d-schema/v2/ThreadSectionMoveResponse.json
+.task14d-schema/v2/ThreadSectionUpdateParams.json
+.task14d-schema/v2/ThreadSectionUpdateResponse.json
+.task14d-schema/v2/ThreadSetNameParams.json
+.task14d-schema/v2/ThreadSetNameResponse.json
+.task14d-schema/v2/ThreadSettingsUpdateParams.json
+.task14d-schema/v2/ThreadSettingsUpdateResponse.json
+.task14d-schema/v2/ThreadSettingsUpdatedNotification.json
+.task14d-schema/v2/ThreadShellCommandParams.json
+.task14d-schema/v2/ThreadShellCommandResponse.json
+.task14d-schema/v2/ThreadStartParams.json
+.task14d-schema/v2/ThreadStartResponse.json
+.task14d-schema/v2/ThreadStartedNotification.json
+.task14d-schema/v2/ThreadStatusChangedNotification.json
+.task14d-schema/v2/ThreadTimelineListParams.json
+.task14d-schema/v2/ThreadTimelineListResponse.json
+.task14d-schema/v2/ThreadTokenUsageUpdatedNotification.json
+.task14d-schema/v2/ThreadTurnsListParams.json
+.task14d-schema/v2/ThreadTurnsListResponse.json
+.task14d-schema/v2/ThreadUnarchiveParams.json
+.task14d-schema/v2/ThreadUnarchiveResponse.json
+.task14d-schema/v2/ThreadUnarchivedNotification.json
+.task14d-schema/v2/ThreadUnsubscribeParams.json
+.task14d-schema/v2/ThreadUnsubscribeResponse.json
+.task14d-schema/v2/TurnCompletedNotification.json
+.task14d-schema/v2/TurnDiffUpdatedNotification.json
+.task14d-schema/v2/TurnInterruptParams.json
+.task14d-schema/v2/TurnInterruptResponse.json
+.task14d-schema/v2/TurnModerationMetadataNotification.json
+.task14d-schema/v2/TurnPlanUpdatedNotification.json
+.task14d-schema/v2/TurnSettingsUpdateParams.json
+.task14d-schema/v2/TurnSettingsUpdateResponse.json
+.task14d-schema/v2/TurnStartParams.json
+.task14d-schema/v2/TurnStartResponse.json
+.task14d-schema/v2/TurnStartedNotification.json
+.task14d-schema/v2/TurnSteerParams.json
+.task14d-schema/v2/TurnSteerResponse.json
+.task14d-schema/v2/WarningNotification.json
+.task14d-schema/v2/WindowsSandboxReadinessResponse.json
+.task14d-schema/v2/WindowsSandboxSetupCompletedNotification.json
+.task14d-schema/v2/WindowsSandboxSetupStartParams.json
+.task14d-schema/v2/WindowsSandboxSetupStartResponse.json
+.task14d-schema/v2/WindowsWorldWritableWarningNotification.json
+.task14d-stop-insert-wrapper.patch
+.task14d-stop-integration-v2.patch
+.task14d-stop-integration.patch
+.task14d-stop-main-v2.patch
+.task14d-stop-main-v3.patch
+.task14d-stop-main.patch
+.task14d-stop-pipeline-defaults-v2.patch
+.task14d-stop-pipeline-defaults.patch
+.task14d-stop-rename.patch
+.task14d-stop-trace-fix-v2.patch
+.task14d-stop-trace-fix-v3.patch
+.task14d-stop-trace-fix.patch
+.task14d-stop-wrapper.patch
+.task14d-validator.patch
+.worktrees/legal-proposition-core/
+docs/JDIPT Legal Proposition Runtime v2 Design.md
+docs/JDIPT Legal Proposition Runtime v2 Refactor Implementation Plan.md
+docs/superpowers/plans/2026-09-05-ash06-runtime-activation-repair.md
+docs/superpowers/plans/2026-09-05-jdipt-windows-hook-compatibility.md
+docs/superpowers/plans/2026-09-05-task14-runtime-hook-trace.md
+docs/superpowers/plans/2026-09-06-task14d-active-hook-runtime-forensic-closure.md
+docs/task14d-baseline.txt
+docs/task14d-evidence/active-hooks-list-final.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/jdipt-stop-payload.jsonl
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/E06.case.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/E06.log.txt
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/E06.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-01/runtime-ledger.json
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/E06.case.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/E06.log.txt
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/E06.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-02/runtime-ledger.json
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/E06.case.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/E06.log.txt
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/E06.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/ASH-06/run-03/runtime-ledger.json
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/oracle-findings.md
+docs/task14d-evidence/ash06-3run-after-registry-fix/runs/summary.json
+docs/task14d-evidence/ash06-3run/jdipt-stop-payload.jsonl
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/E06.case.md
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/E06.log.txt
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/E06.md
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-01/runtime-ledger.json
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/E06.case.md
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/E06.log.txt
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/E06.md
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-02/runtime-ledger.json
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/E06.case.md
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/E06.log.txt
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/E06.md
+docs/task14d-evidence/ash06-3run/runs/ASH-06/run-03/runtime-ledger.json
+docs/task14d-evidence/ash06-3run/runs/oracle-findings.md
+docs/task14d-evidence/ash06-3run/runs/summary.json
+docs/task14d-evidence/probe-1/jdipt-stop-payload.jsonl
+docs/task14d-evidence/probe-2/jdipt-stop-payload.jsonl
+docs/task14d-evidence/probe-3/jdipt-stop-payload.jsonl
+docs/task14d-evidence/probe-4/jdipt-stop-payload.jsonl
+docs/task14d-evidence/probe-4/last.md
+docs/task14d-patch-helper-probe.txt
+docs/task14e-evidence/active-hooks-final.md
+docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/E06.case.md
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/E06.log.txt
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/E06.md
+docs/task14e-evidence/ash06-3run-final2/ASH-06/run-02/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final3/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/E06.case.md
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/E06.log.txt
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/E06.md
+docs/task14e-evidence/ash06-3run-final4/ASH-06/run-02/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/E06.case.md
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/E06.log.txt
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/E06.md
+docs/task14e-evidence/ash06-3run-final5/ASH-06/run-02/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final6/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/E06.case.md
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/E06.log.txt
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/E06.md
+docs/task14e-evidence/ash06-3run-final7/ASH-06/run-02/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/E06.case.md
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/E06.log.txt
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/E06.md
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-02/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/E06.case.md
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/E06.log.txt
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/E06.md
+docs/task14e-evidence/ash06-3run-final8/ASH-06/run-03/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final8/oracle-findings.md
+docs/task14e-evidence/ash06-3run-final8/summary.json
+docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run-final9/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/ash06-3run-final9/semantic-review.md
+docs/task14e-evidence/ash06-3run-final9/summary.json
+docs/task14e-evidence/ash06-3run/ASH-06/run-01/E06.case.md
+docs/task14e-evidence/ash06-3run/ASH-06/run-01/E06.log.txt
+docs/task14e-evidence/ash06-3run/ASH-06/run-01/E06.md
+docs/task14e-evidence/ash06-3run/ASH-06/run-01/runtime-ledger.json
+docs/task14e-evidence/baseline.txt
+docs/task14e-evidence/installed-parity.txt
+docs/task14e-evidence/root-cause.md
+docs/task14e-evidence/static-validation.txt
+scripts/activation_forensics.py
+scripts/hook_forensics.py
+scripts/jdipt_activation.py
+scripts/jdipt_activation_forensic_entry.py
+scripts/runtime_acceptance.py
+tests/test_activation_forensic_trace.py
+tests/test_ash06_activation_repair_contract.py
+tests/test_ash06_rule_relation.py
+tests/test_hook_command_windows_compatibility.py
+tests/test_jdipt_activation.py
+tests/test_pending_registry_transition.py
+tests/test_range_exception_relation.py
+tests/test_range_exception_relation_gate.py
+tests/test_registry_field_aliases.py
+tests/test_runtime_acceptance.py
+tests/test_stop_activation_fallback.py
+tests/test_stop_forensic_trace.py
+tests/test_stop_missing_identity.py
+tests/test_stop_pipeline_trace.py
+tests/test_synthesis_polarity_regressions.py
+tests/test_synthesis_relation_regressions.py
+tests/test_task14e_runtime_enforcement.py
+[stderr]
+warning: could not open directory '.pytest_cache/': Permission denied
+warning: could not open directory '.task14e-pytest-focused-final/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final2/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final3/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final4/': Permission denied
+warning: could not open directory '.task14e-pytest-full-final5/': Permission denied
+warning: could not open directory '.task14e-pytest-task14e-focused/': Permission denied
+exit=0
