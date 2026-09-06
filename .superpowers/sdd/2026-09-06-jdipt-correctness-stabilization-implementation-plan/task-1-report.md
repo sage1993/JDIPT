@@ -5,6 +5,12 @@
 **Branch:** `codex-jdipt-correctness-stabilization`
 **Commit:** `05b2cb6` (`docs: define JDIPT correctness stabilization baseline`)
 
+**Current-gate note:** The opening status and commit identify the historical baseline commit. The current authoritative gate is the fix-round ruling below: `registry_required`, `registry_completed`, `enforcement_count`, and the range-exception relation are `UNKNOWN`, and Task 2 is **BLOCKED**.
+
+## Historical baseline capture — superseded
+
+The sections from **Scope and changed files** through **Self-review** are the original baseline-capture record from before fix round 1. They are retained for traceability but are historical and superseded; no statement in those sections that describes the gate as unblocked or the affected L1 items as `PORT_TO_R2` is current authority. The fix-round adjudication and gate ruling below are authoritative.
+
 ## Scope and changed files
 
 Task 1 was implemented as documentation/evidence only. No production file was modified.
@@ -63,11 +69,11 @@ The approved contents were not altered.
 ## Findings and rulings
 
 - R2 is the canonical domain-core baseline: `LegalProposition`, `EvidenceRef`, `proposition_registry`, exact session/turn state, exact render slots, reconciliation, Stop gate, and CI remain R2-owned.
-- L1-only `registry_required`, `registry_completed`, bounded registry enforcement, activation/Stop forensic traces, runtime acceptance ledger, and deterministic range-exception behavior are classified `PORT_TO_R2` candidates. They were not implemented in Task 1.
+- **HISTORICAL — SUPERSEDED:** L1-only `registry_required`, `registry_completed`, bounded registry enforcement, activation/Stop forensic traces, runtime acceptance ledger, and deterministic range-exception behavior were initially classified `PORT_TO_R2` candidates. The current ruling below changes the four parity-sensitive items to `UNKNOWN`.
 - Exact session/turn identity and bounded repair already exist in R2 and are classified `KEEP + verify`.
 - `scripts/runtime_registry_state.py` and `scripts/synthesis_integrity.py` are classified `DELETE_AFTER_PARITY`; neither was deleted.
-- The required `rg -n "runtime_registry_state|synthesis_integrity" .` search exited 0. Matches were limited to historical plans/specifications, structural validators/tests, and the new evidence documents; no active R2 plugin/MCP/Stop import was found.
-- No `UNKNOWN` classification affects registry, state, or Stop behavior. The Task 1 gate is therefore not blocked.
+- **HISTORICAL — SUPERSEDED:** The baseline-phase `rg -n "runtime_registry_state|synthesis_integrity" .` search exited 0. Its result did not establish semantic parity for L1-only registry, enforcement, relation, or Stop behavior.
+- **HISTORICAL — SUPERSEDED:** The initial baseline record said no `UNKNOWN` classification affected registry, state, or Stop behavior and that the Task 1 gate was not blocked. The fix-round ruling below is the current authority and blocks Task 2.
 - The convergence document contains the required 11 matrix rows and exact symbols/rulings for all 16 observed L1 production/runtime files, plus L1-only invariant rulings.
 
 ## Commands and exit codes
@@ -77,7 +83,7 @@ The approved contents were not altered.
 | Task 1 read-only baseline identity/status commands | 0 | Recorded in baseline state evidence |
 | Prescribed `py -3.13 -` dirty-tree digest | 0 | 601 entries saved |
 | Approved design/plan byte comparison | 0 | Both equal Downloads authority copies |
-| `rg -n "runtime_registry_state|synthesis_integrity" .` | 0 | No active R2 runtime import |
+| **Baseline phase:** `rg -n "runtime_registry_state|synthesis_integrity" .` | 0 | Historical baseline search; no active R2 runtime import observed, but not a semantic parity result |
 | Task document row/manifest assertion | 0 | PASS |
 | Initial `git diff --check` | 0 | No tracked diff before staging |
 | `py -3.13 scripts/validate_repo.py` | 0 | PASS |
@@ -100,7 +106,7 @@ The approved contents were not altered.
 - Only the five intended documentation/evidence files were committed.
 - No `scripts/`, `hooks/`, `skills/`, test, plugin, MCP, or other production file was changed in the isolated worktree.
 - The dirty baseline manifest was recomputed and matched byte-for-byte after implementation.
-- The convergence matrix uses the requested decision vocabulary and has no unresolved state/registry/Stop `UNKNOWN`.
+- **HISTORICAL — SUPERSEDED:** The initial self-review said the matrix had no unresolved state/registry/Stop `UNKNOWN`; the fix-round adjudication below supersedes that statement.
 - No push, PR, merge, or subagent/reviewer dispatch was performed.
 
 ## Fix round 1 — independent review remediation
