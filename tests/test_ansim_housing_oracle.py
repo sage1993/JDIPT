@@ -182,7 +182,7 @@ def test_ansim_summary_contains_required_writer_fields_and_core_acceptance():
     assert summary["critical_negative_markers"] == []
     assert summary["per_case_verdict"] == {case_id: ["PASS"] for case_id in PASS_ANSWERS}
     assert summary["stability_acceptance"] is None
-    assert summary["release_verdict"] == "PASS"
+    assert summary["suite_verdict"] == "PASS"
 
 
 def test_stability_release_fails_on_one_critical_marker_even_at_26_of_27():
@@ -202,7 +202,7 @@ def test_stability_release_fails_on_one_critical_marker_even_at_26_of_27():
     assert summary["pass_count"] == 26
     assert summary["stability_acceptance"] is False
     assert summary["critical_negative_markers"] == ["AUTO_350M"]
-    assert summary["release_verdict"] == "FAIL"
+    assert summary["suite_verdict"] == "FAIL"
 
 
 def test_stability_release_accepts_one_noncritical_failure():

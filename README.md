@@ -234,6 +234,8 @@ npm run mcp -- --help
 
 ## Release gate 실행
 
+최종 release PASS는 개별 runner나 CI job의 PASS가 아니라 `schema_version=1.0` unified release manifest를 `scripts/release_manifest.py`의 단일 authority가 판정한 경우에만 성립합니다. repository, installed bundle, active runtime, oracle이 같은 snapshot이어야 하며 Core/Full/Ansim/Stability, static validation, hard gates, source correctness, host acceptance, stable case identity가 모두 필요합니다. `NOT_RUN`, missing/duplicate case, snapshot mismatch, hard-gate failure, critical negative는 항상 HOLD입니다.
+
 결정론적 gate:
 
 ```bash
@@ -251,6 +253,14 @@ python scripts/run_release_gate.py --critical-only --codex <codex-cli>
 ```bash
 python scripts/run_release_gate.py --full --codex <codex-cli>
 ```
+
+생성된 manifest만 재검증:
+
+```bash
+python scripts/run_release_gate.py --manifest <release-manifest.json>
+```
+
+설치본과 현재 active runtime은 자동으로 동일하다고 가정하지 않습니다. 전체 gate에서 `--installed-root`와 `--active-runtime-root`를 각각 지정할 수 있으며, exit code `0`은 unified authority의 최종 PASS에만 사용됩니다. manifest schema는 [`config/release-manifest.schema.json`](config/release-manifest.schema.json), Task 2 계약 기록은 [`docs/task2-release-evidence.md`](docs/task2-release-evidence.md)에 있습니다.
 
 기본 regression 모델은 `gpt-5.6-luna`입니다.
 

@@ -209,11 +209,12 @@ def _run_ansim_cli(args, root: Path) -> int:
     print(f"process_ok: {summary['process_success']}/{summary['case_count']}")
     print(f"contract_oracle_pass: {summary['pass_count']}/{summary['case_count']}")
     print(f"critical_negative_markers: {len(summary['critical_negative_markers'])}")
-    print(f"release_verdict: {summary['release_verdict']}")
+    print(f"observed_case_ids: {','.join(str(case_id) for case_id in summary['observed_case_ids'])}")
+    print(f"suite_verdict: {summary['suite_verdict']}")
     print(f"Output: {out_dir}")
     if summary["process_success"] != summary["case_count"]:
         return 3
-    return 0 if summary["release_verdict"] == "PASS" else 1
+    return 0 if summary["suite_verdict"] == "PASS" else 1
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run JDIPT consolidated behavior evaluation suites.")

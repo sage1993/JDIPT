@@ -35,6 +35,9 @@ jobs:
       - name: Validate authority and temporal contracts
         run: python scripts/validate_authority_temporal_contract.py
 
+      - name: Verify unified release authority regressions
+        run: python -m pytest -q tests/test_release_authority.py
+
       - name: Compile Python sources
         run: python -m compileall -q scripts tests
 

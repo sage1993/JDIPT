@@ -73,6 +73,8 @@ python scripts/run_eval_suite.py --from-case 43 --to-case 43
 
 ## Release Gate
 
+모든 runner는 evidence producer일 뿐이며 최종 release PASS 권한이 없다. versioned manifest는 `config/release-manifest.schema.json`에 정의하고, `scripts/release_manifest.py`의 단일 authority가 repository/install/active-runtime/oracle identity, 정적 검증, Core/Full/Ansim/Stability suite, hard gate, source/host acceptance, case identity를 함께 판정한다.
+
 결정론적 검증만:
 
 ```powershell
@@ -91,14 +93,27 @@ python scripts/run_release_gate.py --critical-only
 python scripts/run_release_gate.py --full
 ```
 
+기존 manifest만 판정할 때:
+
+```powershell
+python scripts/run_release_gate.py --manifest path\to\release-manifest.json
+```
+
 순서:
 
 ```text
 A. deterministic
-→ B. Core stability
-→ C. Full active (26 cases, single run must be 26/26)
-→ D. package/static
+→ B. Core active
+→ C. Core stability
+→ D. Full active (26 cases, single run must be 26/26)
+→ E. Ansim core (9 cases)
+→ F. package/static
+→ Unified Release Authority: PASS / HOLD
 ```
+
+`--full`에서 필수 suite가 실행되지 않거나 evidence가 `NOT_RUN`이면 HOLD다. 다른 suite의 성공률은 이를 상쇄할 수 없다. 각 suite의 expected/observed case ID를 비교하여 missing, unexpected, duplicate도 HOLD로 처리한다. `--full`의 Ansim 단계는 이 Task에서 단일 core acceptance만 연결한다. Ansim stability 반복 실행은 별도 진단이며 Task 2의 ASH-06 x3/x10 acceptance가 아니다.
+
+`run_release_gate.py`의 exit code `0`은 unified authority가 계산한 PASS일 때만 사용한다. `--active-runtime-root`를 생략하거나 설치본과 다른 runtime을 가리키면 active identity mismatch로 HOLD다.
 
 ### Gate B 반복 정책
 
@@ -115,16 +130,7 @@ LLM 출력 변동성이 실제로 관측된 release-critical case는 단일 성�
 
 ### 최종 release acceptance
 
-Targeted 재실행 성공만으로 Full 실패를 덮지 않는다. Release-ready 판정에는 다음을 모두 요구한다.
-
-```text
-A deterministic: PASS
-B Core stability: PASS
-  - E44 3/3
-  - E45 3/3
-C Full active single run: 26/26
-D package/static: PASS
-```
+Targeted 재실행 성공만으로 다른 suite 또는 identity 실패를 덮지 않는다. 최종 PASS는 manifest에 기록된 모든 mandatory input이 동일 snapshot이고, hard-gate 위반과 critical negative가 모두 없을 때만 authority가 선언한다. component runner의 PASS 문자열은 최종 release verdict가 아니다.
 
 Oracle이 실제 의미상 동등한 표현을 놓친 false negative는 fixture를 추가하고 oracle을 수정한 뒤 기존 계약을 약화하지 않는 방식으로 처리한다. 반면 동일 입력에서 실제 계약 준수 여부가 달라지는 경우는 모델 변동성으로 보고 Gate B 반복 대상으로 관리한다.
 

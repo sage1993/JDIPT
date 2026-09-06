@@ -99,18 +99,22 @@ python scripts/run_eval_suite.py --suite legacy
 python scripts/run_release_gate.py
 python scripts/run_release_gate.py --critical-only
 python scripts/run_release_gate.py --full
+python scripts/run_release_gate.py --manifest path\to\release-manifest.json
 ```
 
 순서:
 
 ```text
 A. deterministic
-→ B. Core stability
-→ C. Full active
-→ D. package/static
+→ B. Core active
+→ C. Core stability
+→ D. Full active
+→ E. Ansim core
+→ F. package/static
+→ Unified Release Authority
 ```
 
-Gate B는 Core 14개를 실행하고 E37만 2회 반복한다. Gate C는 Full active 26개만 실행한다.
+`--full`은 Core, Stability, Full, Ansim을 모두 요구하며, 하나라도 `NOT_RUN`이면 최종 HOLD다. `config/release-manifest.schema.json`의 `schema_version=1.0` manifest에는 repository SHA와 dirty digest manifest, installed manifest digest, active runtime digest, oracle digest, 각 suite의 stable case ID, hard-gate 및 critical-negative 결과를 함께 기록한다. exit code `0`은 unified authority의 PASS에만 대응한다. Gate B의 Core 반복 정책과 Ansim의 별도 반복 진단은 component evidence이며 최종 PASS 권한을 갖지 않는다.
 
 ## v0.2.2 historical validation
 

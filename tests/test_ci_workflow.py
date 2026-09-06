@@ -15,6 +15,7 @@ def test_ci_workflow_runs_deterministic_python_and_node_gates():
         "python -m pytest -q",
         "python scripts/validate_repo.py",
         "python scripts/validate_authority_temporal_contract.py",
+        "python -m pytest -q tests/test_release_authority.py",
         "python -m compileall -q scripts tests",
         "npm ci",
         "npm audit --omit=dev",

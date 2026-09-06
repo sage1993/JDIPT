@@ -432,6 +432,7 @@ def build_ansim_summary(
         "global_hard_gate_violations": gate_violations,
         "critical_negative_markers": critical,
         "per_case_verdict": per_case,
+        "observed_case_ids": [result.get("case_id") for result in results],
         "stability_acceptance": stability_acceptance,
-        "release_verdict": "PASS" if accepted else "FAIL",
+        "suite_verdict": "PASS" if accepted else "FAIL",
     }
