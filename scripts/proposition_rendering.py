@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Literal
 
 from scripts.legal_proposition import (
@@ -28,6 +28,9 @@ class RenderSlot:
 class PropositionRenderContract:
     proposition_id: str
     slots: tuple[RenderSlot, ...]
+    # The render is not injective: polarity and some modalities share text.
+    # Keep this snapshot separate from Task 9's exact render identity/equality.
+    semantic_identity: LegalProposition | None = field(default=None, compare=False, repr=False)
 
 
 def _is_material(proposition: LegalProposition) -> bool:
@@ -120,7 +123,7 @@ def build_render_contract(
     """Build the exact deterministic slots required for one proposition."""
 
     if not _is_material(proposition):
-        return PropositionRenderContract(proposition.proposition_id, ())
+        return PropositionRenderContract(proposition.proposition_id, (), replace(proposition))
 
     if proposition.status is PropositionStatus.OPEN:
         slot = RenderSlot(
@@ -129,7 +132,7 @@ def build_render_contract(
             kind="open",
             text=_open_text(proposition),
         )
-        return PropositionRenderContract(proposition.proposition_id, (slot,))
+        return PropositionRenderContract(proposition.proposition_id, (slot,), replace(proposition))
 
     effect = RenderSlot(
         slot_id=f"{proposition.proposition_id}:effect",
@@ -146,4 +149,5 @@ def build_render_contract(
     return PropositionRenderContract(
         proposition.proposition_id,
         (effect, temporal),
+        replace(proposition),
     )

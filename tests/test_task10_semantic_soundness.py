@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+import pytest
+
 from scripts.legal_proposition import (
     EvidenceRef,
     LegalProposition,
@@ -546,3 +548,106 @@ def test_unavailable_semantic_authority_fails():
     assert isinstance(soundness, SoundnessResult)
     assert soundness.soundness_passed is False
     assert "UNAVAILABLE_SEMANTIC_AUTHORITY" in _codes(soundness)
+
+
+def test_open_promotion_under_subheading_remains_a_final_conclusion():
+    proposition = _proposition(status=PropositionStatus.OPEN)
+    draft = "\n".join((
+        "# 2. 검토결론", "## 판단", "따라서 이 행위는 허용된다.",
+        "# 3. 검토이유", _rendered(proposition),
+    ))
+
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "OPEN_PROMOTED_TO_CLOSED" in _codes(result)
+    violation = next(v for v in result.violations if v.code == "OPEN_PROMOTED_TO_CLOSED")
+    assert "허용된다" in violation.final_conclusion_span
+
+
+@pytest.mark.parametrize("prerequisites, fields", [
+    ("요건 C를 충족하지 않고 절차 P를 거치면", ("condition",)),
+    ("요건 C를 충족하고 절차 P를 거치지 않아도", ("procedure",)),
+    ("요건 C를 충족하지 않고 절차 P를 거치지 않아도", ("condition", "procedure")),
+])
+def test_negated_canonical_prerequisites_are_not_preserved(prerequisites, fields):
+    proposition = _proposition()
+    draft = "\n".join((
+        "# 2. 검토결론",
+        f"{prerequisites} 행정청은 대상 O를 지위 Z로 지정할 수 있다.",
+        "# 3. 검토이유", _rendered(proposition),
+    ))
+
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "LEGAL_RELATION_DEGRADATION" in _codes(result)
+    violation = next(v for v in result.violations if v.code == "LEGAL_RELATION_DEGRADATION")
+    assert violation.relation_fields == fields
+
+
+@pytest.mark.parametrize("earlier_adoption", [False, True])
+def test_false_wrapper_cannot_adopt_or_hide_a_contradictory_slot(earlier_adoption):
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    earlier = _rendered(proposition) + "\n" if earlier_adoption else ""
+    draft = earlier + "\n".join((
+        "# 2. 검토결론",
+        f"다음 명제는 거짓이다: {contract.slots[0].text}",
+        contract.slots[1].text,
+    ))
+
+    assert _coverage(contract, draft).covered is True
+    result = evaluate_soundness([proposition], [contract], draft)
+
+    assert result.soundness_passed is False
+    assert "FINAL_CONCLUSION_CONTRADICTION" in _codes(result)
+    if not earlier_adoption:
+        assert "REJECTED_QUOTATION_ONLY" in _codes(result)
+
+
+@pytest.mark.parametrize("before, after", [
+    ({"polarity": Polarity.POSITIVE}, {"polarity": Polarity.NEGATIVE}),
+    ({"polarity": Polarity.NEGATIVE}, {"polarity": Polarity.POSITIVE}),
+    ({"modality": Modality.MUST_NOT}, {"modality": Modality.MAY_NOT}),
+    ({"modality": Modality.MAY_NOT}, {"modality": Modality.MUST_NOT}),
+])
+def test_semantic_authority_detects_staleness_even_when_slots_are_equal(before, after):
+    old = _proposition(**before)
+    old_contract = build_render_contract(old)
+    current = replace(old, **after)
+    # This is the representation collision; coverage must stay unchanged.
+    assert old_contract.slots == build_render_contract(current).slots
+    draft = _rendered(old)
+    assert _coverage(old_contract, draft).covered is True
+
+    result = evaluate_soundness([current], [old_contract], draft)
+
+    assert result.soundness_passed is False
+    assert "STALE_SEMANTIC_AUTHORITY" in _codes(result)
+
+
+def test_render_only_contract_cannot_prove_semantic_authority():
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    render_only = type(contract)(contract.proposition_id, contract.slots)
+    draft = _rendered(proposition)
+    assert _coverage(render_only, draft).covered is True
+
+    result = evaluate_soundness([proposition], [render_only], draft)
+
+    assert result.soundness_passed is False
+    assert "UNAVAILABLE_SEMANTIC_AUTHORITY" in _codes(result)
+
+
+@pytest.mark.parametrize("separator", [" ", "\n"])
+def test_unrelated_uncertainty_does_not_adopt_an_open_proposition(separator):
+    proposition = _proposition(status=PropositionStatus.OPEN)
+    draft = "요건 C는 검토 대상이다." + separator + "보고서 발행일은 확인 필요하다."
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "UNAVAILABLE_SEMANTIC_AUTHORITY" in _codes(result)

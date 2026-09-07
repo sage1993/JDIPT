@@ -1,5 +1,66 @@
 # Task 3 report — Deterministic semantic soundness core
 
+## Fix round 1 — current result
+
+This section supersedes the original implementation's scope, freshness limitation, and test counts below; the earlier evidence is retained as history. Starting commit: `1335c7d5dc5b976b00bd7c72582d34400340bde7`. Work remained confined to `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`.
+
+Changed paths in this fix commit:
+
+- `scripts/proposition_soundness.py`
+- `scripts/proposition_rendering.py`
+- `tests/test_task10_semantic_soundness.py`
+- `.superpowers/sdd/task10-semantic-soundness-closure/task-3-report.md`
+
+### Permanent RED first
+
+Added 13 parametrized regression cases before production edits: one subordinate-heading OPEN promotion, three negated condition/procedure variants, two false-wrapper variants with/without earlier adoption, four stale polarity/modality directions with identical slots, one render-only contract lacking semantic metadata, and two unrelated-uncertainty sentence separators. The original 24 required cases and their assertions were preserved.
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py --tb=short
+```
+
+Result against the previous production implementation: **13 failed, 24 passed in 0.23s**, exit 1. Every new case reproduced an actual false-green (`soundness_passed=True`); no fixture, import, or collection errors.
+
+### Minimal production fixes and self-review
+
+1. Restored the original numbered H1 `_HEADING_RE` behavior. Subordinate `##` headings remain inside `# 2. 검토결론`; the next numbered H1 still bounds the conclusion. Public span fields and adoption flags were not changed.
+2. Added prerequisite-negation checks anchored directly to the canonical condition/procedure lexeme and its adjacent predicate (`충족하지 않`, `거치지 않`). Violations identify the specific degraded relation fields. No document-wide negation inference was added.
+3. Exact slot matching now inspects each occurrence's enclosing false assertion before slot consumption. A `다음 명제는 거짓이다:` wrapper makes that occurrence non-adopted and produces a final contradiction. An earlier correct occurrence cannot hide the contradictory wrapper. This classification stays internal to soundness, preserving the public classifier for source/obligation callers.
+4. Added the smallest typed metadata extension: `PropositionRenderContract.semantic_identity`, an optional frozen `LegalProposition` snapshot copied when building the contract. This is necessary because polarity changes and MUST_NOT/MAY_NOT changes can have identical rendered slots. Soundness revalidates and compares the typed snapshot explicitly; absent metadata fails unavailable, malformed metadata fails malformed, and stale typed values fail stale. `compare=False` keeps existing render-contract equality unchanged. Slot IDs, kinds, text, and Task 9 coverage/reconciliation code remain unchanged. The three-argument API is preserved; a manually constructed render-only contract is now insufficient semantic authority.
+5. OPEN adoption now requires an uncertainty marker and the proposition's own canonical anchor in the same bounded sentence. Uncertainty about a report date cannot adopt the preceding legal proposition.
+
+Self-review checked all five independent-review paths, constructor compatibility, typed enum validation without string fallback, occurrence handling before exact-text consumption, and shared helper reuse. No registry, ledger, source ownership, repair, injection, rewrite, fixture-specific constants, LLM, or embedding changes. Typed metadata proves correspondence to the supplied proposition snapshot; it does not independently establish external registry epoch or source freshness.
+
+### GREEN and relevant regression results
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py tests/test_proposition_soundness.py --tb=short
+```
+
+Result: **53 passed in 0.13s**, exit 0: the original focused 40 cases plus all 13 new cases.
+
+The full suite includes the relevant soundness, coverage, rendering/reconciliation, source, obligation, registry, and stop tests. It used approved worktree-local temporary writes to avoid the previously reproduced sandbox setup errors:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+$env:PYTEST_ADDOPTS='-p no:cacheprovider --basetemp=F:/2026-PJ/JDIPT/.worktrees/task10-semantic-soundness-closure/.pytest-task3-fix1-full'
+python -m pytest -q
+```
+
+Result: **1 failed, 506 passed in 5.46s**, exit 1, no setup errors. The sole failure remains `tests/test_task5_source_obligation_closure.py::test_stop_blocks_final_conclusion_modality_degradation_after_valid_effect_slot`, line 425. Its expectation of `soundness_passed=True` for MUST rendered as MAY is stale under Task 10 SS-06, as explicitly confirmed by the user. Neither production nor that assertion was weakened. All other full-suite tests passed.
+
+```powershell
+python scripts/validate_repo.py
+python scripts/validate_authority_temporal_contract.py
+python scripts/plugin_integrity.py
+git diff --check
+git diff --name-only -- scripts/proposition_render_coverage.py scripts/proposition_reconciliation.py scripts/proposition_registry.py scripts/proposition_source_closure.py scripts/material_obligation_ledger.py
+```
+
+Results: both validators **PASS**; installed integrity **FAIL** with the existing 18 mismatches and no installed-file changes; whitespace check clean (only Git LF-to-CRLF notices); the ownership/coverage diff listing is empty. No installed-runtime parity is claimed. Commit subject remains `feat: add deterministic semantic soundness gate`.
+
 ## Scope
 
 - Worktree: `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`.

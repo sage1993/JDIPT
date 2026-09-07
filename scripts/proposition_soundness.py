@@ -67,7 +67,7 @@ _REGION_PRIORITY: dict[AnswerRegionKind, int] = {
     "quotation": 55,
     "code_block": 60,
 }
-_HEADING_RE = re.compile(r"(?m)^[ \t]*#{1,6}\s+[^\n]*")
+_HEADING_RE = re.compile(r"(?m)^[ \t]*#\s+\d+\.\s+[^\n]*")
 _CONCLUSION_HEADING_RE = re.compile(
     r"(?mi)^[ \t]*#\s*2\.\s*검토결론\s*$"
 )
@@ -294,11 +294,19 @@ def _slot_matches(
     expected = normalize_rendered_text(slot_text)
     if not expected:
         return ()
-    return tuple(
-        span
-        for span in spans
-        if expected in normalize_rendered_text(span.text)
-    )
+    matches: list[AnswerSpan] = []
+    for span in spans:
+        normalized = normalize_rendered_text(span.text)
+        for occurrence in re.finditer(re.escape(expected), normalized):
+            wrapper = _FALSE_WRAPPER_RE.search(normalized[:occurrence.start()])
+            if span.adopted and wrapper:
+                matches.append(AnswerSpan(
+                    "rejected_alternative", normalized[wrapper.start():occurrence.end()],
+                    span.start, span.end, False,
+                ))
+            else:
+                matches.append(span)
+    return tuple(matches)
 
 
 def _relation_fields(proposition: LegalProposition) -> tuple[tuple[str, str | None], ...]:
@@ -390,6 +398,25 @@ def _field_pattern(value: str) -> re.Pattern[str]:
     return re.compile(r"(?<![a-z0-9_가-힣])" + re.escape(normalize_rendered_text(value)) + r"(?![a-z0-9_])")
 
 
+_FALSE_WRAPPER_RE = re.compile(r"(?:다음\s+)?명제는\s+거짓이다\s*:\s*$")
+
+
+def _negated_prerequisites(proposition: LegalProposition, text: str) -> tuple[str, ...]:
+    """Bind prerequisite negation to the canonical field and its predicate."""
+    predicates = (
+        ("condition", proposition.condition, r"\s*(?:을|를)?\s*충족하지\s*않"),
+        ("procedure", proposition.procedure, r"\s*(?:을|를)?\s*거치지\s*않"),
+    )
+    return tuple(
+        name for name, value, suffix in predicates
+        if value and re.search(_field_pattern(value).pattern + suffix, text)
+    )
+
+
+def _sentences(text: str) -> tuple[str, ...]:
+    return tuple(part.strip() for part in re.split(r"(?<=[.!?])\s+|\n+", text) if part.strip())
+
+
 def _authority_contracts(
     propositions: Sequence[LegalProposition],
     contracts: Sequence[PropositionRenderContract],
@@ -435,7 +462,11 @@ def _authority_contracts(
                         (slot.slot_id, slot.proposition_id, slot.kind) for slot in expected.slots
                     ):
                         code = "MALFORMED_SEMANTIC_IDENTITY"
-                    elif contract != expected:
+                    elif contract.semantic_identity is None:
+                        code = "UNAVAILABLE_SEMANTIC_AUTHORITY"
+                    elif not isinstance(contract.semantic_identity, LegalProposition):
+                        code = "MALFORMED_SEMANTIC_IDENTITY"
+                    elif replace(contract.semantic_identity) != proposition or contract != expected:
                         code = "STALE_SEMANTIC_AUTHORITY"
                     else:
                         valid.append((proposition, contract))
@@ -514,6 +545,7 @@ def _claim_semantics(
 ) -> None:
     text = claim.text
     missing = list(_relation_missing_in_conclusion(proposition, text))
+    missing.extend(name for name in _negated_prerequisites(proposition, text) if name not in missing)
 
     def reject(code: str, fields: Sequence[str] = ()) -> None:
         _append_once(violations, _make_violation(
@@ -588,9 +620,22 @@ def _evaluate_claims(
     contracts = {proposition.proposition_id: contract for proposition, contract in authorities}
     for run in _semantic_runs(spans):
         text = normalize_rendered_text(run.text)
+        # Classify each exact occurrence's enclosing assertion BEFORE consuming
+        # its text. A correct earlier occurrence cannot adopt a false wrapper.
+        for proposition, contract in authorities:
+            for slot in contract.slots:
+                for match in _slot_matches(slot.text, (run,)):
+                    if match.kind == "rejected_alternative":
+                        _append_once(violations, _make_violation(
+                            proposition,
+                            "FINAL_CONCLUSION_CONTRADICTION" if run.kind == "final_conclusion"
+                            else "POLARITY_CONTRADICTION",
+                            matched_region=run.kind, matched_span=match.text,
+                            final_conclusion_span=match.text if run.kind == "final_conclusion" else "",
+                        ))
         for slot in slots:
             text = text.replace(slot, "\n")
-        for sentence in re.split(r"\n+|(?<=[.!?])\s+", text):
+        for sentence in _sentences(text):
             sentence = sentence.strip()
             if not sentence:
                 continue
@@ -670,9 +715,10 @@ def evaluate_soundness(
         if proposition.status is PropositionStatus.OPEN:
             # Neutral paraphrases are allowed; excluded regions cannot adopt.
             neutral_adoption = any(
-                _UNCERTAINTY_RE.search(run.text)
-                and proposition in _claim_owners(normalize_rendered_text(run.text), authorities)
+                _UNCERTAINTY_RE.search(sentence)
+                and proposition in _claim_owners(sentence, authorities)
                 for run in _semantic_runs(spans)
+                for sentence in _sentences(normalize_rendered_text(run.text))
             )
             if not neutral_adoption:
                 _append_once(violations, _make_violation(
