@@ -102,6 +102,56 @@ def test_valid_exact_effect_and_temporal_slots_are_accepted(tmp_path):
     assert handle_stop_event(_event(draft), tmp_path) == {}
 
 
+def test_coverage_pass_with_soundness_failure_blocks_and_persists_both_results(tmp_path):
+    state = _state()
+    save_runtime_state(state, tmp_path)
+    contract = build_render_contract(state.propositions[0])
+    rendered = "\n".join(slot.text for slot in contract.slots)
+    draft = f"다음 견해의 인용: '{rendered}' 그러나 이 견해는 타당하지 않다."
+
+    result = handle_stop_event(_event(draft), tmp_path)
+    stored = load_runtime_state("session-a", "turn-1", tmp_path)
+
+    assert result["decision"] == "block"
+    assert stored.first_reconciliation["covered"] is True
+    assert stored.first_reconciliation["overall_covered"] is True
+    assert stored.first_reconciliation["soundness"]["soundness_passed"] is False
+    assert stored.first_reconciliation["soundness"]["violations"][0]["code"] == (
+        "REJECTED_QUOTATION_ONLY"
+    )
+
+
+def test_soundness_failure_exhausts_existing_bounded_repair(tmp_path):
+    state = _state(repair_count=1)
+    save_runtime_state(state, tmp_path)
+    contract = build_render_contract(state.propositions[0])
+    rendered = "\n".join(slot.text for slot in contract.slots)
+    draft = f"```text\n{rendered}\n```"
+
+    result = handle_stop_event(
+        _event(draft, stop_hook_active=True),
+        tmp_path,
+    )
+    stored = load_runtime_state("session-a", "turn-1", tmp_path)
+
+    assert result["continue"] is False
+    assert "failed-closed" in result["systemMessage"]
+    assert stored.second_reconciliation["soundness"]["soundness_passed"] is False
+    assert stored.repair_count == 1
+
+
+def test_quotation_with_separate_adopted_proposition_is_accepted_by_stop_gate(tmp_path):
+    state = _state()
+    save_runtime_state(state, tmp_path)
+    contract = build_render_contract(state.propositions[0])
+    rendered = "\n".join(slot.text for slot in contract.slots)
+    draft = f"반대 견해의 인용: '{rendered}'\n분석: {rendered}"
+
+    assert handle_stop_event(_event(draft), tmp_path) == {}
+    stored = load_runtime_state("session-a", "turn-1", tmp_path)
+    assert stored.first_reconciliation["soundness"]["soundness_passed"] is True
+
+
 def test_cross_sentence_stitched_answer_is_blocked(tmp_path):
     save_runtime_state(_state(), tmp_path)
 

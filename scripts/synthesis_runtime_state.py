@@ -20,6 +20,7 @@ from scripts.legal_proposition import (
     normalize_status,
     PropositionValidationError,
 )
+from scripts.proposition_soundness import soundness_result_to_dict
 
 
 STATE_DIRECTORY = "synthesis-runtime"
@@ -415,7 +416,11 @@ def create_pending_runtime_state(
     return state
 
 
-def _reconciliation_summary(result: Any, relation_result: Any | None = None) -> dict[str, Any]:
+def _reconciliation_summary(
+    result: Any,
+    relation_result: Any | None = None,
+    soundness_result: Any | None = None,
+) -> dict[str, Any]:
     """Serialize compact reconciliation evidence without copying the draft."""
 
     slots_missing = [
@@ -442,6 +447,8 @@ def _reconciliation_summary(result: Any, relation_result: Any | None = None) -> 
             "source_id": getattr(relation_result, "source_id", None),
             "failure_reason": getattr(relation_result, "failure_reason", ""),
         }
+    if soundness_result is not None:
+        summary["soundness"] = soundness_result_to_dict(soundness_result)
     summary["overall_covered"] = bool(
         summary["covered"]
         and (
@@ -459,6 +466,7 @@ def record_reconciliation(
     plugin_data: str | os.PathLike[str] | None = None,
     *,
     relation_result: Any | None = None,
+    soundness_result: Any | None = None,
     stop_disposition: str | None = None,
 ) -> RuntimeTurnState:
     """Persist compact first/second reconciliation and relation evidence."""
@@ -467,7 +475,9 @@ def record_reconciliation(
         raise ValueError("phase must be first or second")
     updates: dict[str, Any] = {
         "first_reconciliation" if phase == "first" else "second_reconciliation": _reconciliation_summary(
-            result, relation_result
+            result,
+            relation_result,
+            soundness_result,
         )
     }
     if stop_disposition is not None:

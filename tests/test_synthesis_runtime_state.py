@@ -11,11 +11,15 @@ from scripts.legal_proposition import (
     Polarity,
     PropositionStatus,
 )
+from scripts.proposition_reconciliation import reconcile_render_contracts
+from scripts.proposition_rendering import build_render_contract
+from scripts.proposition_soundness import evaluate_soundness
 from scripts.synthesis_runtime_state import (
     RUNTIME_STATE_SCHEMA_VERSION,
     RuntimeStateError,
     RuntimeTurnState,
     load_runtime_state,
+    record_reconciliation,
     runtime_state_path,
     save_runtime_state,
     update_repair_count,
@@ -175,3 +179,28 @@ def test_open_proposition_is_preserved_as_open(tmp_path):
     assert path.is_file()
     assert loaded.propositions[0].status == "OPEN"
     assert loaded.registry_active is False
+
+
+def test_reconciliation_round_trip_preserves_structured_soundness_evidence(tmp_path):
+    state = _state()
+    contract = build_render_contract(state.propositions[0])
+    rendered = "\n".join(slot.text for slot in contract.slots)
+    draft = f"```text\n{rendered}\n```"
+    coverage = reconcile_render_contracts([contract], draft)
+    soundness = evaluate_soundness([state.propositions[0]], [contract], draft)
+
+    record_reconciliation(
+        state,
+        "first",
+        coverage,
+        tmp_path,
+        soundness_result=soundness,
+    )
+    loaded = load_runtime_state("session-a", "turn-1", tmp_path)
+
+    evidence = loaded.first_reconciliation["soundness"]
+    assert evidence["soundness_passed"] is False
+    assert evidence["violations"][0]["code"] == "CODE_BLOCK_OR_EXAMPLE_ONLY"
+    assert evidence["violations"][0]["proposition_status"] == "CLOSED"
+    assert evidence["violations"][0]["polarity"] == "POSITIVE"
+    assert evidence["violations"][0]["matched_span"]

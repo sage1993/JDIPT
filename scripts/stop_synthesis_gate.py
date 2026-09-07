@@ -17,6 +17,7 @@ from scripts.proposition_rendering import build_render_contract
 from scripts.proposition_relations import (
     reconcile_range_exception_relation,
 )
+from scripts.proposition_soundness import evaluate_soundness
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     create_pending_runtime_state,
@@ -40,7 +41,7 @@ def _block(reason: str) -> dict[str, str]:
     return {"decision": "block", "reason": reason}
 
 
-def _failure_reason(result, relation_result=None) -> str:
+def _failure_reason(result, relation_result=None, soundness_result=None) -> str:
     grouped: dict[str, list[str]] = {}
     for slot in result.missing_slots:
         grouped.setdefault(slot.proposition_id, []).append(slot.expected_text.strip())
@@ -54,6 +55,15 @@ def _failure_reason(result, relation_result=None) -> str:
             f"range_exception_relation: {relation_details}"
             if relation_details
             else "range_exception_relation"
+        ) + (f" | {details}" if details else "")
+    if soundness_result is not None and not soundness_result.soundness_passed:
+        soundness_codes = ", ".join(
+            dict.fromkeys(item.code for item in soundness_result.violations)
+        )
+        details = (
+            f"semantic_soundness: {soundness_codes}"
+            if soundness_codes
+            else "semantic_soundness"
         ) + (f" | {details}" if details else "")
     if not details:
         details = "material proposition render slots are missing"
@@ -177,11 +187,19 @@ def handle_stop_event(
     ]
     result = reconcile_render_contracts(contracts, draft)
     relation_result = reconcile_range_exception_relation(state.propositions, draft)
+    try:
+        soundness_result = evaluate_soundness(state.propositions, contracts, draft)
+    except (TypeError, UnicodeError, ValueError):
+        return _fail_closed(
+            "JDIPT synthesis validation failed-closed; semantic soundness "
+            "could not be evaluated safely."
+        )
     overall_covered = result.covered and (
         relation_result is None or relation_result.covered
     )
+    overall_sound = soundness_result.soundness_passed
     phase = "second" if state.repair_count else "first"
-    if overall_covered:
+    if overall_covered and overall_sound:
         try:
             record_reconciliation(
                 state,
@@ -189,6 +207,7 @@ def handle_stop_event(
                 result,
                 plugin_data,
                 relation_result=relation_result,
+                soundness_result=soundness_result,
                 stop_disposition="COMPLETED",
             )
         except (OSError, RuntimeStateError, ValueError):
@@ -206,6 +225,7 @@ def handle_stop_event(
                 result,
                 plugin_data,
                 relation_result=relation_result,
+                soundness_result=soundness_result,
                 stop_disposition="REPAIR_EXHAUSTED",
             )
         except (OSError, RuntimeStateError, ValueError):
@@ -226,13 +246,14 @@ def handle_stop_event(
             result,
             plugin_data,
             relation_result=relation_result,
+            soundness_result=soundness_result,
             stop_disposition="REPAIR_REQUESTED",
         )
     except (OSError, RuntimeStateError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; repair state could not be persisted."
         )
-    return _block(_failure_reason(result, relation_result))
+    return _block(_failure_reason(result, relation_result, soundness_result))
 
 
 def _main() -> int:
