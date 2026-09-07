@@ -97,12 +97,14 @@ _POSITIVE_RE = re.compile(
 )
 _NEGATIVE_RE = re.compile(
     r"(?:불가능|불가|허용되지|할\s*수\s*없다|하여서는\s*안|하지\s*않아야|"
+    r"적용되지\s*않는다|해당하지\s*않는다|인정되지\s*않는다|의무가\s*없다|"
     r"금지(?:된다)?|배제된다|불허)",
     re.IGNORECASE,
 )
 _DEFINITIVE_RE = re.compile(
     r"(?:가능(?:하다|한|함)?|허용(?:된다|될\s*수\s*있다|할\s*수\s*있다)|"
     r"할\s*수\s*있다|적용된다|인정된다|허가된다|불가능|불가|허용되지|"
+    r"적용되지\s*않는다|해당하지\s*않는다|인정되지\s*않는다|의무가\s*없다|"
     r"할\s*수\s*없다|하여서는\s*안|하지\s*않아야|금지(?:된다)?|배제된다|불허|"
     r"하여야\s*한다|해야\s*한다)",
     re.IGNORECASE,
@@ -425,7 +427,7 @@ def _relation_missing_in_conclusion(
     return tuple(
         name
         for name, value in _relation_fields(proposition)
-        if value and not _field_pattern(value).search(normalized)
+        if value and not _field_is_exact(value, normalized)
     )
 
 
@@ -435,14 +437,90 @@ def _field_pattern(value: str) -> re.Pattern[str]:
     return re.compile(r"(?<![a-z0-9_가-힣])" + re.escape(normalize_rendered_text(value)) + r"(?![a-z0-9_])")
 
 
+_FIELD_PREFIX_PARTICLE_RE = re.compile(
+    r"(?:은|는|이|가|을|를|에|로|으로|에서|하고|하면|거치면|충족하고|"
+    r"및|와|과|원문상|대하여|and|or)$",
+    re.IGNORECASE,
+)
+_FIELD_PREFIX_TOKENS = {
+    "은", "는", "이", "가", "을", "를", "에", "로", "으로", "에서",
+    "하고", "하면", "거치면", "거쳐도", "충족하고", "충족하지", "충족되지", "않고", "못하고", "아니하고", "않아도", "못해도",
+    "없이", "없어도", "거치지", "생략하면", "아닌", "아니라", "변경된", "대신", "경우", "따라", "따르면", "있으면", "필요", "및", "와", "과", "원문상",
+    "대하여", "and", "or",
+}
+_FIELD_CONNECTIVE_SUFFIX_RE = re.compile(
+    r"(?:하면|하고|거쳐|거치면|이며|경우|인\s+경우|때|이면|이라면|and|or)$",
+    re.IGNORECASE,
+)
+_FIELD_RELATION_SUFFIX_TOKENS = {
+    "충족하지", "충족되지", "없이", "없어도", "거치지", "생략하면",
+    "아닌", "아니라", "변경된", "대신",
+}
+
+
+def _field_is_exact(value: str, text: str) -> bool:
+    """Match a typed field as a bounded relation value, not a subphrase."""
+
+    normalized = normalize_rendered_text(text)
+    normalized_value = normalize_rendered_text(value)
+    if not normalized_value:
+        return False
+    for match in _field_pattern(normalized_value).finditer(normalized):
+        before = normalized[:match.start()]
+        previous = re.search(r"([^\s,;:()]+)\s+$", before)
+        if previous:
+            previous_token = previous.group(1)
+            prefix_allowed = previous_token.casefold() in _FIELD_PREFIX_TOKENS
+            prefix_allowed = prefix_allowed or (
+                (len(previous_token) >= 3 or any(char.isascii() for char in previous_token))
+                and bool(_FIELD_PREFIX_PARTICLE_RE.search(previous_token))
+            )
+            if not prefix_allowed:
+                continue
+        after = normalized[match.end():]
+        following = re.match(r"\s+([^\s,;:()]+)", after)
+        if following:
+            following_token = following.group(1)
+            if (
+                following_token not in _FIELD_RELATION_SUFFIX_TOKENS
+                and not _FIELD_CONNECTIVE_SUFFIX_RE.search(normalized_value)
+            ):
+                continue
+        return True
+    return False
+
+
+_EXPLICIT_SUBJECT_RE = re.compile(
+    r"(?P<term>[^\s,;:()]+?)(?:은|는|이|가)(?=\s|$|[.!?。…])"
+)
+
+
+def _has_incompatible_explicit_subject(
+    proposition: LegalProposition,
+    text: str,
+) -> bool:
+    """Reject a relation claim whose explicit actor is not the typed actor."""
+
+    subject = proposition.subject
+    if not subject or _field_is_exact(subject, text):
+        return False
+    return any(
+        match.group("term") not in {"여부"}
+        for match in _EXPLICIT_SUBJECT_RE.finditer(text)
+    )
+
+
 _WRAPPER_GAP = r"[ \t]*(?:\n[ \t]*)?"
+_BOUNDARY_PUNCTUATION = r"[.!?。…]+"
+_WRAPPER_PUNCTUATION = r"[.!?:。…]+"
 _FALSE_WRAPPER_RE = re.compile(
-    r"(?:^|(?<=[.!?:]))[ \t]*(?:다음[ \t]+)?명제는[ \t]+거짓이다[ \t]*[:.!?]+"
+    r"(?:^|(?<=[.!?:。…]))[ \t]*(?:다음[ \t]+)?명제는[ \t]+거짓이다[ \t]*"
+    + _WRAPPER_PUNCTUATION
     + _WRAPPER_GAP + r"\Z", re.MULTILINE,
 )
 _FALSE_WRAPPER_SUFFIX_RE = re.compile(
-    r"[ \t]*[.!?]*" + _WRAPPER_GAP
-    + r"이[ \t]+명제는[ \t]+거짓이다(?:[.!?]+|$)", re.MULTILINE,
+    r"[ \t]*(?:" + _BOUNDARY_PUNCTUATION + r")?" + _WRAPPER_GAP
+    + r"이[ \t]+명제는[ \t]+거짓이다(?:" + _BOUNDARY_PUNCTUATION + r"|$)", re.MULTILINE,
 )
 
 
@@ -464,8 +542,21 @@ def _altered_relation_fields(proposition: LegalProposition, text: str) -> tuple[
     )
 
 
+_SENTENCE_BOUNDARY_SPACE_RE = re.compile(r"[ \t]+(?=[.!?。…])")
+
+
+def _normalize_sentence_boundary(text: str) -> str:
+    """Normalize only spacing immediately before sentence punctuation."""
+
+    return _SENTENCE_BOUNDARY_SPACE_RE.sub("", text.strip())
+
+
 def _sentences(text: str) -> tuple[str, ...]:
-    return tuple(part.strip() for part in re.split(r"(?<=[.!?])|[\r\n]+", text) if part.strip())
+    return tuple(
+        _normalize_sentence_boundary(part)
+        for part in re.split(r"(?<=[.!?。…])|[\r\n]+", text)
+        if _normalize_sentence_boundary(part)
+    )
 
 
 def _normalized_sentences(text: str) -> tuple[str, ...]:
@@ -579,17 +670,21 @@ def _claim_owners(
     """Use exact relation fields; incomparable identities remain ambiguous."""
     matches = [(proposition, frozenset(
         name for name, value in _relation_fields(proposition)
-        if value and _field_pattern(value).search(text)
+        if value and _field_is_exact(value, text)
     )) for proposition, _ in authorities]
-    return tuple(proposition for proposition, fields in matches if fields and not any(
-        fields < other_fields for _, other_fields in matches
-    ))
+    return tuple(
+        proposition
+        for proposition, fields in matches
+        if fields
+        and not _has_incompatible_explicit_subject(proposition, text)
+        and not any(fields < other_fields for _, other_fields in matches)
+    )
 
 
 def _open_uncertainty_assertion(proposition: LegalProposition, text: str) -> bool:
     """Accept an explicit relation-list/uncertainty construction, not co-occurrence."""
     values = {normalize_rendered_text(value) for _, value in _relation_fields(proposition)
-              if value and _field_pattern(value).search(text)}
+              if value and _field_is_exact(value, text)}
     if len(values) < 2:
         return False
     anchor = "(?:" + "|".join(re.escape(value) for value in sorted(values, key=len, reverse=True)) + ")"
@@ -608,9 +703,13 @@ def _open_uncertainty_assertion(proposition: LegalProposition, text: str) -> boo
 
 def _is_bounded_legal_claim(proposition: LegalProposition, text: str) -> bool:
     fields = {name for name, value in _relation_fields(proposition)
-              if value and _field_pattern(value).search(text)}
-    if len(fields) < 2:
+              if value and _field_is_exact(value, text)}
+    if _has_incompatible_explicit_subject(proposition, text):
         return False
+    if len(fields) < 2:
+        if not (proposition.subject and _field_is_exact(proposition.subject, text)):
+            return False
+        return bool(_DEFINITIVE_RE.search(text))
     # An object/field list cannot borrow another clause's predicate. Bind an
     # action conjugation or effect-role particle to the canonical field itself.
     # The effect role also retains claims whose original action was removed.
@@ -618,16 +717,39 @@ def _is_bounded_legal_claim(proposition: LegalProposition, text: str) -> bool:
         "legal_action": r"\s*(?:할|하여|하지|해야|해서는|된다|될|되지)",
         "legal_effect": r"\s*(?:으로|로)(?=\s|$)",
     }
-    return any(value and name in suffixes and re.search(
-        _field_pattern(value).pattern + suffixes[name], text,
-    ) for name, value in _relation_fields(proposition))
+    return any(
+        value
+        and name in suffixes
+        and _field_is_exact(value, text)
+        and re.search(_field_pattern(value).pattern + suffixes[name], text)
+        for name, value in _relation_fields(proposition)
+    )
 
 
 _LEGAL_ANAPHORA_RE = re.compile(
-    r"^(?:결론\s*:\s*)?(?:따라서\s*)?"
+    r"^(?:결론\s*:\s*)?(?:(?:따라서|그러므로)\s*)?"
     r"(?:(?:이|본|해당)\s*(?:행위|사안)(?:는|은|에는|에)\s*"
-    r"(?:허용된다|허용되지\s*않는다|금지된다|적용된다|적용되지\s*않는다)|"
-    r"(?:일부\s*)?완화(?:가|는)\s*(?:가능하다|불가능하다))[.!?]*$"
+    r"(?:허용된다|허용되지\s*않는다|금지된다|적용된다|적용되지\s*않는다|"
+    r"해당된다|해당하지\s*않는다|인정된다|인정되지\s*않는다|"
+    r"할\s*수\s*있다|할\s*수\s*없다|의무가\s*있다|의무가\s*없다)|"
+    r"(?:일부\s*)?완화(?:가|는)\s*(?:가능하다|불가능하다)|"
+    r"(?:따라서|그러므로|그러나|하지만)\s*"
+    r"(?:허용된다|허용되지\s*않는다|금지된다|적용된다|적용되지\s*않는다|"
+    r"해당된다|해당하지\s*않는다|인정된다|인정되지\s*않는다|"
+    r"할\s*수\s*있다|할\s*수\s*없다|의무가\s*있다|의무가\s*없다))"
+    r"[.!?。…]*$"
+)
+_IDENTITY_BOUND_ANAPHORA_RE = re.compile(
+    r"^(?:결론\s*:\s*)?(?:(?:따라서|그러므로)\s*)?"
+    r"(?:(?:이|본|해당)\s*(?:행위|사안)(?:는|은|에는|에)\s*"
+    r"(?:허용된다|허용되지\s*않는다|금지된다|적용된다|적용되지\s*않는다|"
+    r"해당된다|해당하지\s*않는다|인정된다|인정되지\s*않는다|"
+    r"할\s*수\s*있다|할\s*수\s*없다|의무가\s*있다|의무가\s*없다)|"
+    r"(?:따라서|그러므로|그러나|하지만)\s*"
+    r"(?:허용된다|허용되지\s*않는다|금지된다|적용된다|적용되지\s*않는다|"
+    r"해당된다|해당하지\s*않는다|인정된다|인정되지\s*않는다|"
+    r"할\s*수\s*있다|할\s*수\s*없다|의무가\s*있다|의무가\s*없다))"
+    r"[.!?。…]*$"
 )
 
 
@@ -646,8 +768,10 @@ def _claim_semantics(
     violations: list[SoundnessViolation],
 ) -> None:
     text = claim.text
-    missing = list(_relation_missing_in_conclusion(proposition, text))
-    missing.extend(name for name in _altered_relation_fields(proposition, text) if name not in missing)
+    anaphoric = _IDENTITY_BOUND_ANAPHORA_RE.fullmatch(text.strip()) is not None
+    missing = [] if anaphoric else list(_relation_missing_in_conclusion(proposition, text))
+    if not anaphoric:
+        missing.extend(name for name in _altered_relation_fields(proposition, text) if name not in missing)
 
     def reject(code: str, fields: Sequence[str] = ()) -> None:
         _append_once(violations, _make_violation(
@@ -690,7 +814,7 @@ def _claim_semantics(
             reject("FINAL_CONCLUSION_CONTRADICTION")
     elif observed and observed != {proposition.modality}:
         reject("MODALITY_CONTRADICTION", ("modality",))
-    elif not observed and not missing:
+    elif not observed and not missing and not anaphoric:
         reject("UNAVAILABLE_SEMANTIC_AUTHORITY", ("modality",))
 
     if _CONDITION_BYPASS_RE.search(predicate):
@@ -756,6 +880,18 @@ def _evaluate_claims(
                 # Explicit legal anaphora has one possible antecedent here.
                 # Ordinary ownerless predicates (e.g. document operations) do not.
                 owners = (authorities[0][0],)
+            elif (not owners and run.kind == "final_conclusion"
+                  and len(authorities) > 1
+                  and _LEGAL_ANAPHORA_RE.fullmatch(sentence)):
+                for proposition, _ in authorities:
+                    _append_once(violations, _make_violation(
+                        proposition,
+                        "AMBIGUOUS_ADOPTED_IDENTITY",
+                        matched_region=run.kind,
+                        matched_span=sentence,
+                        final_conclusion_span=sentence,
+                    ))
+                continue
             if not owners:
                 continue  # unrelated explanatory prose has no legal identity
             if len(owners) > 1:
