@@ -409,7 +409,7 @@ def evaluate_soundness(
         adopted_matches = tuple(match for match in all_matches if match.adopted)
         unadopted_required_matches = tuple(
             match
-            for slot_id, matches in matches_by_slot.items()
+            for matches in matches_by_slot.values()
             if not any(match.adopted for match in matches)
             for match in matches
         )
