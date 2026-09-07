@@ -441,7 +441,8 @@ _FALSE_WRAPPER_RE = re.compile(
     + _WRAPPER_GAP + r"\Z", re.MULTILINE,
 )
 _FALSE_WRAPPER_SUFFIX_RE = re.compile(
-    _WRAPPER_GAP + r"이[ \t]+명제는[ \t]+거짓이다(?:[.!?]+|$)", re.MULTILINE,
+    r"[ \t]*[.!?]*" + _WRAPPER_GAP
+    + r"이[ \t]+명제는[ \t]+거짓이다(?:[.!?]+|$)", re.MULTILINE,
 )
 
 
@@ -449,7 +450,7 @@ def _altered_relation_fields(proposition: LegalProposition, text: str) -> tuple[
     """Inspect only grammar immediately adjoining a canonical relation value."""
     predicates = (
         ("condition", proposition.condition, r"\s*(?:을|를|이|가|은|는)?\s*(?:충족(?:하지|되지)\s*(?:않|못|아니하)|없이|없어도)"),
-        ("procedure", proposition.procedure, r"\s*(?:을|를|이|가|은|는)?\s*(?:거치지\s*(?:않|못|아니하)|없이|없어도)"),
+        ("procedure", proposition.procedure, r"\s*(?:을|를|이|가|은|는)?\s*(?:거치지\s*(?:않|못|아니하)|생략하면|없이|없어도)"),
         ("legal_effect", proposition.legal_effect, r"\s*(?:(?:이|가)?\s*(?:아닌|아니라)|(?:으로|로)?\s*변경된|대신\s)"),
     )
     return tuple(
@@ -608,13 +609,24 @@ def _open_uncertainty_assertion(proposition: LegalProposition, text: str) -> boo
 def _is_bounded_legal_claim(proposition: LegalProposition, text: str) -> bool:
     fields = {name for name, value in _relation_fields(proposition)
               if value and _field_pattern(value).search(text)}
-    return len(fields) >= 2 and bool(fields & {"legal_action", "legal_object", "legal_effect"})
+    if len(fields) < 2:
+        return False
+    # An object/field list cannot borrow another clause's predicate. Bind an
+    # action conjugation or effect-role particle to the canonical field itself.
+    # The effect role also retains claims whose original action was removed.
+    suffixes = {
+        "legal_action": r"\s*(?:할|하여|하지|해야|해서는|된다|될|되지)",
+        "legal_effect": r"\s*(?:으로|로)(?=\s|$)",
+    }
+    return any(value and name in suffixes and re.search(
+        _field_pattern(value).pattern + suffixes[name], text,
+    ) for name, value in _relation_fields(proposition))
 
 
 _LEGAL_ANAPHORA_RE = re.compile(
     r"^(?:결론\s*:\s*)?(?:따라서\s*)?"
     r"(?:(?:이|본|해당)\s*(?:행위|사안)(?:는|은|에는|에)\s*"
-    r"(?:허용된다|허용되지\s*않는다|적용된다|적용되지\s*않는다)|"
+    r"(?:허용된다|허용되지\s*않는다|금지된다|적용된다|적용되지\s*않는다)|"
     r"(?:일부\s*)?완화(?:가|는)\s*(?:가능하다|불가능하다))[.!?]*$"
 )
 
@@ -650,17 +662,17 @@ def _claim_semantics(
     values = [value for _, value in _relation_fields(proposition) if value]
     for value in sorted(values, key=len, reverse=True):
         predicate = _field_pattern(value).sub(" ", predicate)
-    if proposition.status is PropositionStatus.OPEN:
-        # An uncertainty marker cannot cancel a definitive predicate.
-        if _has_definitive_conclusion(predicate):
-            reject("OPEN_PROMOTED_TO_CLOSED")
-        return
     observed: set[Modality] = set()
     remainder = predicate
     for modality, marker in _MODALITY_MARKERS:
         if marker.search(remainder):
             observed.add(modality)
             remainder = marker.sub("", remainder)
+    if proposition.status is PropositionStatus.OPEN:
+        # MAY_NOT is a definitive modality too; uncertainty cannot cancel it.
+        if observed or _has_definitive_conclusion(predicate):
+            reject("OPEN_PROMOTED_TO_CLOSED")
+        return
     if proposition.modality is Modality.MUST and observed != {Modality.MUST}:
         reject("MUST_DEGRADED_TO_MAY", missing)
         return

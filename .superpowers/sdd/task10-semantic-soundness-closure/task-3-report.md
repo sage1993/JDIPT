@@ -1,5 +1,73 @@
 # Task 3 report — Deterministic semantic soundness core
 
+## Fix round 5 — final allowed round, current result
+
+Base: `d505c3fd83c1f598e947def089258b9022af6e66`. All task work ran in `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`. Read the current Task 10 plan, Task 3 brief/report, both soundness/rendering modules, and the entire permanent Task 10 test file before editing. This section supersedes earlier counts and descriptions where they differ.
+
+Changed only `scripts/proposition_soundness.py`, `tests/test_task10_semantic_soundness.py`, and this report. All previous 110 Task 10 cases remain unchanged; 35 permanent cases were appended. No registry, source, obligation, Task 9 coverage, rendering/reconciliation, ASH, root-checkout, or installed-binding files were edited. The existing typed authority snapshots and validation remain intact.
+
+### Permanent RED before production
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py --tb=short
+```
+
+RED: **16 failed, 129 passed in 0.52s**, exit 1, no collection/setup errors. The 35 new cases cover:
+
+| Reproduction / control | New cases | RED failures | Final GREEN |
+| --- | ---: | ---: | ---: |
+| Repeated suffix/prefix punctuation, earlier duplicate, adjacent CRLF | 6 | 4 | 6 |
+| Field-local unmet condition, omitted/negated procedure, substituted effect; original and renamed typed values | 8 | 2 | 8 |
+| Unique final legal anaphora, CLOSED polarity and OPEN status in both directions | 4 | 2 | 4 |
+| No fallback selection between multiple authorities | 2 | 0 | 2 |
+| OPEN definitive MAY_NOT, both `하지 않을 수 있다` and `하지 않아도 된다` | 2 | 2 | 2 |
+| Unrelated two-field index/download prose, including action/effect mentions, and ownerless predicate controls | 10 | 6 | 10 |
+| CRLF fences: shorter/wrong-character false closers, equal/longer true closers, numbered code headings and original offsets | 3 | 0 | 3 |
+
+The prefix repetition, `충족하지 못해도`, `거치지 아니하고`, and `대신` cases were already fixed at this base and remain explicit preservation controls. The procedure omission failed for both original and renamed typed values. Ten RED failures were false passes; six unrelated-prose controls were false rejections. Expected structured violations and final spans are asserted through the public evaluator, with exact render coverage still passing where applicable. No tests were removed or weakened.
+
+### Minimal production changes and review
+
+- Immediate suffix wrapper grammar now accepts repeated punctuation before `이 명제는 거짓이다`. It still permits at most one adjacent newline, cannot cross an intervening assertion or blank paragraph, and checks each occurrence before exact-slot consumption. Earlier correct duplicates cannot cancel the contradiction. The existing repeated-prefix implementation is retained.
+- Added `생략하면` only to the grammar directly adjoining the typed procedure value. Existing unmet-condition, negated-procedure, and alternate-effect grammar remains. Structured `LEGAL_RELATION_DEGRADATION` identifies the single affected field; the renamed-value matrix verifies that matching is not tied to fixture strings.
+- Extended the existing full-assertion legal-anaphora grammar with `금지된다`. It is considered only in a final conclusion with one canonical authority. The already-supported allowed case remains covered. A bare definitive sentence, report operations, and non-unique anaphora do not trigger fallback assignment.
+- Typed modality-marker detection now precedes the OPEN return. An observed MAY_NOT produces `OPEN_PROMOTED_TO_CLOSED` even though it lacks the earlier generic definitive markers. No uncertainty marker can erase that definitive relation predicate.
+- Residual claim ownership requires at least two canonical fields and grammar directly attached to the canonical action or effect: an action conjugation or an effect-role particle. An object alone cannot establish legal identity; even nominal action/effect index mentions cannot borrow the report-download predicate. Effect-role identity preserves the existing missing-action regression. OPEN neutral adoption still independently requires uncertainty and at least two distinct anchors in the same explicit assertion; exact OPEN adoption remains supported.
+- Reviewed the diff and the full regression result for field/region locality, typed authority freshness, raw assertion boundaries, and public classifier compatibility. The fence scanner itself was not changed; its CRLF, matching-character, closing-length, masked-heading, and offset behavior is verified by the new controls and all prior fence cases.
+
+Scope review: no keyword-only/document-wide semantic inference, automatic repair/injection/rewrite, enum string fallback, compatibility table, source bypass, latest-state fallback, ASH constants, or Task 9 exact-render changes were introduced. Production changed by 21 added / 9 removed lines; test changes are append-only. This remains a deterministic bounded grammar gate, not unrestricted natural-language equivalence or external source-freshness verification.
+
+### GREEN, focused integration, and full suite
+
+```powershell
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py tests/test_proposition_soundness.py --tb=short
+```
+
+Soundness GREEN: **161 passed in 0.32s**, exit 0 (**145 Task 10 + 16 existing soundness**).
+
+The first focused integration run used worktree-local `.pytest-task3-fix5-focused` and produced **231 passed, 71 setup errors in 1.66s**, exit 1. All setup errors were the reproduced Windows sandbox `PermissionError` creating that directory. The approved rerun used a fresh worktree-local path:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+$env:PYTEST_ADDOPTS='-p no:cacheprovider --basetemp=F:/2026-PJ/JDIPT/.worktrees/task10-semantic-soundness-closure/.pytest-task3-fix5-focused-approved'
+python -m pytest -q tests/test_task10_semantic_soundness.py tests/test_proposition_soundness.py tests/test_proposition_rendering.py tests/test_proposition_reconciliation.py tests/test_proposition_render_coverage.py tests/test_task9_deterministic_render_coverage.py tests/test_task5_source_obligation_closure.py tests/test_task8_material_obligation_registry_closure.py tests/test_typed_semantic_controls.py --tb=short
+```
+
+Focused integration: **1 failed, 301 passed in 0.99s**, exit 1, no setup errors.
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+$env:PYTEST_ADDOPTS='-p no:cacheprovider --basetemp=F:/2026-PJ/JDIPT/.worktrees/task10-semantic-soundness-closure/.pytest-task3-fix5-full'
+python -m pytest -q --tb=short
+```
+
+Full suite with approved worktree-local temporary writes: **1 failed, 614 passed in 6.17s**, exit 1, no setup errors. Both runs have the same sole pre-existing failure: `tests/test_task5_source_obligation_closure.py::test_stop_blocks_final_conclusion_modality_degradation_after_valid_effect_slot`, line 425, expects soundness PASS for canonical MUST rendered as MAY. Task 10 requires rejecting that weakening. The stop decision still blocks. Neither the protected Task 5 expectation nor the required soundness rejection was weakened; the full suite is not entirely green.
+
+Required checks: `python scripts/validate_repo.py` **PASS**; `python scripts/validate_authority_temporal_contract.py` **PASS**; `python scripts/plugin_integrity.py` **FAIL**, exit 1, with the same **18 installed mismatches**. These are repository regression results, not installed-runtime parity evidence. `git diff --check` **PASS** with Git LF-to-CRLF notices only. The protected-path diff listing is empty.
+
+Commit subject: `feat: add deterministic semantic soundness gate`. The pre-existing untracked Task 10 plan is excluded. Only production, permanent tests, and this report are included.
+
 ## Fix round 4 — current result
 
 Base: `14763230f493cd5abeb86beb91f237d8438b6c74`. Worktree: `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`. Read the Task 10 plan, Task 3 brief/report, current production/tests, round 3 review package, and the independent reviewer's five Important findings. This section supersedes previous counts and implementation descriptions where they differ.
