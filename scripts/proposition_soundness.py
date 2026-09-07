@@ -407,27 +407,34 @@ def evaluate_soundness(
             for match in matches
         )
         adopted_matches = tuple(match for match in all_matches if match.adopted)
+        unadopted_required_matches = tuple(
+            match
+            for slot_id, matches in matches_by_slot.items()
+            if not any(match.adopted for match in matches)
+            for match in matches
+        )
+        required_slots_adopted = all(
+            any(match.adopted for match in matches_by_slot[slot.slot_id])
+            for slot in contract.slots
+        )
 
-        if proposition.status is PropositionStatus.CLOSED and not adopted_matches:
-            if any(match.kind == "code_block" for match in all_matches) and not any(
-                match.adopted for match in all_matches
-            ):
+        if proposition.status is PropositionStatus.CLOSED and not required_slots_adopted:
+            evidence_matches = unadopted_required_matches or all_matches
+            if any(match.kind == "code_block" for match in evidence_matches):
                 code = "CODE_BLOCK_OR_EXAMPLE_ONLY"
                 region = "code_block"
-            elif any(match.kind == "example" for match in all_matches) and not any(
-                match.adopted for match in all_matches
-            ):
+            elif any(match.kind == "example" for match in evidence_matches):
                 code = "CODE_BLOCK_OR_EXAMPLE_ONLY"
                 region = "example"
-            elif all_matches:
+            elif evidence_matches:
                 code = "REJECTED_QUOTATION_ONLY"
                 region = next(
                     (
                         match.kind
-                        for match in all_matches
+                        for match in evidence_matches
                         if match.kind in {"quotation", "rejected_alternative"}
                     ),
-                    all_matches[0].kind,
+                    evidence_matches[0].kind,
                 )
             else:
                 code = "REJECTED_QUOTATION_ONLY"
@@ -438,7 +445,9 @@ def evaluate_soundness(
                     proposition,
                     code,
                     matched_region=region,
-                    matched_span=" ".join(match.text.strip() for match in all_matches),
+                    matched_span=" ".join(
+                        match.text.strip() for match in evidence_matches
+                    ),
                     final_conclusion_span=conclusion,
                 ),
             )

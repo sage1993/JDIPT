@@ -112,6 +112,19 @@ def test_fenced_code_block_only_is_not_an_adopted_proposition():
     assert soundness.violations[0].matched_region == "code_block"
 
 
+def test_each_required_slot_must_be_adopted_not_just_one_slot():
+    proposition = _closed_proposition()
+    contract = build_render_contract(proposition)
+    draft = f"{contract.slots[0].text}\n'{contract.slots[1].text}'"
+
+    coverage = reconcile_render_contracts([contract], draft)
+    soundness = evaluate_soundness([proposition], [contract], draft)
+
+    assert coverage.covered
+    assert not soundness.soundness_passed
+    assert _codes(soundness) == {"REJECTED_QUOTATION_ONLY"}
+
+
 def test_example_only_is_not_an_adopted_proposition():
     proposition = _closed_proposition()
     contract, rendered = _covered_draft(proposition)
