@@ -128,6 +128,8 @@ PROPOSITION_REGISTRY = ROOT / "scripts" / "proposition_registry.py"
 ACTIVATION = ROOT / "scripts" / "jdipt_activation.py"
 PROPOSITION_RELATIONS = ROOT / "scripts" / "proposition_relations.py"
 PROPOSITION_SOUNDNESS = ROOT / "scripts" / "proposition_soundness.py"
+PROPOSITION_SOURCE_CLOSURE = ROOT / "scripts" / "proposition_source_closure.py"
+PROPOSITION_OBLIGATION_CLOSURE = ROOT / "scripts" / "proposition_obligation_closure.py"
 REQUIRED_RUNTIME_FILES = (
     PROPOSITION_MODEL,
     PROPOSITION_RENDERING,
@@ -136,6 +138,8 @@ REQUIRED_RUNTIME_FILES = (
     ACTIVATION,
     PROPOSITION_RELATIONS,
     PROPOSITION_SOUNDNESS,
+    PROPOSITION_SOURCE_CLOSURE,
+    PROPOSITION_OBLIGATION_CLOSURE,
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
@@ -181,6 +185,32 @@ RUNTIME_PRODUCTION_MARKERS = {
         "FINAL_CONCLUSION_CONTRADICTION",
         "LEGAL_RELATION_DEGRADATION",
         "def evaluate_soundness",
+    ),
+    "scripts/proposition_source_closure.py": (
+        "class SourceClosureViolation",
+        "class SourceClosureResult",
+        "SOURCE_REQUIRED_BUT_MISSING",
+        "SOURCE_PRESENT_BUT_NOT_SUPPORTING",
+        "SOURCE_PROPOSITION_MISMATCH",
+        "INSUFFICIENT_AUTHORITY",
+        "OUTDATED_SOURCE_USED",
+        "TEMPORAL_SOURCE_UNRESOLVED",
+        "MATERIAL_SOURCE_OMITTED",
+        "def evaluate_source_closure",
+    ),
+    "scripts/proposition_obligation_closure.py": (
+        "class ObligationClosureViolation",
+        "class ObligationClosureResult",
+        "OBLIGATION_DROPPED",
+        "MUST_DEGRADED_TO_MAY",
+        "MUST_NOT_DEGRADED",
+        "CONDITION_DROPPED",
+        "EXCEPTION_DROPPED",
+        "PROCEDURAL_PREREQUISITE_DROPPED",
+        "DEPENDENCY_OPEN",
+        "DEPENDENCY_OMITTED",
+        "FINAL_CONCLUSION_UNSUPPORTED",
+        "def evaluate_obligation_closure",
     ),
     "scripts/jdipt_runtime_mcp.py": (
         "register_material_proposition",
@@ -508,6 +538,8 @@ PRODUCTION_RUNTIME_MODULES = (
     "scripts/proposition_rendering.py",
     "scripts/proposition_reconciliation.py",
     "scripts/proposition_registry.py",
+    "scripts/proposition_source_closure.py",
+    "scripts/proposition_obligation_closure.py",
     "scripts/synthesis_runtime_state.py",
     "scripts/jdipt_runtime_mcp.py",
     "scripts/inject_registry_runtime.py",

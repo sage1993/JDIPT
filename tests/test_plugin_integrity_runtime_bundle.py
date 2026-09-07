@@ -12,6 +12,8 @@ PLUGIN_FILES = (
     "scripts/proposition_reconciliation.py",
     "scripts/proposition_registry.py",
     "scripts/proposition_soundness.py",
+    "scripts/proposition_source_closure.py",
+    "scripts/proposition_obligation_closure.py",
     "scripts/synthesis_runtime_state.py",
     "scripts/jdipt_runtime_mcp.py",
     "scripts/inject_registry_runtime.py",
@@ -47,6 +49,8 @@ def test_manifest_includes_canonical_plugin_runtime_bundle(tmp_path):
     assert "plugin/scripts/proposition_reconciliation.py" in manifest
     assert "plugin/scripts/proposition_registry.py" in manifest
     assert "plugin/scripts/proposition_soundness.py" in manifest
+    assert "plugin/scripts/proposition_source_closure.py" in manifest
+    assert "plugin/scripts/proposition_obligation_closure.py" in manifest
     assert "plugin/scripts/stop_synthesis_gate.py" in manifest
     assert "plugin/scripts/synthesis_runtime_state.py" in manifest
     assert "plugin/scripts/runtime_registry_state.py" not in manifest

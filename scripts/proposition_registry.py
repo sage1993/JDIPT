@@ -13,6 +13,8 @@ from scripts.legal_proposition import (
     normalize_materiality,
     normalize_modality,
     normalize_polarity,
+    normalize_authority_requirement,
+    normalize_temporal_requirement,
     normalize_status,
     PropositionValidationError,
 )
@@ -56,6 +58,9 @@ _REGISTRY_FIELDS = frozenset(
         "exception_proposition_id",
         "base_rule",
         "exception_rule",
+        "required_authority",
+        "required_temporal_status",
+        "required_source_type",
         *_EVIDENCE_FIELDS,
     }
 )
@@ -120,6 +125,13 @@ def _build_proposition(fields: Mapping[str, Any]) -> LegalProposition:
         exception_proposition_id=_text_arg(fields, "exception_proposition_id"),
         base_rule=_text_arg(fields, "base_rule"),
         exception_rule=_text_arg(fields, "exception_rule"),
+        required_authority=normalize_authority_requirement(
+            fields.get("required_authority"),
+        ) or normalize_authority_requirement("PRIMARY", required=True),
+        required_temporal_status=normalize_temporal_requirement(
+            fields.get("required_temporal_status"),
+        ) or normalize_temporal_requirement("CURRENT", required=True),
+        required_source_type=_text_arg(fields, "required_source_type"),
         evidence=_build_evidence(fields),
     )
 

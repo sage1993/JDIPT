@@ -253,6 +253,22 @@ issue마다 필요한 범위에서 다음 evidence slot을 확인한다.
 - `law.go.kr/LSW/flDownload.do` combined with `flNm` is unstable for user-facing source provenance and is forbidden even when `flNm` is validly percent-encoded. Use a verified `lsInfoP.do` or stable parent page instead.
 - **`lsBylInfoPLinkR.do` + `lsNm` 링크는 사용자 출력에 사용하지 않는다.** 사람용 법령명 query는 재인코딩 과정에서 혼합 인코딩이 생기기 쉬우므로, 현재 실행에서 검증한 식별자 기반의 안정적인 상위 법령·별표 페이지를 사용하고 없으면 `[공식 링크 확인 필요]`로 처리한다.
 Stable source policy forbids the classes `flDownload.do + flNm` and `lsBylInfoPLinkR.do + lsNm`.
+
+## Source / Authority / Temporal Closure Gate
+
+Source presence is not source support. For every material proposition, evaluate these states independently and preserve the terminal state in runtime evidence:
+
+`SOURCE_ABSENT` → `SOURCE_PRESENT` → `SOURCE_MATCHED` → `SOURCE_SUPPORTING` → `SOURCE_AUTHORITY_SATISFIED` → `SOURCE_TEMPORALLY_VALID` → `SOURCE_CLOSED`.
+
+- `SOURCE_PRESENT` means only that an evidence reference exists.
+- `SOURCE_MATCHED` means that some proposition fields match the evidence span; it is not complete support.
+- `SOURCE_SUPPORTING` requires the complete legal relation, including the operative action/effect and any condition or procedure, with compatible typed modality and polarity.
+- `SOURCE_AUTHORITY_SATISFIED` requires the source authority to meet the proposition's requirement. A guidance document cannot close a proposition requiring primary law; a government interpretation is not a court judgment.
+- `SOURCE_TEMPORALLY_VALID` requires the source version/status to satisfy the proposition's temporal requirement. Historical-only or unresolved current status cannot close a current proposition.
+- `SOURCE_CLOSED` additionally requires the source identifier or locator to be present in the adopted answer region. A rejected quotation, code block, example, or citation outside the adopted answer does not close the source.
+
+The runtime emits distinct violations for missing, non-supporting, mismatched, insufficient-authority, outdated, unresolved-temporal, and omitted material sources. Each result retains the source identifier, source span, matched span, required/actual authority, required/actual temporal status, proposition identity, typed semantics, and final-conclusion span. Non-material propositions do not create an unnecessary source requirement.
+
 ## Material Source Dependency Closure Gate
 
 - A defined legal category must not remain an opaque label when its scope can change the legal conclusion.

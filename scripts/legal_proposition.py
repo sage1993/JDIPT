@@ -20,6 +20,20 @@ class Modality(StrEnum):
     MAY_NOT = "MAY_NOT"
 
 
+class AuthorityRequirement(StrEnum):
+    PRIMARY = "PRIMARY"
+    PRECEDENT = "PRECEDENT"
+    INTERPRETATION = "INTERPRETATION"
+    GUIDANCE = "GUIDANCE"
+    ANY = "ANY"
+
+
+class TemporalRequirement(StrEnum):
+    CURRENT = "CURRENT"
+    HISTORICAL = "HISTORICAL"
+    ANY = "ANY"
+
+
 class Polarity(StrEnum):
     POSITIVE = "POSITIVE"
     NEGATIVE = "NEGATIVE"
@@ -85,6 +99,26 @@ _MODALITY_ALIASES = {
     "MAY_NOT": Modality.MAY_NOT,
     "may not": Modality.MAY_NOT,
 }
+_AUTHORITY_REQUIREMENT_ALIASES = {
+    "PRIMARY": AuthorityRequirement.PRIMARY,
+    "primary": AuthorityRequirement.PRIMARY,
+    "PRECEDENT": AuthorityRequirement.PRECEDENT,
+    "precedent": AuthorityRequirement.PRECEDENT,
+    "INTERPRETATION": AuthorityRequirement.INTERPRETATION,
+    "interpretation": AuthorityRequirement.INTERPRETATION,
+    "GUIDANCE": AuthorityRequirement.GUIDANCE,
+    "guidance": AuthorityRequirement.GUIDANCE,
+    "ANY": AuthorityRequirement.ANY,
+    "any": AuthorityRequirement.ANY,
+}
+_TEMPORAL_REQUIREMENT_ALIASES = {
+    "CURRENT": TemporalRequirement.CURRENT,
+    "current": TemporalRequirement.CURRENT,
+    "HISTORICAL": TemporalRequirement.HISTORICAL,
+    "historical": TemporalRequirement.HISTORICAL,
+    "ANY": TemporalRequirement.ANY,
+    "any": TemporalRequirement.ANY,
+}
 _POLARITY_ALIASES = {
     "POSITIVE": Polarity.POSITIVE,
     "positive": Polarity.POSITIVE,
@@ -137,6 +171,34 @@ def normalize_modality(raw: object, *, required: bool = False) -> Modality | Non
         "modality",
         _MODALITY_ALIASES,
         Modality,
+        required=required,
+    )
+
+
+def normalize_authority_requirement(
+    raw: object,
+    *,
+    required: bool = False,
+) -> AuthorityRequirement | None:
+    return _normalize_control(
+        raw,
+        "required_authority",
+        _AUTHORITY_REQUIREMENT_ALIASES,
+        AuthorityRequirement,
+        required=required,
+    )
+
+
+def normalize_temporal_requirement(
+    raw: object,
+    *,
+    required: bool = False,
+) -> TemporalRequirement | None:
+    return _normalize_control(
+        raw,
+        "required_temporal_status",
+        _TEMPORAL_REQUIREMENT_ALIASES,
+        TemporalRequirement,
         required=required,
     )
 
@@ -239,6 +301,9 @@ class LegalProposition:
     evidence: EvidenceRef | None
     base_rule: str | None = None
     exception_rule: str | None = None
+    required_authority: AuthorityRequirement = AuthorityRequirement.PRIMARY
+    required_temporal_status: TemporalRequirement = TemporalRequirement.CURRENT
+    required_source_type: AuthorityKind | None = None
 
     def __post_init__(self) -> None:
         _validate_identifier(self.proposition_id, "proposition_id")
@@ -258,6 +323,21 @@ class LegalProposition:
             raise PropositionValidationError(
                 "polarity must be a canonical Polarity value"
             )
+        if not isinstance(self.required_authority, AuthorityRequirement):
+            raise PropositionValidationError(
+                "required_authority must be a canonical AuthorityRequirement value"
+            )
+        if not isinstance(self.required_temporal_status, TemporalRequirement):
+            raise PropositionValidationError(
+                "required_temporal_status must be a canonical TemporalRequirement value"
+            )
+        if (
+            self.required_source_type is not None
+            and self.required_source_type not in _AUTHORITY_KINDS
+        ):
+            raise PropositionValidationError(
+                "required_source_type must be a supported authority kind"
+            )
 
         for name in (
             "subject",
@@ -274,6 +354,9 @@ class LegalProposition:
             "exception_proposition_id",
             "base_rule",
             "exception_rule",
+            "required_authority",
+            "required_temporal_status",
+            "required_source_type",
         ):
             value = getattr(self, name)
             if value is not None:

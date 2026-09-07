@@ -12,14 +12,18 @@ from typing import Any
 from typing import Literal
 
 from scripts.legal_proposition import (
+    normalize_authority_requirement,
     EvidenceRef,
     LegalProposition,
     normalize_materiality,
     normalize_modality,
     normalize_polarity,
     normalize_status,
+    normalize_temporal_requirement,
     PropositionValidationError,
 )
+from scripts.proposition_obligation_closure import obligation_closure_result_to_dict
+from scripts.proposition_source_closure import source_closure_result_to_dict
 from scripts.proposition_soundness import soundness_result_to_dict
 
 
@@ -202,7 +206,14 @@ def _as_json(state: RuntimeTurnState) -> dict[str, Any]:
         raise RuntimeStateError(f"invalid runtime state: {exc}") from exc
     payload = asdict(state)
     for item in payload["propositions"]:
-        for field in ("status", "materiality", "modality", "polarity"):
+        for field in (
+            "status",
+            "materiality",
+            "modality",
+            "polarity",
+            "required_authority",
+            "required_temporal_status",
+        ):
             value = item[field]
             item[field] = None if value is None else value.value
     return payload
@@ -253,6 +264,12 @@ def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
             )
             proposition_fields["polarity"] = normalize_polarity(
                 proposition_fields.get("polarity")
+            )
+            proposition_fields["required_authority"] = normalize_authority_requirement(
+                proposition_fields.get("required_authority", "PRIMARY")
+            )
+            proposition_fields["required_temporal_status"] = normalize_temporal_requirement(
+                proposition_fields.get("required_temporal_status", "CURRENT")
             )
             propositions.append(LegalProposition(**proposition_fields))
     except (KeyError, TypeError, ValueError, RuntimeStateError, PropositionValidationError) as exc:
@@ -420,6 +437,8 @@ def _reconciliation_summary(
     result: Any,
     relation_result: Any | None = None,
     soundness_result: Any | None = None,
+    source_closure_result: Any | None = None,
+    obligation_closure_result: Any | None = None,
 ) -> dict[str, Any]:
     """Serialize compact reconciliation evidence without copying the draft."""
 
@@ -449,6 +468,12 @@ def _reconciliation_summary(
         }
     if soundness_result is not None:
         summary["soundness"] = soundness_result_to_dict(soundness_result)
+    if source_closure_result is not None:
+        summary["source_closure"] = source_closure_result_to_dict(source_closure_result)
+    if obligation_closure_result is not None:
+        summary["obligation_closure"] = obligation_closure_result_to_dict(
+            obligation_closure_result
+        )
     summary["overall_covered"] = bool(
         summary["covered"]
         and (
@@ -467,6 +492,8 @@ def record_reconciliation(
     *,
     relation_result: Any | None = None,
     soundness_result: Any | None = None,
+    source_closure_result: Any | None = None,
+    obligation_closure_result: Any | None = None,
     stop_disposition: str | None = None,
 ) -> RuntimeTurnState:
     """Persist compact first/second reconciliation and relation evidence."""
@@ -478,6 +505,8 @@ def record_reconciliation(
             result,
             relation_result,
             soundness_result,
+            source_closure_result,
+            obligation_closure_result,
         )
     }
     if stop_disposition is not None:

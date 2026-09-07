@@ -2,6 +2,7 @@ import pytest
 import json
 
 from scripts.legal_proposition import (
+    AuthorityRequirement,
     EvidenceRef,
     LegalProposition,
     Materiality,
@@ -9,6 +10,7 @@ from scripts.legal_proposition import (
     Polarity,
     PropositionStatus,
     PropositionValidationError,
+    TemporalRequirement,
 )
 from scripts.proposition_registry import register_material_proposition
 from scripts.jdipt_runtime_mcp import tool_definitions
@@ -102,6 +104,12 @@ def test_direct_domain_rejects_unknown_polarity(value):
 def test_direct_domain_rejects_unknown_proposition_status(value):
     with pytest.raises(PropositionValidationError, match="status"):
         _closed_proposition(status=value)
+
+
+@pytest.mark.parametrize("field", ["required_authority", "required_temporal_status"])
+def test_direct_domain_rejects_unknown_source_closure_requirement(field):
+    with pytest.raises(PropositionValidationError, match=field):
+        _closed_proposition(**{field: "UNKNOWN"})
 
 
 def test_registry_rejects_unknown_materiality_instead_of_downgrading(tmp_path):
@@ -203,6 +211,31 @@ def test_registry_does_not_derive_polarity_from_negative_modality(tmp_path):
     assert result.proposition.polarity is Polarity.POSITIVE
 
 
+@pytest.mark.parametrize("field", ["required_authority", "required_temporal_status"])
+def test_registry_rejects_unknown_source_closure_requirement(tmp_path, field):
+    with pytest.raises(PropositionValidationError, match=field):
+        register_material_proposition(
+            _closed_fields(**{field: "UNKNOWN"}),
+            tmp_path,
+        )
+
+
+def test_registry_source_closure_requirements_are_typed_and_persisted(tmp_path):
+    result = register_material_proposition(
+        _closed_fields(
+            required_authority="INTERPRETATION",
+            required_temporal_status="HISTORICAL",
+        ),
+        tmp_path,
+    )
+
+    assert result.proposition.required_authority is AuthorityRequirement.INTERPRETATION
+    assert result.proposition.required_temporal_status is TemporalRequirement.HISTORICAL
+    loaded = load_runtime_state("session-a", "turn-1", tmp_path)
+    assert loaded.propositions[0].required_authority is AuthorityRequirement.INTERPRETATION
+    assert loaded.propositions[0].required_temporal_status is TemporalRequirement.HISTORICAL
+
+
 def test_serialization_round_trip_writes_and_restores_canonical_values(tmp_path):
     result = register_material_proposition(
         _closed_fields(
@@ -254,3 +287,15 @@ def test_mcp_schema_restricts_semantic_properties_to_explicit_values():
         "MAY_NOT",
     ]
     assert properties["polarity"]["enum"][:2] == ["POSITIVE", "NEGATIVE"]
+    assert properties["required_authority"]["enum"][:5] == [
+        "PRIMARY",
+        "PRECEDENT",
+        "INTERPRETATION",
+        "GUIDANCE",
+        "ANY",
+    ]
+    assert properties["required_temporal_status"]["enum"][:3] == [
+        "CURRENT",
+        "HISTORICAL",
+        "ANY",
+    ]

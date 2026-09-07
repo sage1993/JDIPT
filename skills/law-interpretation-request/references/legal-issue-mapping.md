@@ -224,6 +224,12 @@ P3 = P2 is exception-to P1
 
 When P1 and P2 are material and `CLOSED`, both propositions and P3's relation are independently preserved in synthesis. Do not merge a base threshold and an exception threshold into one general relaxation, and do not treat coverage of P2 as coverage of P1. If P2's condition, procedure, or specific legal effect is `OPEN`, retain that unresolved state rather than borrowing it from P1.
 
+### Obligation and Dependency Closure
+
+The final answer is closed only when each material proposition and every registered base/exception dependency required by that proposition is represented in an adopted answer region. A parent proposition with a missing dependency, an `OPEN` dependency, or a dependency present only in a rejected quotation, example, or code block remains unresolved. The runtime records `DEPENDENCY_OMITTED` and `DEPENDENCY_OPEN` separately.
+
+The dependency check is semantic and typed, not a topic or substring check. It preserves the dependency proposition ID, relation type, condition, exception, procedure, modality, polarity, and source-specific legal effect. `MUST` cannot become `MAY`, `MUST_NOT` cannot become a caution, a required procedure cannot become background, and an exception-limited rule cannot become an unconditional general rule. A final conclusion that is stronger, broader, or opposite in polarity than the adopted supported propositions is `FINAL_CONCLUSION_UNSUPPORTED` and blocks rendering.
+
 ## Mandatory Proposition Sentence Construction
 
 After the ledger is closed, do not give a material CLOSED proposition to free-form summary first. Construct one mandatory proposition sentence for each material proposition and place those sentences in the draft before optional explanation.

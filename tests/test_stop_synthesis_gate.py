@@ -30,8 +30,8 @@ def _evidence():
         source_id="law-001",
         authority_kind="statute",
         source_title="검증 법령",
-        source_locator="법령 식별자/조문",
-        evidence_span="확인된 원문",
+        source_locator="https://example.test/law-001",
+        evidence_span="A는 C를 충족하고 P를 거쳐 O를 Z로 지정할 수 있다.",
         temporal_status="CURRENT_CONFIRMED",
         temporal_render_text="2026-09-04 현재 시행 중인 기준이다.",
     )
@@ -97,7 +97,13 @@ def test_valid_exact_effect_and_temporal_slots_are_accepted(tmp_path):
     state = _state()
     save_runtime_state(state, tmp_path)
     contract = build_render_contract(state.propositions[0])
-    draft = "\n\n".join(slot.text for slot in contract.slots)
+    draft = "\n\n".join(
+        [
+            "# 2. 검토결론",
+            *(slot.text for slot in contract.slots),
+            "근거: law-001 검증 법령 https://example.test/law-001",
+        ]
+    )
 
     assert handle_stop_event(_event(draft), tmp_path) == {}
 
@@ -107,7 +113,7 @@ def test_coverage_pass_with_soundness_failure_blocks_and_persists_both_results(t
     save_runtime_state(state, tmp_path)
     contract = build_render_contract(state.propositions[0])
     rendered = "\n".join(slot.text for slot in contract.slots)
-    draft = f"다음 견해의 인용: '{rendered}' 그러나 이 견해는 타당하지 않다."
+    draft = f"다음 견해의 인용: '{rendered}' 그러나 이 견해는 타당하지 않다.\n근거: law-001 검증 법령 https://example.test/law-001"
 
     result = handle_stop_event(_event(draft), tmp_path)
     stored = load_runtime_state("session-a", "turn-1", tmp_path)
@@ -126,7 +132,7 @@ def test_soundness_failure_exhausts_existing_bounded_repair(tmp_path):
     save_runtime_state(state, tmp_path)
     contract = build_render_contract(state.propositions[0])
     rendered = "\n".join(slot.text for slot in contract.slots)
-    draft = f"```text\n{rendered}\n```"
+    draft = f"```text\n{rendered}\n```\n근거: law-001 검증 법령 https://example.test/law-001"
 
     result = handle_stop_event(
         _event(draft, stop_hook_active=True),
@@ -145,7 +151,7 @@ def test_quotation_with_separate_adopted_proposition_is_accepted_by_stop_gate(tm
     save_runtime_state(state, tmp_path)
     contract = build_render_contract(state.propositions[0])
     rendered = "\n".join(slot.text for slot in contract.slots)
-    draft = f"반대 견해의 인용: '{rendered}'\n분석: {rendered}"
+    draft = f"반대 견해의 인용: '{rendered}'\n# 2. 검토결론\n{rendered}\n근거: law-001 검증 법령 https://example.test/law-001"
 
     assert handle_stop_event(_event(draft), tmp_path) == {}
     stored = load_runtime_state("session-a", "turn-1", tmp_path)
@@ -245,7 +251,9 @@ def test_malformed_state_fails_closed(tmp_path):
 def test_wrong_session_or_turn_cannot_reuse_state(tmp_path):
     save_runtime_state(_state(), tmp_path)
     contract = build_render_contract(_proposition())
-    draft = "\n\n".join(slot.text for slot in contract.slots)
+    draft = "\n\n".join(
+        [*(slot.text for slot in contract.slots), "근거: law-001 검증 법령 https://example.test/law-001"]
+    )
 
     assert handle_stop_event(
         _event(draft, session_id="other-session"),

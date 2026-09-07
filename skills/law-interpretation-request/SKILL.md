@@ -31,6 +31,17 @@ The runtime sequence is:
 - The registry accepts structured proposition fields; render slots are generated deterministically from the canonical proposition and are not model-authored. Every material `CLOSED` proposition receives an independent mandatory render slot before explanatory synthesis. Preserve condition, procedure, modality, legal action, legal object, resulting status/effect, polarity, and base/exception relation.
 - Runtime state is compact, turn-scoped persistence under `PLUGIN_DATA` and is not evidence that the host explicitly invoked the Plugin. An unrelated turn without the exact authoritative record is a no-op. State does not contain secrets, transcripts, or full source documents.
 - The `Stop` gate reconciles exact render slots against the draft, permits one targeted repair and one bounded re-check, and then fails closed if the next Stop event still does not reconcile. An `OPEN` proposition remains `확인 필요` or a neutral conditional statement.
+
+### Source / Obligation Closure Gate (MUST)
+
+After coverage and Semantic Soundness, the exact-turn Stop path runs two independent deterministic closure gates:
+
+- **Source Closure** verifies that every material proposition has an evidence span preserving its subject, legal action, object, condition, procedure, modality, polarity, and legal effect; that the adopted answer contains the source identifier or locator; and that the source satisfies the required authority and temporal status. A URL, citation marker, source title, or same-topic text alone is not support.
+- **Obligation / Dependency Closure** verifies that `MUST`, `MUST_NOT`, conditions, exceptions, mandatory procedures, and material proposition dependencies survive into the adopted final answer and that the final conclusion is not stronger, broader, or opposite in polarity to the supported proposition.
+
+The source states are evaluated separately (`SOURCE_ABSENT`, `SOURCE_PRESENT`, `SOURCE_MATCHED`, `SOURCE_SUPPORTING`, `SOURCE_AUTHORITY_SATISFIED`, `SOURCE_TEMPORALLY_VALID`, `SOURCE_CLOSED`). The result is not reduced to a source-present boolean. Each violation retains proposition identity, typed semantics, required/actual authority, temporal status, source and matched spans, dependency identifiers, final-conclusion span, and reason. Coverage, soundness, source closure, authority closure, temporal closure, obligation closure, dependency closure, and final-conclusion support remain independent state fields.
+
+Any Task 5 failure blocks the final answer. One bounded repair may restore an already-registered source anchor, supporting span, obligation, condition, exception, procedure, dependency, or proposition-consistent modality. Repair may not invent sources, authority, law, or a closed status. If the re-check still fails, the Stop gate fails closed and does not emit the candidate answer.
 ## 응답 모드 라우팅
 
 응답 형식은 정보 부족 판단보다 먼저 확정한다.

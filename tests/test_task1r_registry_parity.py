@@ -64,7 +64,7 @@ def _registry_fields(tmp_path, *, session_id="session-a", turn_id="turn-1"):
         "authority_kind": "statute",
         "source_title": "검증 법령",
         "source_locator": "법령 식별자/조문",
-        "evidence_span": "확인된 원문",
+        "evidence_span": "행정청은 요건 C를 충족하고 절차 P를 거쳐 대상 O를 지위 Z로 지정할 수 있다.",
         "temporal_status": "CURRENT_CONFIRMED",
         "temporal_render_text": "현행 기준에 따른다.",
         "_runtime_plugin_data": str(tmp_path),
@@ -178,7 +178,12 @@ def test_completed_registry_does_not_increment_registry_enforcement(tmp_path):
     state = load_runtime_state("session-a", "turn-1", tmp_path)
     assert state is not None
     draft = "\n".join(
-        slot.text for slot in build_render_contract(state.propositions[0]).slots
+        (
+            "# 2. 검토결론",
+            "요건 C를 충족하고 절차 P를 거치면 행정청은 대상 O를 지위 Z로 지정할 수 있다.",
+            *(slot.text for slot in build_render_contract(state.propositions[0]).slots),
+            "근거: law-001 검증 법령 법령 식별자/조문",
+        )
     )
 
     result = handle_stop_event(
@@ -240,6 +245,7 @@ def test_canonical_registry_to_stop_preserves_relation_and_final_evidence(tmp_pa
             "legal_object": "사업대상지",
             "legal_effect": "예외 대상 지정",
             "operative_verb_lexeme": "지정",
+            "evidence_span": "행정청은 특정 입지 요건을 충족하는 경우 통합심의를 거치면 사업대상지를 예외 대상 지정할 수 있다.",
         }
     )
     dispatch_json_rpc(_tool_call(base))
@@ -250,11 +256,15 @@ def test_canonical_registry_to_stop_preserves_relation_and_final_evidence(tmp_pa
     relation = build_range_exception_relation(state.propositions)
     assert relation is not None
     draft = "\n".join(
-        slot.text
-        for proposition in state.propositions
-        for slot in build_render_contract(proposition).slots
+        (
+            "# 2. 검토결론",
+            "요건 C를 충족하고 절차 P를 거치면 행정청은 대상 O를 지위 Z로 지정할 수 있다.",
+            "예외: 특정 입지 요건을 충족하는 경우 통합심의를 거치면 행정청은 사업대상지를 예외 대상 지정할 수 있다.",
+            *(slot.text for proposition in state.propositions for slot in build_render_contract(proposition).slots),
+            render_range_exception_relation(relation),
+            "근거: law-001 검증 법령 법령 식별자/조문",
+        )
     )
-    draft += "\n" + render_range_exception_relation(relation)
 
     result = handle_stop_event(_stop_event(draft), tmp_path)
 
