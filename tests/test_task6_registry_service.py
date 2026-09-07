@@ -1,12 +1,17 @@
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from scripts.proposition_registry import RegistryService
 from scripts.synthesis_runtime_state import (
+    RUNTIME_STATE_SCHEMA_VERSION,
     RuntimeStateError,
+    RuntimeTurnState,
     load_runtime_state,
+    record_reconciliation,
     runtime_state_path,
+    update_repair_count,
 )
 
 
@@ -137,3 +142,54 @@ def test_failed_registration_leaves_no_active_partial_state(tmp_path):
     assert state is not None
     assert state.activation_state == "PENDING"
     assert state.registry_active is False
+
+
+def test_stale_repair_snapshot_cannot_overwrite_newer_active_registry(tmp_path):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending("session-a", "turn-1")
+    service.register(_fields(), "session-a", "turn-1")
+
+    with pytest.raises(RuntimeStateError):
+        update_repair_count(pending, 1, tmp_path)
+
+    state = load_runtime_state("session-a", "turn-1", tmp_path)
+    assert state is not None
+    assert state.activation_state == "ACTIVE"
+    assert state.registry_completed is True
+    assert state.repair_count == 0
+
+
+def test_stale_reconciliation_snapshot_cannot_overwrite_newer_active_registry(tmp_path):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending("session-a", "turn-1")
+    service.register(_fields(), "session-a", "turn-1")
+
+    with pytest.raises(RuntimeStateError):
+        record_reconciliation(
+            pending,
+            "first",
+            SimpleNamespace(missing_slots=[]),
+            tmp_path,
+        )
+
+    state = load_runtime_state("session-a", "turn-1", tmp_path)
+    assert state is not None
+    assert state.activation_state == "ACTIVE"
+    assert state.registry_completed is True
+    assert state.first_reconciliation is None
+
+
+def test_inactive_completed_registry_state_is_rejected():
+    with pytest.raises(RuntimeStateError):
+        RuntimeTurnState(
+            schema_version=RUNTIME_STATE_SCHEMA_VERSION,
+            session_id="session-a",
+            turn_id="turn-1",
+            registry_active=False,
+            repair_count=0,
+            propositions=[],
+            activation_state="INACTIVE",
+            registry_required=True,
+            registry_completed=True,
+            registry_invocation_count=1,
+        )

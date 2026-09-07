@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from contextlib import contextmanager
 from dataclasses import dataclass, replace
 import os
-import time
 from typing import Any
 
 from scripts.legal_proposition import (
@@ -26,8 +24,8 @@ from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     RuntimeTurnState,
     load_runtime_state,
-    runtime_state_path,
     runtime_state_fingerprint,
+    runtime_state_transition_lock,
     save_runtime_state,
 )
 
@@ -75,61 +73,6 @@ class RegistrationResult:
     state: RuntimeTurnState
     proposition: LegalProposition
     render_contract: PropositionRenderContract
-
-
-@contextmanager
-def _registry_transition_lock(
-    session_id: str,
-    turn_id: str,
-    plugin_data: str | os.PathLike[str] | None,
-):
-    """Serialize one exact-turn registry transition and fail closed on contention."""
-
-    lock_path = runtime_state_path(plugin_data, session_id, turn_id).with_suffix(
-        ".lock"
-    )
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    deadline = time.monotonic() + 1.0
-    descriptor: int | None = None
-    while descriptor is None:
-        try:
-            descriptor = os.open(
-                lock_path,
-                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
-            )
-            os.write(descriptor, f"{os.getpid()}\n".encode("ascii"))
-        except FileExistsError:
-            if time.monotonic() >= deadline:
-                raise RuntimeStateError(
-                    "registry transition lock is held; refusing an unlocked write"
-                )
-            time.sleep(0.01)
-        except OSError as exc:
-            if descriptor is not None:
-                try:
-                    os.close(descriptor)
-                except OSError:
-                    pass
-                try:
-                    lock_path.unlink()
-                except OSError:
-                    pass
-                descriptor = None
-            raise RuntimeStateError(
-                f"could not acquire registry transition lock: {exc}"
-            ) from exc
-    try:
-        yield
-    finally:
-        try:
-            os.close(descriptor)
-        finally:
-            try:
-                lock_path.unlink()
-            except OSError as exc:
-                raise RuntimeStateError(
-                    f"could not release registry transition lock: {exc}"
-                ) from exc
 
 
 def _text_arg(fields: Mapping[str, Any], name: str) -> str | None:
@@ -204,7 +147,7 @@ class RegistryService:
     def begin_pending(self, session_id: str, turn_id: str) -> RuntimeTurnState:
         """Persist PENDING exactly once for an explicit exact-turn invocation."""
 
-        with _registry_transition_lock(
+        with runtime_state_transition_lock(
             session_id,
             turn_id,
             self.plugin_data,
@@ -272,7 +215,7 @@ class RegistryService:
             raise RuntimeStateError("registry turn_id does not match authoritative turn")
 
         proposition = _build_proposition(fields)
-        with _registry_transition_lock(
+        with runtime_state_transition_lock(
             actual_session_id,
             actual_turn_id,
             self.plugin_data,
@@ -351,7 +294,7 @@ class RegistryService:
 
         if not isinstance(disposition, str) or not disposition:
             raise RuntimeStateError("registry disposition must be a non-empty string")
-        with _registry_transition_lock(
+        with runtime_state_transition_lock(
             expected.session_id,
             expected.turn_id,
             self.plugin_data,
@@ -382,7 +325,7 @@ class RegistryService:
 
         if not isinstance(disposition, str) or not disposition:
             raise RuntimeStateError("registry disposition must be a non-empty string")
-        with _registry_transition_lock(
+        with runtime_state_transition_lock(
             expected.session_id,
             expected.turn_id,
             self.plugin_data,

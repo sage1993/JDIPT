@@ -158,7 +158,7 @@ RUNTIME_PRODUCTION_MARKERS = {
         "def register",
         "def mark_enforcement",
         "def record_disposition",
-        "O_CREAT | os.O_EXCL",
+        "runtime_state_transition_lock",
         "save_runtime_state",
     ),
     "scripts/synthesis_runtime_state.py": (
@@ -169,6 +169,9 @@ RUNTIME_PRODUCTION_MARKERS = {
         "registry_required",
         "registry_completed",
         "registry_enforcement_count",
+        "runtime_state_transition_lock",
+        "runtime_state_fingerprint",
+        "update_runtime_state",
         "os.replace",
     ),
     "scripts/stop_synthesis_gate.py": (

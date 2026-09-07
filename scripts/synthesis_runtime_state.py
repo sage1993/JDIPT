@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
 import json
 import os
 from pathlib import Path
 import re
 import tempfile
+import time
 from typing import Any
 from typing import Literal
 
@@ -104,6 +106,12 @@ class RuntimeTurnState:
             raise RuntimeStateError("registry_completed requires registry_required")
         if self.activation_state == "PENDING" and not self.registry_required:
             raise RuntimeStateError("PENDING runtime state requires registry_required")
+        if self.activation_state == "INACTIVE" and (
+            self.registry_required or self.registry_completed
+        ):
+            raise RuntimeStateError(
+                "INACTIVE runtime state cannot require or complete the registry"
+            )
         if self.activation_state == "ACTIVE" and self.registry_required and not self.registry_completed:
             raise RuntimeStateError("ACTIVE runtime state requires registry_completed")
         if not isinstance(self.registry_required_operations, tuple):
@@ -197,6 +205,61 @@ def runtime_state_path(
     _validate_identifier(session_id, "session_id")
     _validate_identifier(turn_id, "turn_id")
     return _plugin_data_root(plugin_data) / STATE_DIRECTORY / session_id / f"{turn_id}.json"
+
+
+@contextmanager
+def runtime_state_transition_lock(
+    session_id: str,
+    turn_id: str,
+    plugin_data: str | os.PathLike[str] | None,
+):
+    """Serialize one exact-turn state transition and fail closed on contention."""
+
+    lock_path = runtime_state_path(plugin_data, session_id, turn_id).with_suffix(
+        ".lock"
+    )
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + 1.0
+    descriptor: int | None = None
+    while descriptor is None:
+        try:
+            descriptor = os.open(
+                lock_path,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            )
+            os.write(descriptor, f"{os.getpid()}\n".encode("ascii"))
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise RuntimeStateError(
+                    "runtime state transition lock is held; refusing an unlocked write"
+                )
+            time.sleep(0.01)
+        except OSError as exc:
+            if descriptor is not None:
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
+                try:
+                    lock_path.unlink()
+                except OSError:
+                    pass
+                descriptor = None
+            raise RuntimeStateError(
+                f"could not acquire runtime state transition lock: {exc}"
+            ) from exc
+    try:
+        yield
+    finally:
+        try:
+            os.close(descriptor)
+        finally:
+            try:
+                lock_path.unlink()
+            except OSError as exc:
+                raise RuntimeStateError(
+                    f"could not release runtime state transition lock: {exc}"
+                ) from exc
 
 
 def _as_json(state: RuntimeTurnState) -> dict[str, Any]:
@@ -371,6 +434,41 @@ def load_runtime_state(
     return _from_json(payload, session_id, turn_id)
 
 
+def update_runtime_state(
+    expected: RuntimeTurnState,
+    updated: RuntimeTurnState,
+    plugin_data: str | os.PathLike[str] | None = None,
+) -> RuntimeTurnState:
+    """Compare-and-swap a persistence-only update without losing registry state."""
+
+    if (
+        expected.session_id != updated.session_id
+        or expected.turn_id != updated.turn_id
+    ):
+        raise RuntimeStateError(
+            "runtime state update cannot cross session or turn identity"
+        )
+    with runtime_state_transition_lock(
+        expected.session_id,
+        expected.turn_id,
+        plugin_data,
+    ):
+        current = load_runtime_state(
+            expected.session_id,
+            expected.turn_id,
+            plugin_data,
+        )
+        if current is not None and (
+            runtime_state_fingerprint(current)
+            != runtime_state_fingerprint(expected)
+        ):
+            raise RuntimeStateError(
+                "runtime state update expected state is stale or belongs to another turn"
+            )
+        save_runtime_state(updated, plugin_data)
+        return updated
+
+
 def update_repair_count(
     state: RuntimeTurnState,
     repair_count: int,
@@ -381,8 +479,7 @@ def update_repair_count(
     if state.repair_count != 0 or repair_count != 1:
         raise ValueError("repair_count can only transition from 0 to 1")
     updated = replace(state, repair_count=repair_count)
-    save_runtime_state(updated, plugin_data)
-    return updated
+    return update_runtime_state(state, updated, plugin_data)
 
 
 def _reconciliation_summary(
@@ -461,5 +558,4 @@ def record_reconciliation(
         )
     }
     updated = replace(state, **updates)
-    save_runtime_state(updated, plugin_data)
-    return updated
+    return update_runtime_state(state, updated, plugin_data)
