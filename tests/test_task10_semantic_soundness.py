@@ -1048,8 +1048,8 @@ def test_round5_anaphora_does_not_select_between_multiple_authorities(predicate)
 
     result = _soundness_many([first, second], draft)
 
-    assert result.soundness_passed is True
-    assert result.violations == ()
+    assert result.soundness_passed is False
+    assert _codes(result) == {"AMBIGUOUS_ADOPTED_IDENTITY"}
 
 
 @pytest.mark.parametrize("predicate", ["지정하지 않을 수 있다", "지정하지 않아도 된다"])

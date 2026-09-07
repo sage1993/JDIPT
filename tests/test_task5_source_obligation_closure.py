@@ -422,7 +422,10 @@ def test_stop_blocks_final_conclusion_modality_degradation_after_valid_effect_sl
 
     assert result["decision"] == "block"
     assert stored.first_reconciliation["covered"] is True
-    assert stored.first_reconciliation["soundness"]["soundness_passed"] is True
+    assert stored.first_reconciliation["soundness"]["soundness_passed"] is False
+    assert "MUST_DEGRADED_TO_MAY" in {
+        item["code"] for item in stored.first_reconciliation["soundness"]["violations"]
+    }
     assert "MUST_DEGRADED_TO_MAY" in {
         item["code"] for item in stored.first_reconciliation["obligation_closure"]["violations"]
     }
