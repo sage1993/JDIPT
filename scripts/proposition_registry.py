@@ -144,6 +144,20 @@ class RegistryService:
     def __init__(self, plugin_data: str | os.PathLike[str] | None = None):
         self.plugin_data = plugin_data
 
+    def read_state(
+        self,
+        session_id: str,
+        turn_id: str,
+    ) -> RuntimeTurnState | None:
+        """Read the canonical exact-turn registry snapshot.
+
+        The persistence module owns the low-level atomic file format, but
+        production consumers enter the runtime state through this service
+        boundary so no consumer can select a legacy or shadow state source.
+        """
+
+        return load_runtime_state(session_id, turn_id, self.plugin_data)
+
     def begin_pending(self, session_id: str, turn_id: str) -> RuntimeTurnState:
         """Persist PENDING exactly once for an explicit exact-turn invocation."""
 

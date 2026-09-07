@@ -23,7 +23,6 @@ from scripts.proposition_source_closure import evaluate_source_closure
 from scripts.proposition_registry import RegistryService
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
-    load_runtime_state,
     record_reconciliation,
     update_repair_count,
 )
@@ -112,7 +111,7 @@ def _looks_like_jdipt_answer(draft: str) -> bool:
 def _registry_enforcement_response(
     state,
     event: Mapping[str, Any],
-    plugin_data: str | None,
+    service: RegistryService,
 ) -> dict[str, Any] | None:
     if not state.registry_required or state.registry_completed:
         return None
@@ -121,7 +120,7 @@ def _registry_enforcement_response(
         and event.get("stop_hook_active") is not True
     ):
         try:
-            RegistryService(plugin_data).mark_enforcement(
+            service.mark_enforcement(
                 state,
                 "REGISTRY_ENFORCEMENT",
             )
@@ -135,7 +134,7 @@ def _registry_enforcement_response(
             "register_material_proposition contract before final synthesis."
         )
     try:
-        RegistryService(plugin_data).record_disposition(
+        service.record_disposition(
             state,
             "REGISTRY_ENFORCEMENT_EXHAUSTED",
         )
@@ -174,8 +173,9 @@ def handle_stop_event(
             )
         return {}
 
+    service = RegistryService(plugin_data)
     try:
-        state = load_runtime_state(session_id, turn_id, plugin_data)
+        state = service.read_state(session_id, turn_id)
     except (OSError, RuntimeStateError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed closed; runtime state was invalid."
@@ -184,7 +184,6 @@ def handle_stop_event(
         if not _looks_like_jdipt_answer(draft):
             return {}
         try:
-            service = RegistryService(plugin_data)
             state = service.begin_pending(session_id, turn_id)
             service.record_disposition(state, "ACTIVATION_BYPASS")
         except (OSError, RuntimeStateError, ValueError):
@@ -200,7 +199,7 @@ def handle_stop_event(
     enforcement_response = _registry_enforcement_response(
         state,
         event,
-        plugin_data,
+        service,
     )
     if enforcement_response is not None:
         return enforcement_response
@@ -254,7 +253,7 @@ def handle_stop_event(
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
             )
-            RegistryService(plugin_data).record_disposition(updated, "COMPLETED")
+            service.record_disposition(updated, "COMPLETED")
         except (OSError, RuntimeStateError, ValueError):
             return _fail_closed(
                 "JDIPT synthesis validation failed-closed; reconciliation "
@@ -274,7 +273,7 @@ def handle_stop_event(
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
             )
-            RegistryService(plugin_data).record_disposition(
+            service.record_disposition(
                 updated,
                 "REPAIR_EXHAUSTED",
             )
@@ -300,7 +299,7 @@ def handle_stop_event(
             source_closure_result=source_closure_result,
             obligation_closure_result=obligation_closure_result,
         )
-        RegistryService(plugin_data).record_disposition(updated, "REPAIR_REQUESTED")
+        service.record_disposition(updated, "REPAIR_REQUESTED")
     except (OSError, RuntimeStateError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; repair state could not be persisted."
