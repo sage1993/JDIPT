@@ -18,7 +18,11 @@ from scripts.proposition_relations import (
     reconcile_range_exception_relation,
 )
 from scripts.proposition_obligation_closure import evaluate_obligation_closure
-from scripts.material_obligation_ledger import evaluate_registry_closure
+from scripts.material_obligation_ledger import (
+    RegistryClosureResult,
+    RegistryClosureViolation,
+    evaluate_registry_closure,
+)
 from scripts.proposition_soundness import evaluate_soundness
 from scripts.proposition_source_closure import evaluate_source_closure
 from scripts.proposition_registry import RegistryService
@@ -229,15 +233,27 @@ def handle_stop_event(
             contracts,
             draft,
         )
-        registry_closure_result = (
-            None
-            if state.material_obligation_ledger is None
-            else evaluate_registry_closure(
+        if state.material_obligation_ledger_required and state.material_obligation_ledger is None:
+            registry_closure_result = RegistryClosureResult(
+                registry_closure_passed=False,
+                violations=(
+                    RegistryClosureViolation(
+                        code="MATERIAL_OBLIGATION_LEDGER_MISSING",
+                        obligation_id=None,
+                        proposition_id=None,
+                        source_id=None,
+                        reason="Task 8 state requires an independently supplied obligation ledger",
+                    ),
+                ),
+            )
+        elif state.material_obligation_ledger is None:
+            registry_closure_result = None
+        else:
+            registry_closure_result = evaluate_registry_closure(
                 state.material_obligation_ledger,
                 state.material_obligation_ledger.verified_source_evidence,
                 state.propositions,
             )
-        )
     except (TypeError, UnicodeError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; semantic/source/obligation "

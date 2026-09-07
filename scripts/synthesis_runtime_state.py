@@ -85,6 +85,7 @@ class RuntimeTurnState:
     second_reconciliation: dict[str, Any] | None = None
     stop_disposition: str | None = None
     material_obligation_ledger: MaterialObligationLedger | None = None
+    material_obligation_ledger_required: bool = False
 
     def __post_init__(self) -> None:
         _validate_identifier(self.session_id, "session_id")
@@ -165,6 +166,22 @@ class RuntimeTurnState:
         ):
             raise RuntimeStateError(
                 "material_obligation_ledger must be a MaterialObligationLedger"
+            )
+        if not isinstance(self.material_obligation_ledger_required, bool):
+            raise RuntimeStateError(
+                "material_obligation_ledger_required must be a boolean"
+            )
+        if self.material_obligation_ledger_required and self.activation_state == "INACTIVE":
+            raise RuntimeStateError(
+                "INACTIVE runtime state cannot require a material obligation ledger"
+            )
+        if (
+            self.material_obligation_ledger_required
+            and self.activation_state == "ACTIVE"
+            and self.material_obligation_ledger is None
+        ):
+            raise RuntimeStateError(
+                "ACTIVE Task 8 state requires a material obligation ledger"
             )
         for name in ("first_reconciliation", "second_reconciliation"):
             value = getattr(self, name)
@@ -334,6 +351,7 @@ def _registry_state_fingerprint(state: RuntimeTurnState) -> str:
             "registry_enforcement_count",
             "propositions",
             "material_obligation_ledger",
+            "material_obligation_ledger_required",
             "stop_disposition",
         )
     }
@@ -429,6 +447,10 @@ def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
             second_reconciliation=payload["second_reconciliation"],
             stop_disposition=payload["stop_disposition"],
             material_obligation_ledger=material_obligation_ledger,
+            material_obligation_ledger_required=payload.get(
+                "material_obligation_ledger_required",
+                False,
+            ),
         )
     except (KeyError, TypeError, ValueError, RuntimeStateError) as exc:
         raise RuntimeStateError(f"invalid runtime state: {exc}") from exc

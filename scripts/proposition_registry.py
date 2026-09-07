@@ -159,8 +159,19 @@ class RegistryService:
 
         return load_runtime_state(session_id, turn_id, self.plugin_data)
 
-    def begin_pending(self, session_id: str, turn_id: str) -> RuntimeTurnState:
+    def begin_pending(
+        self,
+        session_id: str,
+        turn_id: str,
+        *,
+        material_obligations_required: bool = False,
+    ) -> RuntimeTurnState:
         """Persist PENDING exactly once for an explicit exact-turn invocation."""
+
+        if not isinstance(material_obligations_required, bool):
+            raise RuntimeStateError(
+                "material_obligations_required must be a boolean"
+            )
 
         with runtime_state_transition_lock(
             session_id,
@@ -169,8 +180,24 @@ class RegistryService:
         ):
             existing = load_runtime_state(session_id, turn_id, self.plugin_data)
             if existing is not None and existing.registry_required and existing.registry_completed:
+                if (
+                    material_obligations_required
+                    and not existing.material_obligation_ledger_required
+                ):
+                    raise RuntimeStateError(
+                        "completed registry state cannot enable Task 8 without a ledger"
+                    )
                 return existing
             if existing is not None and existing.activation_state == "PENDING":
+                if (
+                    material_obligations_required
+                    and not existing.material_obligation_ledger_required
+                ):
+                    existing = replace(
+                        existing,
+                        material_obligation_ledger_required=True,
+                    )
+                    save_runtime_state(existing, self.plugin_data)
                 return existing
             if existing is not None and existing.activation_state == "ACTIVE":
                 raise RuntimeStateError(
@@ -201,6 +228,7 @@ class RegistryService:
                     registry_required_operations=("register_material_proposition",),
                     registry_invocation_count=0,
                     registry_enforcement_count=0,
+                    material_obligation_ledger_required=material_obligations_required,
                 )
             save_runtime_state(pending, self.plugin_data)
             return pending
@@ -249,6 +277,7 @@ class RegistryService:
                 second_reconciliation = None
                 stop_disposition = None
                 material_obligation_ledger = None
+                material_obligation_ledger_required = False
             else:
                 propositions = list(existing.propositions)
                 for index, item in enumerate(propositions):
@@ -264,6 +293,9 @@ class RegistryService:
                 second_reconciliation = existing.second_reconciliation
                 stop_disposition = existing.stop_disposition
                 material_obligation_ledger = existing.material_obligation_ledger
+                material_obligation_ledger_required = (
+                    existing.material_obligation_ledger_required
+                )
 
             state = RuntimeTurnState(
                 schema_version=RUNTIME_STATE_SCHEMA_VERSION,
@@ -282,6 +314,7 @@ class RegistryService:
                 second_reconciliation=second_reconciliation,
                 stop_disposition=stop_disposition,
                 material_obligation_ledger=material_obligation_ledger,
+                material_obligation_ledger_required=material_obligation_ledger_required,
             )
             save_runtime_state(state, self.plugin_data)
 
@@ -370,7 +403,11 @@ class RegistryService:
             self.plugin_data,
         ):
             current = self._load_expected(expected)
-            updated = replace(current, material_obligation_ledger=ledger)
+            updated = replace(
+                current,
+                material_obligation_ledger=ledger,
+                material_obligation_ledger_required=True,
+            )
             save_runtime_state(updated, self.plugin_data)
             return updated
 

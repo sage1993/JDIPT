@@ -148,8 +148,14 @@ class MaterialObligationLedger:
                 "unsupported material obligation ledger fields: "
                 + ", ".join(unknown)
             )
-        raw_obligations = payload.get("obligations", ())
-        raw_evidence = payload.get("verified_source_evidence", ())
+        missing = sorted(allowed - set(payload))
+        if missing:
+            raise ObligationValidationError(
+                "material obligation ledger is missing required fields: "
+                + ", ".join(missing)
+            )
+        raw_obligations = payload["obligations"]
+        raw_evidence = payload["verified_source_evidence"]
         if not isinstance(raw_obligations, Sequence) or isinstance(
             raw_obligations, (str, bytes)
         ):
@@ -551,7 +557,21 @@ def _check_temporal_and_authority(
     proposition: LegalProposition,
     evidence: EvidenceRef,
 ) -> None:
-    if not authority_satisfies(proposition, evidence.authority_kind):
+    if (
+        proposition.required_source_type is not None
+        and evidence.authority_kind != proposition.required_source_type
+    ):
+        _violation(
+            violations,
+            "INSUFFICIENT_AUTHORITY",
+            proposition_id=proposition.proposition_id,
+            source_id=evidence.source_id,
+            reason=(
+                "evidence source type does not satisfy the proposition source-type "
+                "requirement"
+            ),
+        )
+    elif not authority_satisfies(proposition, evidence.authority_kind):
         _violation(
             violations,
             "INSUFFICIENT_AUTHORITY",

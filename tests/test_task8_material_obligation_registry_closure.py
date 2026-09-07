@@ -55,6 +55,7 @@ def closed_proposition(
     *,
     proposition_evidence: EvidenceRef | None = None,
     temporal_requirement: TemporalRequirement = TemporalRequirement.CURRENT,
+    required_source_type: str | None = None,
 ):
     return LegalProposition(
         proposition_id=proposition_id,
@@ -75,6 +76,7 @@ def closed_proposition(
         evidence=proposition_evidence or evidence(),
         required_authority=AuthorityRequirement.PRIMARY,
         required_temporal_status=temporal_requirement,
+        required_source_type=required_source_type,
     )
 
 
@@ -286,6 +288,26 @@ def test_temporal_evidence_conflict_fails_closed():
 
     assert result.registry_closure_passed is False
     assert "TEMPORAL_CONTRADICTION" in codes(result)
+
+
+def test_required_source_type_conflict_fails_closed():
+    source = evidence()
+    proposition = closed_proposition(
+        proposition_evidence=source,
+        required_source_type="precedent",
+    )
+    required = obligation(
+        "O_BASE",
+        "BASE_RULE",
+        SOURCE_CONFIRMED,
+        evidence_source_ids=(source.source_id,),
+        proposition_ids=(proposition.proposition_id,),
+    )
+
+    result = evaluate_registry_closure((required,), (source,), (proposition,))
+
+    assert result.registry_closure_passed is False
+    assert "INSUFFICIENT_AUTHORITY" in codes(result)
 
 
 def test_confirmed_obligation_requires_a_closed_canonical_proposition():
@@ -573,6 +595,44 @@ def test_malformed_persisted_ledger_fails_closed(tmp_path):
 
     with pytest.raises(RuntimeStateError):
         service.read_state("session-a", "turn-1")
+
+
+def test_present_ledger_without_required_top_level_fields_fails_closed(tmp_path):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending("session-a", "turn-1")
+    path = runtime_state_path(tmp_path, pending.session_id, pending.turn_id)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["material_obligation_ledger"] = {}
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    with pytest.raises(RuntimeStateError):
+        service.read_state("session-a", "turn-1")
+
+
+def test_task8_required_active_state_without_ledger_fails_closed():
+    with pytest.raises(RuntimeStateError):
+        RuntimeTurnState(
+            schema_version=3,
+            session_id="session-a",
+            turn_id="turn-1",
+            registry_active=True,
+            repair_count=0,
+            propositions=[],
+            registry_required=True,
+            registry_completed=True,
+            registry_invocation_count=1,
+            material_obligation_ledger_required=True,
+        )
+
+
+def test_begin_pending_can_explicitly_require_task8_ledger(tmp_path):
+    pending = RegistryService(tmp_path).begin_pending(
+        "session-a",
+        "turn-1",
+        material_obligations_required=True,
+    )
+
+    assert pending.material_obligation_ledger_required is True
 
 
 def test_task8_does_not_add_a_second_runtime_reader():
