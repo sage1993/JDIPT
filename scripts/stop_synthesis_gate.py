@@ -18,6 +18,7 @@ from scripts.proposition_relations import (
     reconcile_range_exception_relation,
 )
 from scripts.proposition_obligation_closure import evaluate_obligation_closure
+from scripts.proposition_render_coverage import evaluate_render_coverage
 from scripts.material_obligation_ledger import (
     RegistryClosureResult,
     RegistryClosureViolation,
@@ -52,6 +53,7 @@ def _failure_reason(
     source_closure_result=None,
     obligation_closure_result=None,
     registry_closure_result=None,
+    render_coverage_result=None,
 ) -> str:
     grouped: dict[str, list[str]] = {}
     for slot in result.missing_slots:
@@ -101,6 +103,15 @@ def _failure_reason(
                     if codes
                     else label
                 ) + (f" | {details}" if details else "")
+    if render_coverage_result is not None and not render_coverage_result.coverage_passed:
+        missing_ids = ", ".join(render_coverage_result.missing_proposition_ids)
+        coverage_details = render_coverage_result.failure_reason or "coverage failed"
+        if missing_ids:
+            coverage_details = f"{coverage_details} ({missing_ids})"
+        details = (
+            f"render_coverage: {coverage_details}"
+            + (f" | {details}" if details else "")
+        )
     if not details:
         details = "material proposition render slots are missing"
     return (
@@ -254,6 +265,14 @@ def handle_stop_event(
                 state.material_obligation_ledger.verified_source_evidence,
                 state.propositions,
             )
+        render_coverage_result = None
+        if state.material_obligation_ledger_required:
+            render_coverage_result = evaluate_render_coverage(
+                state.material_obligation_ledger,
+                registry_closure_result,
+                state.propositions,
+                draft,
+            )
     except (TypeError, UnicodeError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; semantic/source/obligation "
@@ -261,6 +280,9 @@ def handle_stop_event(
         )
     overall_covered = result.covered and (
         relation_result is None or relation_result.covered
+    ) and (
+        render_coverage_result is None
+        or render_coverage_result.coverage_passed
     )
     overall_sound = soundness_result.soundness_passed
     overall_source = (
@@ -296,6 +318,7 @@ def handle_stop_event(
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
                 registry_closure_result=registry_closure_result,
+                render_coverage_result=render_coverage_result,
             )
             service.record_disposition(updated, "COMPLETED")
         except (OSError, RuntimeStateError, ValueError):
@@ -317,6 +340,7 @@ def handle_stop_event(
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
                 registry_closure_result=registry_closure_result,
+                render_coverage_result=render_coverage_result,
             )
             service.record_disposition(
                 updated,
@@ -344,6 +368,7 @@ def handle_stop_event(
             source_closure_result=source_closure_result,
             obligation_closure_result=obligation_closure_result,
             registry_closure_result=registry_closure_result,
+            render_coverage_result=render_coverage_result,
         )
         service.record_disposition(updated, "REPAIR_REQUESTED")
     except (OSError, RuntimeStateError, ValueError):
@@ -358,6 +383,7 @@ def handle_stop_event(
             source_closure_result,
             obligation_closure_result,
             registry_closure_result,
+            render_coverage_result,
         )
     )
 

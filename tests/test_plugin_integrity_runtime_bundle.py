@@ -10,6 +10,7 @@ PLUGIN_FILES = (
     "scripts/legal_proposition.py",
     "scripts/proposition_rendering.py",
     "scripts/proposition_reconciliation.py",
+    "scripts/proposition_render_coverage.py",
     "scripts/proposition_registry.py",
     "scripts/proposition_soundness.py",
     "scripts/proposition_source_closure.py",
@@ -49,6 +50,7 @@ def test_manifest_includes_canonical_plugin_runtime_bundle(tmp_path):
     assert "plugin/scripts/legal_proposition.py" in manifest
     assert "plugin/scripts/proposition_rendering.py" in manifest
     assert "plugin/scripts/proposition_reconciliation.py" in manifest
+    assert "plugin/scripts/proposition_render_coverage.py" in manifest
     assert "plugin/scripts/proposition_registry.py" in manifest
     assert "plugin/scripts/proposition_soundness.py" in manifest
     assert "plugin/scripts/proposition_source_closure.py" in manifest

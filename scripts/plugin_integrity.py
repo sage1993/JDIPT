@@ -17,6 +17,7 @@ PLUGIN_RUNTIME_FILES = (
     "scripts/legal_proposition.py",
     "scripts/proposition_rendering.py",
     "scripts/proposition_reconciliation.py",
+    "scripts/proposition_render_coverage.py",
     "scripts/proposition_registry.py",
     "scripts/proposition_soundness.py",
     "scripts/proposition_source_closure.py",

@@ -124,6 +124,7 @@ REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS = {
 PROPOSITION_MODEL = ROOT / "scripts" / "legal_proposition.py"
 PROPOSITION_RENDERING = ROOT / "scripts" / "proposition_rendering.py"
 PROPOSITION_RECONCILIATION = ROOT / "scripts" / "proposition_reconciliation.py"
+PROPOSITION_RENDER_COVERAGE = ROOT / "scripts" / "proposition_render_coverage.py"
 PROPOSITION_REGISTRY = ROOT / "scripts" / "proposition_registry.py"
 ACTIVATION = ROOT / "scripts" / "jdipt_activation.py"
 PROPOSITION_RELATIONS = ROOT / "scripts" / "proposition_relations.py"
@@ -136,6 +137,7 @@ REQUIRED_RUNTIME_FILES = (
     PROPOSITION_MODEL,
     PROPOSITION_RENDERING,
     PROPOSITION_RECONCILIATION,
+    PROPOSITION_RENDER_COVERAGE,
     PROPOSITION_REGISTRY,
     ACTIVATION,
     PROPOSITION_RELATIONS,
@@ -568,6 +570,7 @@ PRODUCTION_RUNTIME_MODULES = (
     "scripts/legal_proposition.py",
     "scripts/proposition_rendering.py",
     "scripts/proposition_reconciliation.py",
+    "scripts/proposition_render_coverage.py",
     "scripts/proposition_registry.py",
     "scripts/proposition_source_closure.py",
     "scripts/proposition_obligation_closure.py",

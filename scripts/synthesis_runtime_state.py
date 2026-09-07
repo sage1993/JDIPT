@@ -33,6 +33,7 @@ from scripts.material_obligation_ledger import (
 )
 from scripts.proposition_source_closure import source_closure_result_to_dict
 from scripts.proposition_soundness import soundness_result_to_dict
+from scripts.proposition_render_coverage import render_coverage_result_to_dict
 
 
 STATE_DIRECTORY = "synthesis-runtime"
@@ -576,6 +577,7 @@ def _reconciliation_summary(
     source_closure_result: Any | None = None,
     obligation_closure_result: Any | None = None,
     registry_closure_result: Any | None = None,
+    render_coverage_result: Any | None = None,
 ) -> dict[str, Any]:
     """Serialize compact reconciliation evidence without copying the draft."""
 
@@ -615,11 +617,19 @@ def _reconciliation_summary(
         summary["registry_closure"] = registry_closure_result_to_dict(
             registry_closure_result
         )
+    if render_coverage_result is not None:
+        summary["render_coverage"] = render_coverage_result_to_dict(
+            render_coverage_result
+        )
     summary["overall_covered"] = bool(
         summary["covered"]
         and (
             relation_result is None
             or bool(getattr(relation_result, "covered", False))
+        )
+        and (
+            render_coverage_result is None
+            or bool(getattr(render_coverage_result, "coverage_passed", False))
         )
     )
     return summary
@@ -636,6 +646,7 @@ def record_reconciliation(
     source_closure_result: Any | None = None,
     obligation_closure_result: Any | None = None,
     registry_closure_result: Any | None = None,
+    render_coverage_result: Any | None = None,
 ) -> RuntimeTurnState:
     """Persist compact first/second reconciliation and relation evidence."""
 
@@ -649,6 +660,7 @@ def record_reconciliation(
             source_closure_result,
             obligation_closure_result,
             registry_closure_result,
+            render_coverage_result,
         )
     }
     updated = replace(state, **updates)
