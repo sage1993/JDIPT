@@ -244,9 +244,17 @@ def test_example_only_has_coverage_but_fails_soundness():
 
 def test_open_proposition_with_definitive_positive_conclusion_fails():
     proposition = _proposition(status=PropositionStatus.OPEN, evidence=None)
-    draft = "확인 필요: 요건 C와 절차 P에 관한 근거와 적용 여부는 현재 확정할 수 없다.\n결론: 따라서 이 행위는 허용된다."
+    draft = "\n".join(
+        (
+            "# 2. 검토결론",
+            "결론: 따라서 이 행위는 허용된다.",
+            "",
+            "# 3. 검토이유",
+            _rendered(proposition),
+        )
+    )
 
-    coverage = _coverage(build_render_contract(_proposition()), _rendered(_proposition()))
+    coverage = _coverage(build_render_contract(proposition), draft)
     soundness = _soundness(proposition, draft)
 
     assert coverage.covered is True
@@ -256,9 +264,17 @@ def test_open_proposition_with_definitive_positive_conclusion_fails():
 
 def test_open_proposition_with_definitive_negative_conclusion_fails():
     proposition = _proposition(status=PropositionStatus.OPEN, evidence=None)
-    draft = "확인 필요: 요건 C와 절차 P에 관한 근거와 적용 여부는 현재 확정할 수 없다.\n결론: 따라서 이 행위는 허용되지 않는다."
+    draft = "\n".join(
+        (
+            "# 2. 검토결론",
+            "결론: 따라서 이 행위는 허용되지 않는다.",
+            "",
+            "# 3. 검토이유",
+            _rendered(proposition),
+        )
+    )
 
-    coverage = _coverage(build_render_contract(_proposition()), _rendered(_proposition()))
+    coverage = _coverage(build_render_contract(proposition), draft)
     soundness = _soundness(proposition, draft)
 
     assert coverage.covered is True
@@ -316,13 +332,13 @@ def test_must_weakened_to_may_fails_with_structured_violation():
 def test_must_not_weakened_to_may_not_fails_with_structured_violation():
     proposition = _proposition(
         modality=Modality.MUST_NOT,
-        legal_action="금지",
-        operative_verb_lexeme="금지",
+        polarity=Polarity.NEGATIVE,
     )
     draft = "\n".join(
         (
             "# 2. 검토결론",
-            "결론: 행정청은 대상 O를 지위 Z로 금지하지 않아도 된다.",
+            "결론: 요건 C를 충족하고 절차 P를 거치면 행정청은 대상 O를 지위 Z로 지정하지 않아도 된다.",
+            "",
             "# 3. 검토이유",
             _rendered(proposition),
         )
@@ -334,6 +350,8 @@ def test_must_not_weakened_to_may_not_fails_with_structured_violation():
     assert coverage.covered is True
     assert soundness.soundness_passed is False
     assert _codes(soundness) == {"MUST_NOT_DEGRADED"}
+    assert soundness.violations[0].modality is Modality.MUST_NOT
+    assert soundness.violations[0].polarity is Polarity.NEGATIVE
 
 
 def test_correct_intermediate_render_plus_contradictory_final_conclusion_fails():
@@ -378,10 +396,23 @@ def test_one_correct_duplicate_plus_one_contradictory_duplicate_fails():
 
 def test_source_specific_legal_action_removed_while_other_keywords_remain_fails():
     proposition = _proposition()
+    conclusion = "결론: 요건 C를 충족하고 절차 P를 거치면 행정청은 대상 O를 지위 Z로 처리할 수 있다."
+    assert proposition.legal_action not in conclusion
+    assert proposition.operative_verb_lexeme not in conclusion
+    assert all(
+        value in conclusion
+        for value in (
+            proposition.condition,
+            proposition.procedure,
+            proposition.legal_object,
+            proposition.legal_effect,
+        )
+    )
     draft = "\n".join(
         (
             "# 2. 검토결론",
-            "결론: 요건 C와 절차 P를 충족하면 행정청은 대상 O를 지위 Z로 지정할 수 있다.",
+            conclusion,
+            "",
             "# 3. 검토이유",
             _rendered(proposition),
         )
@@ -426,10 +457,23 @@ def test_exception_condition_preserved_but_exception_effect_changed_fails():
         legal_effect="예외 효과",
         condition="요건 E",
     )
+    conclusion = "결론: 다만, 예외로 요건 E를 충족하고 절차 P를 거치면 행정청은 예외 대상을 변경 효과로 제외할 수 있다."
+    assert proposition.legal_effect not in conclusion
+    assert all(
+        value in conclusion
+        for value in (
+            proposition.condition,
+            proposition.procedure,
+            proposition.legal_action,
+            proposition.operative_verb_lexeme,
+            proposition.legal_object,
+        )
+    )
     draft = "\n".join(
         (
             "# 2. 검토결론",
-            "결론: 요건 E가 있으면 예외 대상도 일반 대상과 같이 처리된다.",
+            conclusion,
+            "",
             "# 3. 검토이유",
             _rendered(proposition),
         )
@@ -441,6 +485,7 @@ def test_exception_condition_preserved_but_exception_effect_changed_fails():
     assert coverage.covered is True
     assert soundness.soundness_passed is False
     assert _codes(soundness) == {"LEGAL_RELATION_DEGRADATION"}
+    assert soundness.violations[0].relation_fields == ("legal_effect",)
 
 
 def test_malformed_semantic_identity_fails():
