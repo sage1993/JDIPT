@@ -156,7 +156,10 @@ def _fence_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
     return intervals
 
 
-def _section_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
+def _section_intervals(
+    draft: str,
+    fences: Sequence[tuple[int, int, AnswerRegionKind]] = (),
+) -> list[tuple[int, int, AnswerRegionKind]]:
     # The caller supplies an offset-preserving view with fenced content masked.
     intervals: list[tuple[int, int, AnswerRegionKind]] = []
     headings = list(_HEADING_RE.finditer(draft))
@@ -167,9 +170,15 @@ def _section_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
     for match in _CONCLUSION_LABEL_RE.finditer(draft):
         # A label cannot swallow a later section's canonical render.
         stops = [heading.start() for heading in headings if heading.start() > match.end()]
-        blank = re.search(r"\r?\n[ \t]*\r?\n", draft[match.end():])
-        if blank:
-            stops.append(match.end() + blank.start())
+        for blank in re.finditer(r"(?=(\r?\n[ \t]*\r?\n))", draft[match.end():]):
+            start = match.end() + blank.start()
+            content_start = start + (2 if draft.startswith("\r\n", start) else 1)
+            # Masked code lines (including originally blank lines) are not
+            # paragraph boundaries of the enclosing labelled conclusion.
+            if not any(fence_start <= content_start < fence_end
+                       for fence_start, fence_end, _ in fences):
+                stops.append(start)
+                break
         end = min(stops, default=len(draft))
         _add_interval(intervals, match.end(), end, "final_conclusion")
     return intervals
@@ -248,7 +257,7 @@ def _raw_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
                 structural[index] = " "
     # Standalone CR becomes a line boundary without changing any offsets.
     visible = re.sub(r"\r(?!\n)", "\n", "".join(structural))
-    intervals = _section_intervals(visible)
+    intervals = _section_intervals(visible, fences)
     intervals.extend(_example_intervals(visible))
     intervals.extend(_rejected_intervals(visible))
     intervals.extend(fences)
@@ -320,8 +329,9 @@ def _slot_matches(
         return ()
     matches: list[AnswerSpan] = []
     for span in spans:
-        normalized = normalize_rendered_text(span.text)
-        for occurrence in re.finditer(re.escape(expected), normalized):
+        normalized = "\n".join(normalize_rendered_text(line) for line in span.text.splitlines())
+        pattern = r"\s+".join(re.escape(token) for token in expected.split())
+        for occurrence in re.finditer(pattern, normalized):
             before = _FALSE_WRAPPER_RE.search(normalized[:occurrence.start()])
             after = _FALSE_WRAPPER_SUFFIX_RE.match(normalized[occurrence.end():])
             if span.adopted and (before or after):
@@ -425,16 +435,22 @@ def _field_pattern(value: str) -> re.Pattern[str]:
     return re.compile(r"(?<![a-z0-9_가-힣])" + re.escape(normalize_rendered_text(value)) + r"(?![a-z0-9_])")
 
 
-_FALSE_WRAPPER_RE = re.compile(r"(?:다음\s+)?명제는\s+거짓이다\s*[:.!?]\s*$")
-_FALSE_WRAPPER_SUFFIX_RE = re.compile(r"\s*이\s+명제는\s+거짓이다(?:[.!]|$)")
+_WRAPPER_GAP = r"[ \t]*(?:\n[ \t]*)?"
+_FALSE_WRAPPER_RE = re.compile(
+    r"(?:^|(?<=[.!?:]))[ \t]*(?:다음[ \t]+)?명제는[ \t]+거짓이다[ \t]*[:.!?]+"
+    + _WRAPPER_GAP + r"\Z", re.MULTILINE,
+)
+_FALSE_WRAPPER_SUFFIX_RE = re.compile(
+    _WRAPPER_GAP + r"이[ \t]+명제는[ \t]+거짓이다(?:[.!?]+|$)", re.MULTILINE,
+)
 
 
 def _altered_relation_fields(proposition: LegalProposition, text: str) -> tuple[str, ...]:
     """Inspect only grammar immediately adjoining a canonical relation value."""
     predicates = (
-        ("condition", proposition.condition, r"\s*(?:을|를|이|가|은|는)?\s*(?:충족(?:하지|되지)\s*않|없이|없어도)"),
-        ("procedure", proposition.procedure, r"\s*(?:을|를|이|가|은|는)?\s*(?:거치지\s*않|없이|없어도)"),
-        ("legal_effect", proposition.legal_effect, r"\s*(?:(?:이|가)?\s*(?:아닌|아니라)|(?:으로|로)?\s*변경된)"),
+        ("condition", proposition.condition, r"\s*(?:을|를|이|가|은|는)?\s*(?:충족(?:하지|되지)\s*(?:않|못|아니하)|없이|없어도)"),
+        ("procedure", proposition.procedure, r"\s*(?:을|를|이|가|은|는)?\s*(?:거치지\s*(?:않|못|아니하)|없이|없어도)"),
+        ("legal_effect", proposition.legal_effect, r"\s*(?:(?:이|가)?\s*(?:아닌|아니라)|(?:으로|로)?\s*변경된|대신\s)"),
     )
     return tuple(
         name for name, value, suffix in predicates
@@ -569,6 +585,40 @@ def _claim_owners(
     ))
 
 
+def _open_uncertainty_assertion(proposition: LegalProposition, text: str) -> bool:
+    """Accept an explicit relation-list/uncertainty construction, not co-occurrence."""
+    values = {normalize_rendered_text(value) for _, value in _relation_fields(proposition)
+              if value and _field_pattern(value).search(text)}
+    if len(values) < 2:
+        return False
+    anchor = "(?:" + "|".join(re.escape(value) for value in sorted(values, key=len, reverse=True)) + ")"
+    relation_list = anchor + r"(?:\s*(?:와|과|및|,|·)\s*" + anchor + r")+"
+    # Only these explicit constructions bind uncertainty to the listed fields.
+    # Other prose needs the exact OPEN slot; another subject cannot lend its
+    # uncertainty merely by sharing a sentence with the relation anchors.
+    return bool(re.fullmatch(
+        r"(?:확인\s*필요\s*:\s*)?" + relation_list
+        + r"(?:에\s*관한\s*(?:근거와\s*)?적용\s*여부|(?:의\s*)?(?:충족|이행|적용)\s*여부)?"
+        + r"\s*(?:은|는|이|가)?\s*(?:현재\s*)?"
+        + r"(?:확인\s*필요(?:하다)?|(?:확정|판단)할\s*수\s*없(?:다|음)|불확실하다|미확인이다)[.!?]*",
+        text,
+    ))
+
+
+def _is_bounded_legal_claim(proposition: LegalProposition, text: str) -> bool:
+    fields = {name for name, value in _relation_fields(proposition)
+              if value and _field_pattern(value).search(text)}
+    return len(fields) >= 2 and bool(fields & {"legal_action", "legal_object", "legal_effect"})
+
+
+_LEGAL_ANAPHORA_RE = re.compile(
+    r"^(?:결론\s*:\s*)?(?:따라서\s*)?"
+    r"(?:(?:이|본|해당)\s*(?:행위|사안)(?:는|은|에는|에)\s*"
+    r"(?:허용된다|허용되지\s*않는다|적용된다|적용되지\s*않는다)|"
+    r"(?:일부\s*)?완화(?:가|는)\s*(?:가능하다|불가능하다))[.!?]*$"
+)
+
+
 _MODALITY_MARKERS = (
     (Modality.MAY_NOT, re.compile(r"(?:하지\s*않아도\s*된다|하지\s*않을\s*수\s*있다)")),
     (Modality.MUST_NOT, re.compile(r"(?:하여서는\s*안|해서는\s*안|하지\s*않아야)")),
@@ -685,8 +735,15 @@ def _evaluate_claims(
             definitive = _has_definitive_conclusion(sentence) or any(
                 marker.search(sentence) for _, marker in _MODALITY_MARKERS
             )
-            if not owners and run.kind == "final_conclusion" and definitive:
-                owners = tuple(proposition for proposition, _ in authorities)
+            if not definitive:
+                continue  # A field mention alone does not assert a legal effect.
+            owners = tuple(proposition for proposition in owners
+                           if _is_bounded_legal_claim(proposition, sentence))
+            if (not owners and run.kind == "final_conclusion" and len(authorities) == 1
+                    and _LEGAL_ANAPHORA_RE.fullmatch(sentence)):
+                # Explicit legal anaphora has one possible antecedent here.
+                # Ordinary ownerless predicates (e.g. document operations) do not.
+                owners = (authorities[0][0],)
             if not owners:
                 continue  # unrelated explanatory prose has no legal identity
             if len(owners) > 1:
@@ -763,10 +820,8 @@ def evaluate_soundness(
                 for match in _slot_matches(slot.text, open_runs)
             )
             neutral_adoption = exact_adoption or any(
-                _UNCERTAINTY_RE.search(sentence)
+                _open_uncertainty_assertion(proposition, sentence)
                 and proposition in _claim_owners(sentence, authorities)
-                and len({normalize_rendered_text(value) for _, value in _relation_fields(proposition)
-                         if value and _field_pattern(value).search(sentence)}) >= 2
                 for run in open_runs
                 for sentence in _normalized_sentences(run.text)
             )

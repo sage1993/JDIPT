@@ -1,5 +1,59 @@
 # Task 3 report — Deterministic semantic soundness core
 
+## Fix round 4 — current result
+
+Base: `14763230f493cd5abeb86beb91f237d8438b6c74`. Worktree: `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`. Read the Task 10 plan, Task 3 brief/report, current production/tests, round 3 review package, and the independent reviewer's five Important findings. This section supersedes previous counts and implementation descriptions where they differ.
+
+Changed only `scripts/proposition_soundness.py`, `tests/test_task10_semantic_soundness.py`, and this report. Registry, source, obligation, Task 9 coverage/rendering/reconciliation, ASH, and installed files were not edited. Typed semantic identity freshness and fail-closed authority validation remain intact. No repair, injection, rewrite, NLP, embeddings, LLM, or document-wide semantic inference was added.
+
+### RED before production
+
+Added 34 permanent cases covering the five findings and local positive controls; all previous 71 Task 10 cases remain. The actual MUST-to-MAY test still includes all canonical fields, explicit `지정할 수 있다`, and the singleton `MUST_DEGRADED_TO_MAY` expectation.
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py --tb=short
+```
+
+Initial RED: **21 failed, 84 passed in 0.46s**, exit 1, no setup errors. Each of the five issue families reproduced. Six label-only fence variants failed classification, three field-local conflicts and four repeated-prefix variants falsely passed, three unrelated OPEN-clause variants falsely adopted, and five unrelated-prose controls incorrectly failed. Six numbered-H1 fence variants already passed and remain permanent controls; the independent review's label-only variant exposed the masked-blank defect.
+
+Self-review then identified real blank paragraphs after fences and wrapper line/paragraph locality as unresolved boundaries. Added five more permanent tests before their fixes:
+
+```powershell
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py -k 'round4_real_blank or round4_false_wrapper_cannot_cross_blank or round4_false_wrapper_after_unpunctuated' --tb=short
+```
+
+Additional RED: **5 failed, 105 deselected in 0.19s**, exit 1. Total addition: **39 cases**; final Task 10 suite: **110 cases**.
+
+### Minimal fixes and self-review
+
+- Label paragraph scanning checks the actual blank-line position against fence intervals. Masked code headings/empty code lines cannot terminate a conclusion, while real blank paragraphs outside the fence still terminate labels. The existing scanner continues to handle LF/CRLF/CR, matching fence characters, and closing lengths at least the opener length. Public spans preserve original text and offsets.
+- Extended canonical-field-adjacent prerequisite predicates to `못` and `아니하`, and effect substitution to `대신`. Structured violations identify the altered field and the bounded final claim. Correct exact rendering elsewhere cannot conceal those conflicts.
+- Wrapper matching preserves raw line boundaries before presentation normalization, accepts repeated punctuation and an adjacent gap of at most one newline, and runs before exact-slot consumption. Prefix assertions require a sentence/line boundary; a suffix rejection cannot be reinterpreted as a prefix for the next temporal slot. Intervening assertions and blank paragraphs do not borrow wrappers. Earlier adoption cannot cancel a final wrapped contradiction.
+- OPEN paraphrase adoption requires a full explicit canonical relation-list/uncertainty construction with at least two distinct anchors. Merely mentioning the relation before uncertainty about a report date is insufficient, even without a comma. Exact OPEN slots and the existing neutral OPEN case remain valid; punctuation/CR/newline isolation remains green.
+- Residual field mentions need a definitive predicate and at least two canonical relation fields including action, object, or effect before legal claim evaluation. Removed assignment of every ownerless final predicate to all authorities. A small full-assertion legal-anaphora grammar with a unique authority retains the existing `이 행위는 허용된다` promotion and generic legal-relaxation regressions. Report download prose and nonassertive index mentions remain unrelated. This is a bounded deterministic gate, not unrestricted prose equivalence.
+- Reviewed the diff for scope, public classifier compatibility, raw boundary handling, test isolation, and typed freshness preservation. Existing tests were not removed or weakened.
+
+### GREEN and regressions
+
+```powershell
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py tests/test_proposition_soundness.py --tb=short
+```
+
+Final focused GREEN: **126 passed in 0.24s**, exit 0 (**110 Task 10 + 16 existing soundness**).
+
+The initial sandbox full run failed to create its fresh worktree-local pytest temporary directory: **420 passed, 155 setup errors in 3.55s**. Approved execution with a new worktree-local directory resolved that environment issue. After the final boundary fixes:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+$env:PYTEST_ADDOPTS='-p no:cacheprovider --basetemp=F:/2026-PJ/JDIPT/.worktrees/task10-semantic-soundness-closure/.pytest-task3-fix4-final'
+python -m pytest -q --tb=short
+```
+
+Final full suite: **1 failed, 579 passed in 5.91s**, exit 1, no setup errors. This includes rendering/reconciliation, Task 9 coverage, typed controls, source, obligation, registry, and stop regressions. The sole failure remains `tests/test_task5_source_obligation_closure.py::test_stop_blocks_final_conclusion_modality_degradation_after_valid_effect_slot`, line 425: it expects soundness PASS for a canonical MUST rendered as MAY. That previously documented expectation conflicts with Task 10 SS-06; neither that protected test nor the required rejection was weakened. The full suite is not entirely green.
+
+Required checks: `python scripts/validate_repo.py` **PASS**; `python scripts/validate_authority_temporal_contract.py` **PASS**; `python scripts/plugin_integrity.py` **FAIL** with the same **18 installed mismatches**; `git diff --check` **PASS** (Git LF-to-CRLF notices only). These are repository regression results; installed-runtime parity is not claimed. Commit subject: `feat: add deterministic semantic soundness gate`. The pre-existing untracked Task 10 plan is excluded from the commit.
+
 ## Fix round 3 — current result
 
 This section supersedes earlier round counts and fence/OPEN implementation notes. Base commit: `0ec9890b664ed947c5fdbbfeffac609648c4c049`. Worktree: `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`.

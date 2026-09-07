@@ -14,6 +14,7 @@ from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
 from scripts.proposition_soundness import evaluate_soundness
 from scripts.proposition_soundness import SoundnessResult
+from scripts.proposition_soundness import classify_answer_regions
 
 
 def _evidence(source_id: str = "law-001") -> EvidenceRef:
@@ -824,3 +825,142 @@ def test_exact_open_slot_can_adopt_with_one_anchor():
     result = _soundness(proposition, _rendered(proposition))
 
     assert result.soundness_passed is True
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("heading", ["", "# 2. 검토결론"])
+@pytest.mark.parametrize("opener, closer", [("```", "````"), ("~~~~", "~~~~~")])
+def test_round4_label_fence_preserves_final_assertion(newline, heading, opener, closer):
+    proposition = _proposition(status=PropositionStatus.OPEN)
+    final = "따라서 이 행위는 허용된다."
+    draft = newline.join((
+        _rendered(proposition), heading, "결론:", opener, "# 3. 검토이유", "",
+        closer, final,
+    ))
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+
+    spans = classify_answer_regions(draft)
+    result = _soundness(proposition, draft)
+
+    assert any(span.kind == "final_conclusion" and final in span.text for span in spans)
+    assert result.soundness_passed is False
+    assert "OPEN_PROMOTED_TO_CLOSED" in _codes(result)
+    violation = next(v for v in result.violations if v.code == "OPEN_PROMOTED_TO_CLOSED")
+    assert violation.final_conclusion_span == final
+
+
+@pytest.mark.parametrize("condition, procedure, effect, field", [
+    ("요건 C를 충족하지 못해도", "절차 P를 거치면", "지위 Z로", "condition"),
+    ("요건 C를 충족하고", "절차 P를 거치지 아니하고", "지위 Z로", "procedure"),
+    ("요건 C를 충족하고", "절차 P를 거치면", "지위 Z 대신 지위 Y로", "legal_effect"),
+])
+def test_round4_bounded_relation_conflicts_fail(condition, procedure, effect, field):
+    proposition = _proposition()
+    claim = f"{condition} {procedure} 행정청은 대상 O를 {effect} 지정할 수 있다."
+    assert all(value in claim for value in (
+        proposition.condition, proposition.procedure, proposition.operative_verb_lexeme,
+        proposition.legal_object, proposition.legal_effect,
+    ))
+    draft = f"# 2. 검토결론\n{claim}\n# 3. 검토이유\n{_rendered(proposition)}"
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    violation = next(v for v in result.violations if v.code == "LEGAL_RELATION_DEGRADATION")
+    assert violation.relation_fields == (field,)
+    assert violation.proposition_id == proposition.proposition_id
+    assert violation.final_conclusion_span == claim.lower()
+
+
+@pytest.mark.parametrize("earlier_adoption", [False, True])
+@pytest.mark.parametrize("prefix, suffix", [
+    ("다음 명제는 거짓이다!! ", ""),
+    ("다음  명제는\t거짓이다!? \t", ""),
+    ("", " \t이  명제는 거짓이다!!"),
+    ("", "\n이 명제는 거짓이다."),
+])
+def test_round4_false_wrapper_repetition_and_whitespace(prefix, suffix, earlier_adoption):
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    earlier = _rendered(proposition) + "\n" if earlier_adoption else ""
+    draft = earlier + f"# 2. 검토결론\n{prefix}{contract.slots[0].text}{suffix}\n{contract.slots[1].text}"
+    assert _coverage(contract, draft).covered is True
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "FINAL_CONCLUSION_CONTRADICTION" in _codes(result)
+    if not earlier_adoption:
+        assert "REJECTED_QUOTATION_ONLY" in _codes(result)
+
+
+@pytest.mark.parametrize("separator", [", ", "; ", " "])
+def test_round4_unrelated_clause_uncertainty_cannot_adopt_open(separator):
+    proposition = _proposition(status=PropositionStatus.OPEN)
+    draft = "요건 C와 절차 P는 검토 대상이며" + separator + "보고서 발행일은 확인 필요하다."
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "UNAVAILABLE_SEMANTIC_AUTHORITY" in _codes(result)
+
+
+@pytest.mark.parametrize("status", [PropositionStatus.CLOSED, PropositionStatus.OPEN])
+@pytest.mark.parametrize("extra", [
+    "보고서는 다운로드할 수 있다.",
+    "요건 C는 보고서의 색인 항목이다.",
+    "요건 C와 절차 P는 검토 대상이며, 보고서는 다운로드할 수 있다.",
+])
+def test_round4_unrelated_final_prose_has_no_legal_owner(status, extra):
+    proposition = _proposition(status=status)
+    draft = f"# 2. 검토결론\n{_rendered(proposition)}\n{extra}"
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is True
+    assert result.violations == ()
+
+
+@pytest.mark.parametrize("wrapped", [
+    "다음 명제는 거짓이다!! 별개의 설명이다. {slot}",
+    "{slot} 별개의 설명이다. 이 명제는 거짓이다!!",
+])
+def test_round4_false_wrapper_does_not_cross_intervening_assertion(wrapped):
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    draft = "# 2. 검토결론\n" + wrapped.format(slot=contract.slots[0].text) + "\n" + contract.slots[1].text
+
+    assert _soundness(proposition, draft).soundness_passed is True
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_round4_real_blank_after_fence_still_ends_label(newline):
+    draft = newline.join(("결론:", "```", "# 3. 검토이유", "````", "", "다른 문단이다."))
+
+    spans = classify_answer_regions(draft)
+
+    assert any(span.kind == "affirmative" and "다른 문단이다." in span.text for span in spans)
+
+
+@pytest.mark.parametrize("position", ["prefix", "suffix"])
+def test_round4_false_wrapper_cannot_cross_blank_paragraph(position):
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    effect = contract.slots[0].text
+    wrapped = f"다음 명제는 거짓이다!!\n\n{effect}" if position == "prefix" else f"{effect}\n\n이 명제는 거짓이다!!"
+    draft = f"# 2. 검토결론\n{contract.slots[1].text}\n{wrapped}"
+
+    assert _soundness(proposition, draft).soundness_passed is True
+
+
+def test_round4_false_wrapper_after_unpunctuated_line_still_rejects():
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    draft = f"# 2. 검토결론\n검토 결과\n다음 명제는 거짓이다!! {contract.slots[0].text}\n{contract.slots[1].text}"
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "FINAL_CONCLUSION_CONTRADICTION" in _codes(result)
