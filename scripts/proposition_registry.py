@@ -213,6 +213,10 @@ class RegistryService:
                     registry_required_operations=("register_material_proposition",),
                     registry_enforcement_count=0,
                     stop_disposition=None,
+                    material_obligation_ledger_required=(
+                        existing.material_obligation_ledger_required
+                        or material_obligations_required
+                    ),
                 )
             else:
                 pending = RuntimeTurnState(
