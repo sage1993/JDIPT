@@ -18,6 +18,7 @@ PLUGIN_RUNTIME_FILES = (
     "scripts/proposition_rendering.py",
     "scripts/proposition_reconciliation.py",
     "scripts/proposition_registry.py",
+    "scripts/proposition_soundness.py",
     "scripts/synthesis_runtime_state.py",
     "scripts/jdipt_activation.py",
     "scripts/proposition_relations.py",
