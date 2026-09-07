@@ -27,6 +27,7 @@ from scripts.synthesis_runtime_state import (
     RuntimeTurnState,
     load_runtime_state,
     runtime_state_path,
+    runtime_state_fingerprint,
     save_runtime_state,
 )
 
@@ -335,7 +336,7 @@ class RegistryService:
             expected.turn_id,
             self.plugin_data,
         )
-        if current is None or current != expected:
+        if current is None or runtime_state_fingerprint(current) != runtime_state_fingerprint(expected):
             raise RuntimeStateError(
                 "registry transition expected state is stale or belongs to another turn"
             )

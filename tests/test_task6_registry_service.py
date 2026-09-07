@@ -82,6 +82,7 @@ def test_registry_lifecycle_writers_are_not_in_persistence_module():
 
     assert "def create_pending_runtime_state" not in text
     assert "def update_registry_enforcement_count" not in text
+    assert "def record_stop_disposition" not in text
 
 
 def test_held_registry_lock_fails_closed_without_partial_transition(tmp_path):

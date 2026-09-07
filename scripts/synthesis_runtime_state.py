@@ -219,6 +219,20 @@ def _as_json(state: RuntimeTurnState) -> dict[str, Any]:
     return payload
 
 
+def runtime_state_fingerprint(state: RuntimeTurnState) -> str:
+    """Return the canonical serialized identity used for stale-state checks."""
+
+    try:
+        return json.dumps(
+            _as_json(state),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    except (TypeError, ValueError, UnicodeError) as exc:
+        raise RuntimeStateError(f"could not fingerprint runtime state: {exc}") from exc
+
+
 def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
     if not isinstance(payload, dict):
         raise RuntimeStateError("runtime state must be a JSON object")
@@ -432,7 +446,6 @@ def record_reconciliation(
     soundness_result: Any | None = None,
     source_closure_result: Any | None = None,
     obligation_closure_result: Any | None = None,
-    stop_disposition: str | None = None,
 ) -> RuntimeTurnState:
     """Persist compact first/second reconciliation and relation evidence."""
 
@@ -447,21 +460,6 @@ def record_reconciliation(
             obligation_closure_result,
         )
     }
-    if stop_disposition is not None:
-        updates["stop_disposition"] = stop_disposition
     updated = replace(state, **updates)
-    save_runtime_state(updated, plugin_data)
-    return updated
-
-
-def record_stop_disposition(
-    state: RuntimeTurnState,
-    disposition: str,
-    plugin_data: str | os.PathLike[str] | None = None,
-) -> RuntimeTurnState:
-    """Persist a terminal runtime disposition for acceptance evidence."""
-
-    _validate_text(disposition, "stop_disposition")
-    updated = replace(state, stop_disposition=disposition)
     save_runtime_state(updated, plugin_data)
     return updated

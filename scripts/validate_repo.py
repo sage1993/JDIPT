@@ -666,6 +666,7 @@ def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
     lifecycle_writer_names = {
         "create_pending_runtime_state",
         "update_registry_enforcement_count",
+        "record_stop_disposition",
     }
     duplicate_lifecycle_writers = [
         (relative, node.name, node.lineno)

@@ -25,7 +25,6 @@ from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     load_runtime_state,
     record_reconciliation,
-    record_stop_disposition,
     update_repair_count,
 )
 
@@ -245,7 +244,7 @@ def handle_stop_event(
     phase = "second" if state.repair_count else "first"
     if overall_covered and overall_sound and overall_source and overall_obligation:
         try:
-            record_reconciliation(
+            updated = record_reconciliation(
                 state,
                 phase,
                 result,
@@ -254,8 +253,8 @@ def handle_stop_event(
                 soundness_result=soundness_result,
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
-                stop_disposition="COMPLETED",
             )
+            RegistryService(plugin_data).record_disposition(updated, "COMPLETED")
         except (OSError, RuntimeStateError, ValueError):
             return _fail_closed(
                 "JDIPT synthesis validation failed-closed; reconciliation "
@@ -265,7 +264,7 @@ def handle_stop_event(
 
     if state.repair_count != 0 or event.get("stop_hook_active") is True:
         try:
-            record_reconciliation(
+            updated = record_reconciliation(
                 state,
                 "second",
                 result,
@@ -274,7 +273,10 @@ def handle_stop_event(
                 soundness_result=soundness_result,
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
-                stop_disposition="REPAIR_EXHAUSTED",
+            )
+            RegistryService(plugin_data).record_disposition(
+                updated,
+                "REPAIR_EXHAUSTED",
             )
         except (OSError, RuntimeStateError, ValueError):
             return _fail_closed(
@@ -288,7 +290,7 @@ def handle_stop_event(
 
     try:
         updated = update_repair_count(state, 1, plugin_data)
-        record_reconciliation(
+        updated = record_reconciliation(
             updated,
             "first",
             result,
@@ -297,8 +299,8 @@ def handle_stop_event(
             soundness_result=soundness_result,
             source_closure_result=source_closure_result,
             obligation_closure_result=obligation_closure_result,
-            stop_disposition="REPAIR_REQUESTED",
         )
+        RegistryService(plugin_data).record_disposition(updated, "REPAIR_REQUESTED")
     except (OSError, RuntimeStateError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; repair state could not be persisted."
