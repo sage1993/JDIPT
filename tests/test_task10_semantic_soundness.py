@@ -314,10 +314,16 @@ def test_negative_canonical_polarity_rejects_positive_final_conclusion():
 
 def test_must_weakened_to_may_fails_with_structured_violation():
     proposition = _proposition(modality=Modality.MUST)
+    conclusion = "결론: 요건 C를 충족하고 절차 P를 거치면 행정청은 대상 O를 지위 Z로 지정할 수 있다."
+    assert all(value in conclusion for value in (
+        proposition.condition, proposition.procedure, proposition.operative_verb_lexeme,
+        proposition.legal_object, proposition.legal_effect,
+    ))
+    assert "지정할 수 있다" in conclusion
     draft = "\n".join(
         (
             "# 2. 검토결론",
-            "결론: 요건 C와 절차 P가 있으면 행정청은 대상 O를 지위 Z로 된다.",
+            conclusion,
             "# 3. 검토이유",
             _rendered(proposition),
         )
@@ -646,6 +652,80 @@ def test_render_only_contract_cannot_prove_semantic_authority():
 def test_unrelated_uncertainty_does_not_adopt_an_open_proposition(separator):
     proposition = _proposition(status=PropositionStatus.OPEN)
     draft = "요건 C는 검토 대상이다." + separator + "보고서 발행일은 확인 필요하다."
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "UNAVAILABLE_SEMANTIC_AUTHORITY" in _codes(result)
+
+
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+def test_numbered_heading_in_fence_cannot_end_final_open_conclusion(fence):
+    proposition = _proposition(status=PropositionStatus.OPEN)
+    draft = "\n".join((
+        "# 2. 검토결론", fence, "# 3. 검토이유", fence,
+        "따라서 이 행위는 허용된다.", "# 3. 검토이유", _rendered(proposition),
+    ))
+
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "OPEN_PROMOTED_TO_CLOSED" in _codes(result)
+
+
+@pytest.mark.parametrize("condition, procedure, effect, degraded", [
+    ("요건 C가 충족되지 않아도", "절차 P를 거치면", "지위 Z로", "condition"),
+    ("요건 C 없이", "절차 P를 거치면", "지위 Z로", "condition"),
+    ("요건 C를 충족하고", "절차 P 없이", "지위 Z로", "procedure"),
+    ("요건 C를 충족하고", "절차 P를 거치면", "지위 Z가 아닌 지위 Y로", "legal_effect"),
+    ("요건 C를 충족하고", "절차 P를 거치면", "지위 Z 아닌 지위 Y로", "legal_effect"),
+    ("요건 C를 충족하고", "절차 P를 거치면", "지위 Z로 변경된 지위 Y로", "legal_effect"),
+    ("요건 C를 충족하고", "절차 P를 거치면", "변경된 지위 Z로", "legal_effect"),
+])
+def test_field_local_absence_or_alternate_effect_is_not_relation_preservation(
+    condition, procedure, effect, degraded,
+):
+    proposition = _proposition()
+    assertion = f"{condition} {procedure} 행정청은 대상 O를 {effect} 지정할 수 있다."
+    assert all(value in assertion for value in (
+        proposition.condition, proposition.procedure, proposition.operative_verb_lexeme,
+        proposition.legal_object, proposition.legal_effect,
+    ))
+    draft = f"# 2. 검토결론\n{assertion}\n# 3. 검토이유\n{_rendered(proposition)}"
+    assert _coverage(build_render_contract(proposition), draft).covered is True
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "LEGAL_RELATION_DEGRADATION" in _codes(result)
+    violation = next(v for v in result.violations if v.code == "LEGAL_RELATION_DEGRADATION")
+    assert violation.relation_fields == (degraded,)
+
+
+@pytest.mark.parametrize("position", ["before", "after"])
+@pytest.mark.parametrize("earlier_adoption", [False, True])
+def test_false_wrapper_with_period_or_suffix_cannot_adopt_exact_slot(position, earlier_adoption):
+    proposition = _proposition()
+    contract = build_render_contract(proposition)
+    slot = contract.slots[0].text
+    wrapped = f"다음 명제는 거짓이다. {slot}" if position == "before" else f"{slot} 이 명제는 거짓이다."
+    earlier = _rendered(proposition) + "\n" if earlier_adoption else ""
+    draft = earlier + f"# 2. 검토결론\n{wrapped}\n{contract.slots[1].text}"
+    assert _coverage(contract, draft).covered is True
+
+    result = _soundness(proposition, draft)
+
+    assert result.soundness_passed is False
+    assert "FINAL_CONCLUSION_CONTRADICTION" in _codes(result)
+    if not earlier_adoption:
+        assert "REJECTED_QUOTATION_ONLY" in _codes(result)
+
+
+@pytest.mark.parametrize("boundary", [". ", "\n", "\r\n"])
+def test_open_uncertainty_preserves_raw_assertion_boundaries(boundary):
+    proposition = _proposition(status=PropositionStatus.OPEN)
+    draft = "요건 C는 검토 대상이다" + boundary + "보고서 발행일은 확인 필요하다."
 
     result = _soundness(proposition, draft)
 

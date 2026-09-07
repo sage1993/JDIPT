@@ -1,5 +1,57 @@
 # Task 3 report — Deterministic semantic soundness core
 
+## Fix round 2 — current result
+
+This section supersedes earlier round counts and implementation notes where they differ. Base commit: `917e565889f351cf7c1032f853edbd38d028b320`. All work ran in `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`.
+
+Changed paths: `scripts/proposition_soundness.py`, `tests/test_task10_semantic_soundness.py`, and `.superpowers/sdd/task10-semantic-soundness-closure/task-3-report.md`. No rendering, reconciliation, Task 9 coverage, registry, ledger, or source ownership changes. The typed `semantic_identity` snapshot and its fail-closed validation from round 1 remain intact.
+
+### Regressions before production
+
+Added 16 permanent cases before touching production: two fence variants containing a numbered heading; seven canonical-field-local absence/alternate-effect forms; four prefix-period/suffix false-wrapper cases with and without earlier adoption; and three raw sentence/LF/CRLF assertion-boundary cases. The existing neutral OPEN pass case remains. The original MUST-to-MAY case was strengthened to include all canonical fields and the actual bounded `지정할 수 있다` predicate, preserving its exact singleton `MUST_DEGRADED_TO_MAY` expectation. It no longer relies on an omitted action or missing modality marker.
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py --tb=short
+```
+
+RED result: **15 failed, 38 passed in 0.29s**, exit 1. All 15 failures were reproduced false-greens, not fixture/collection errors. The sentence-isolation case already passed; both raw newline variants failed. The strengthened actual-MAY regression also passed before these fixes. All prior 37 Task 10 cases were retained.
+
+### Minimal implementation and self-review
+
+- Section boundaries ignore numbered headings and conclusion labels inside the existing fenced-code ranges. A fenced `# 3. 검토이유` cannot end the enclosing final conclusion; both new fence cases assert coverage PASS followed by soundness FAIL.
+- Extended the existing canonical-field-local relation helper to recognize adjacent `충족하지/충족되지 ... 않`, prerequisite `없이`, and effect `가 아닌/아닌/변경된` forms. Prefix `변경된` is also bound immediately to the canonical effect. The helper reports the specific altered field in `LEGAL_RELATION_DEGRADATION`; it does not scan unrelated document keywords.
+- Exact slot occurrences inspect their immediately adjoining context before consumption. Prefix false assertions accept colon or period, and suffix `이 명제는 거짓이다.` is rejected. Earlier correct occurrences cannot cancel a final contradiction or make the wrapped occurrence adopted.
+- OPEN adoption splits raw punctuation/newline boundaries before normalization. Residual claim analysis also preserves original line boundaries while allowing exact canonical slots to wrap across lines. Supplemental rule checks reuse the bounded sentence helper.
+- Reviewed the production diff for shared helper use, typed freshness preservation, and changes outside the requested ownership boundaries. Slot text/IDs/equality and the Task 9 algorithm are unchanged. No broad NLP/keyword inference, repair, injection, rewriting, fixture-specific constants, LLM, or embedding was added.
+
+### GREEN and full regression evidence
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+python -m pytest -q -p no:cacheprovider tests/test_task10_semantic_soundness.py tests/test_proposition_soundness.py --tb=short
+```
+
+GREEN result: **69 passed in 0.16s**, exit 0 (53 Task 10 cases plus 16 existing soundness cases).
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'
+$env:PYTEST_ADDOPTS='-p no:cacheprovider --basetemp=F:/2026-PJ/JDIPT/.worktrees/task10-semantic-soundness-closure/.pytest-task3-fix2-full'
+python -m pytest -q
+```
+
+Full result: **1 failed, 522 passed in 5.82s**, exit 1, no setup errors. This approved worktree-local temporary-directory run includes all requested rendering/reconciliation/source/obligation and related regressions. The only failure is still `tests/test_task5_source_obligation_closure.py::test_stop_blocks_final_conclusion_modality_degradation_after_valid_effect_slot`, line 425: it expects soundness PASS for MUST rendered as MAY. That assertion is stale under SS-06 and was left unchanged, as instructed. Production continues to reject the weakening.
+
+```powershell
+python scripts/validate_repo.py
+python scripts/validate_authority_temporal_contract.py
+python scripts/plugin_integrity.py
+git diff --check
+git diff --name-only -- scripts/proposition_rendering.py scripts/proposition_reconciliation.py scripts/proposition_render_coverage.py scripts/proposition_registry.py scripts/proposition_source_closure.py
+```
+
+Results: both validators **PASS**; installed integrity **FAIL** with the existing 18 mismatches; whitespace check clean (Git LF-to-CRLF notices only); the protected-path diff listing is empty. No installed files were modified and no installed-runtime parity is claimed. Commit subject: `feat: add deterministic semantic soundness gate`.
+
 ## Fix round 1 — current result
 
 This section supersedes the original implementation's scope, freshness limitation, and test counts below; the earlier evidence is retained as history. Starting commit: `1335c7d5dc5b976b00bd7c72582d34400340bde7`. Work remained confined to `F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure`.
