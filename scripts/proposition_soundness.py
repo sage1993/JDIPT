@@ -72,10 +72,7 @@ _CONCLUSION_HEADING_RE = re.compile(
     r"(?mi)^[ \t]*#\s*2\.\s*검토결론\s*$"
 )
 _CONCLUSION_LABEL_RE = re.compile(r"(?mi)^[ \t]*(?:최종\s*)?결론\s*:")
-_CODE_BLOCK_RE = re.compile(
-    r"(?ms)^[ \t]*(?P<fence>`{3,}|~{3,})[^\n]*\n.*?"
-    r"(?:^[ \t]*(?P=fence)[ \t]*(?:\n|$)|\Z)"
-)
+_FENCE_LINE_RE = re.compile(r"[ \t]*(?P<fence>`{3,}|~{3,})(?P<info>[^\r\n]*)")
 _BLOCKQUOTE_RE = re.compile(r"(?m)^[ \t]*>[^\n]*(?:\n|$)")
 _INLINE_QUOTE_RE = re.compile(r"(?s)(?P<quote>[\"'])(?P<body>.+?)(?P=quote)")
 _EXAMPLE_MARKER_RE = re.compile(r"(?i)^(?:예시|example)\s*:")
@@ -138,21 +135,36 @@ def _add_interval(
         intervals.append((start, end, kind))
 
 
-def _section_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
+def _fence_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
+    """Scan raw lines; only the same fence character of sufficient length closes."""
     intervals: list[tuple[int, int, AnswerRegionKind]] = []
-    fences = tuple((match.start(), match.end()) for match in _CODE_BLOCK_RE.finditer(draft))
+    opener: tuple[int, str] | None = None
+    for start, end, line in _line_ranges(draft):
+        marker = _FENCE_LINE_RE.fullmatch(line.rstrip("\r\n"))
+        if marker is None:
+            continue
+        fence, info = marker.group("fence", "info")
+        if opener is None:
+            if fence[0] == "`" and "`" in info:
+                continue
+            opener = (start, fence)
+        elif fence[0] == opener[1][0] and len(fence) >= len(opener[1]) and not info.strip():
+            intervals.append((opener[0], end, "code_block"))
+            opener = None
+    if opener is not None:
+        intervals.append((opener[0], len(draft), "code_block"))
+    return intervals
 
-    def outside_fences(position: int) -> bool:
-        return not any(start <= position < end for start, end in fences)
 
-    headings = [match for match in _HEADING_RE.finditer(draft) if outside_fences(match.start())]
+def _section_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
+    # The caller supplies an offset-preserving view with fenced content masked.
+    intervals: list[tuple[int, int, AnswerRegionKind]] = []
+    headings = list(_HEADING_RE.finditer(draft))
     for index, heading in enumerate(headings):
         end = headings[index + 1].start() if index + 1 < len(headings) else len(draft)
         if _CONCLUSION_HEADING_RE.fullmatch(heading.group(0).rstrip("\r\n")):
             _add_interval(intervals, heading.end(), end, "final_conclusion")
     for match in _CONCLUSION_LABEL_RE.finditer(draft):
-        if not outside_fences(match.start()):
-            continue
         # A label cannot swallow a later section's canonical render.
         stops = [heading.start() for heading in headings if heading.start() > match.end()]
         blank = re.search(r"\r?\n[ \t]*\r?\n", draft[match.end():])
@@ -228,24 +240,29 @@ def _rejected_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
 
 
 def _raw_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
-    intervals = _section_intervals(draft)
-    intervals.extend(_example_intervals(draft))
-    intervals.extend(_rejected_intervals(draft))
+    fences = _fence_intervals(draft)
+    structural = list(draft)
+    for start, end, _ in fences:
+        for index in range(start, end):
+            if structural[index] not in "\r\n":
+                structural[index] = " "
+    # Standalone CR becomes a line boundary without changing any offsets.
+    visible = re.sub(r"\r(?!\n)", "\n", "".join(structural))
+    intervals = _section_intervals(visible)
+    intervals.extend(_example_intervals(visible))
+    intervals.extend(_rejected_intervals(visible))
+    intervals.extend(fences)
     intervals.extend(
-        (match.start(), match.end(), "code_block")
-        for match in _CODE_BLOCK_RE.finditer(draft)
+        (match.start(), match.end(), "quotation")
+        for match in _BLOCKQUOTE_RE.finditer(visible)
     )
     intervals.extend(
         (match.start(), match.end(), "quotation")
-        for match in _BLOCKQUOTE_RE.finditer(draft)
-    )
-    intervals.extend(
-        (match.start(), match.end(), "quotation")
-        for match in _INLINE_QUOTE_RE.finditer(draft)
+        for match in _INLINE_QUOTE_RE.finditer(visible)
     )
     intervals.extend(
         (match.start(), match.end(), "uncertainty")
-        for match in _UNCERTAINTY_RE.finditer(draft)
+        for match in _UNCERTAINTY_RE.finditer(visible)
     )
     return intervals
 
@@ -408,16 +425,16 @@ def _field_pattern(value: str) -> re.Pattern[str]:
     return re.compile(r"(?<![a-z0-9_가-힣])" + re.escape(normalize_rendered_text(value)) + r"(?![a-z0-9_])")
 
 
-_FALSE_WRAPPER_RE = re.compile(r"(?:다음\s+)?명제는\s+거짓이다\s*[:.]\s*$")
+_FALSE_WRAPPER_RE = re.compile(r"(?:다음\s+)?명제는\s+거짓이다\s*[:.!?]\s*$")
 _FALSE_WRAPPER_SUFFIX_RE = re.compile(r"\s*이\s+명제는\s+거짓이다(?:[.!]|$)")
 
 
 def _altered_relation_fields(proposition: LegalProposition, text: str) -> tuple[str, ...]:
     """Inspect only grammar immediately adjoining a canonical relation value."""
     predicates = (
-        ("condition", proposition.condition, r"\s*(?:을|를|이|가|은|는)?\s*(?:충족(?:하지|되지)\s*않|없이)"),
-        ("procedure", proposition.procedure, r"\s*(?:을|를|이|가|은|는)?\s*(?:거치지\s*않|없이)"),
-        ("legal_effect", proposition.legal_effect, r"\s*(?:(?:이|가)?\s*아닌|(?:으로|로)?\s*변경된)"),
+        ("condition", proposition.condition, r"\s*(?:을|를|이|가|은|는)?\s*(?:충족(?:하지|되지)\s*않|없이|없어도)"),
+        ("procedure", proposition.procedure, r"\s*(?:을|를|이|가|은|는)?\s*(?:거치지\s*않|없이|없어도)"),
+        ("legal_effect", proposition.legal_effect, r"\s*(?:(?:이|가)?\s*(?:아닌|아니라)|(?:으로|로)?\s*변경된)"),
     )
     return tuple(
         name for name, value, suffix in predicates
@@ -431,7 +448,7 @@ def _altered_relation_fields(proposition: LegalProposition, text: str) -> tuple[
 
 
 def _sentences(text: str) -> tuple[str, ...]:
-    return tuple(part.strip() for part in re.split(r"(?<=[.!?])\s+|\n+", text) if part.strip())
+    return tuple(part.strip() for part in re.split(r"(?<=[.!?])|[\r\n]+", text) if part.strip())
 
 
 def _normalized_sentences(text: str) -> tuple[str, ...]:
@@ -739,10 +756,18 @@ def evaluate_soundness(
 
         if proposition.status is PropositionStatus.OPEN:
             # Neutral paraphrases are allowed; excluded regions cannot adopt.
-            neutral_adoption = any(
+            open_runs = _semantic_runs(spans)
+            exact_adoption = any(
+                match.adopted
+                for slot in contract.slots
+                for match in _slot_matches(slot.text, open_runs)
+            )
+            neutral_adoption = exact_adoption or any(
                 _UNCERTAINTY_RE.search(sentence)
                 and proposition in _claim_owners(sentence, authorities)
-                for run in _semantic_runs(spans)
+                and len({normalize_rendered_text(value) for _, value in _relation_fields(proposition)
+                         if value and _field_pattern(value).search(sentence)}) >= 2
+                for run in open_runs
                 for sentence in _normalized_sentences(run.text)
             )
             if not neutral_adoption:
