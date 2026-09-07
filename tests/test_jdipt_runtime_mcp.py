@@ -4,7 +4,9 @@ from pathlib import Path
 import subprocess
 import sys
 
+from scripts.material_obligation_ledger import MaterialObligationLedger
 from scripts.jdipt_runtime_mcp import dispatch_json_rpc, tool_definitions
+from scripts.proposition_registry import RegistryService
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,6 +52,39 @@ def test_registry_tool_exposes_evidence_but_not_free_render_clause():
 
 
 def test_tools_call_registers_and_returns_render_contract(tmp_path):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending(
+        "session-a",
+        "turn-1",
+        material_obligations_required=True,
+    )
+    service.record_material_obligation_ledger(
+        pending,
+        MaterialObligationLedger.from_mapping(
+            {
+                "obligations": [
+                    {
+                        "obligation_id": "O_BASE",
+                        "issue_type": "BASE_RULE",
+                        "source_status": "SOURCE_CONFIRMED",
+                        "evidence_source_ids": ["law-001"],
+                        "proposition_ids": ["P1"],
+                    }
+                ],
+                "verified_source_evidence": [
+                    {
+                        "source_id": "law-001",
+                        "authority_kind": "statute",
+                        "source_title": "검증 법령",
+                        "source_locator": "법령 식별자/조문",
+                        "evidence_span": "원문",
+                        "temporal_status": "CURRENT_CONFIRMED",
+                        "temporal_render_text": "2026-09-04 현재 시행 중인 기준이다.",
+                    }
+                ],
+            }
+        ),
+    )
     response = dispatch_json_rpc(
         {
             "jsonrpc": "2.0",

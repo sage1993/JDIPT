@@ -1,7 +1,7 @@
 import pytest
 
 from scripts.legal_proposition import PropositionValidationError
-from scripts.proposition_registry import register_material_proposition
+from scripts.proposition_registry import RegistryService, register_material_proposition
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     load_runtime_state,
@@ -77,6 +77,7 @@ def test_surrogate_is_rejected_before_state_write(tmp_path):
 
 
 def test_same_proposition_id_replaces_exact_turn_entry(tmp_path):
+    RegistryService(tmp_path).begin_pending("session-a", "turn-1")
     first = register_material_proposition(_closed_fields(), tmp_path)
     second = register_material_proposition(
         _closed_fields(condition="요건 변경"),
@@ -89,6 +90,7 @@ def test_same_proposition_id_replaces_exact_turn_entry(tmp_path):
 
 
 def test_different_proposition_id_appends_in_same_turn(tmp_path):
+    RegistryService(tmp_path).begin_pending("session-a", "turn-1")
     first = register_material_proposition(_closed_fields(), tmp_path)
     second = register_material_proposition(
         _closed_fields(proposition_id="P2", condition="요건 2"),
@@ -103,7 +105,10 @@ def test_different_proposition_id_appends_in_same_turn(tmp_path):
 
 
 def test_cross_session_state_is_not_reused(tmp_path):
+    service = RegistryService(tmp_path)
+    service.begin_pending("session-a", "turn-1")
     register_material_proposition(_closed_fields(), tmp_path)
+    service.begin_pending("session-b", "turn-1")
     result = register_material_proposition(
         _closed_fields(session_id="session-b"),
         tmp_path,
@@ -114,6 +119,7 @@ def test_cross_session_state_is_not_reused(tmp_path):
 
 
 def test_registry_returns_canonical_proposition_and_derived_contract(tmp_path):
+    RegistryService(tmp_path).begin_pending("session-a", "turn-1")
     result = register_material_proposition(_closed_fields(), tmp_path)
 
     assert result.state.registry_active is True

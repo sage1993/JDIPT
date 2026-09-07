@@ -131,6 +131,7 @@ PROPOSITION_SOUNDNESS = ROOT / "scripts" / "proposition_soundness.py"
 PROPOSITION_SOURCE_CLOSURE = ROOT / "scripts" / "proposition_source_closure.py"
 PROPOSITION_OBLIGATION_CLOSURE = ROOT / "scripts" / "proposition_obligation_closure.py"
 MATERIAL_OBLIGATION_LEDGER = ROOT / "scripts" / "material_obligation_ledger.py"
+MATERIAL_OBLIGATION_INGRESS = ROOT / "scripts" / "material_obligation_ingress.py"
 REQUIRED_RUNTIME_FILES = (
     PROPOSITION_MODEL,
     PROPOSITION_RENDERING,
@@ -142,6 +143,7 @@ REQUIRED_RUNTIME_FILES = (
     PROPOSITION_SOURCE_CLOSURE,
     PROPOSITION_OBLIGATION_CLOSURE,
     MATERIAL_OBLIGATION_LEDGER,
+    MATERIAL_OBLIGATION_INGRESS,
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
@@ -235,6 +237,11 @@ RUNTIME_PRODUCTION_MARKERS = {
         "class MaterialObligationLedger",
         "class RegistryClosureResult",
         "def evaluate_registry_closure",
+    ),
+    "scripts/material_obligation_ingress.py": (
+        "record_material_obligation_ledger",
+        "RegistryService",
+        "pending Task 8 activation",
     ),
     "scripts/jdipt_runtime_mcp.py": (
         "register_material_proposition",
@@ -760,6 +767,7 @@ def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
     integration_modules = {
         "scripts/jdipt_activation.py": "begin_pending",
         "scripts/jdipt_runtime_mcp.py": "register",
+        "scripts/material_obligation_ingress.py": "record_material_obligation_ledger",
         "scripts/stop_synthesis_gate.py": "mark_enforcement",
     }
     for relative, required_method in integration_modules.items():

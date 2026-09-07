@@ -14,6 +14,7 @@ from scripts.legal_proposition import (
     TemporalRequirement,
 )
 from scripts.jdipt_activation import handle_user_prompt_submit
+from scripts.material_obligation_ingress import record_material_obligation_ledger
 from scripts.material_obligation_ledger import (
     MaterialObligation,
     MaterialObligationLedger,
@@ -634,6 +635,77 @@ def test_begin_pending_can_explicitly_require_task8_ledger(tmp_path):
     )
 
     assert pending.material_obligation_ledger_required is True
+
+
+def test_unactivated_registration_cannot_create_an_active_registry(tmp_path):
+    with pytest.raises(RuntimeStateError):
+        RegistryService(tmp_path).register(
+            {
+                "session_id": "session-a",
+                "turn_id": "turn-1",
+                "proposition_id": "P_BASE",
+                "status": "CLOSED",
+                "materiality": "material",
+                "subject": "행정청",
+                "condition": "요건",
+                "procedure": "절차",
+                "modality": "may",
+                "legal_action": "부여",
+                "operative_verb_lexeme": "부여",
+                "legal_object": "대상",
+                "legal_effect": "법적 효과",
+                "polarity": "positive",
+                "relation_type": "base",
+                "base_proposition_id": None,
+                "exception_proposition_id": None,
+                "source_id": "law-base",
+                "authority_kind": "statute",
+                "source_title": "검증 법령",
+                "source_locator": "https://example.test/law-base",
+                "evidence_span": "행정청은 요건을 충족하고 절차를 거쳐 대상에 법적 효과를 부여할 수 있다.",
+                "temporal_status": "CURRENT_CONFIRMED",
+                "temporal_render_text": "현행 기준에 따른다.",
+            }
+        )
+
+    assert RegistryService(tmp_path).read_state("session-a", "turn-1") is None
+
+
+def test_trusted_ledger_ingress_uses_the_canonical_registry_writer(tmp_path):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending(
+        "session-a",
+        "turn-1",
+        material_obligations_required=True,
+    )
+    ledger = MaterialObligationLedger(
+        obligations=(obligation("O_BASE", "BASE_RULE", SOURCE_UNRESOLVED),),
+        verified_source_evidence=(),
+    )
+
+    updated = record_material_obligation_ledger(
+        {
+            "session_id": "session-a",
+            "turn_id": "turn-1",
+            "material_obligation_ledger": {
+                "obligations": [
+                    {
+                        "obligation_id": item.obligation_id,
+                        "issue_type": item.issue_type,
+                        "source_status": item.source_status.value,
+                        "evidence_source_ids": list(item.evidence_source_ids),
+                        "proposition_ids": list(item.proposition_ids),
+                    }
+                    for item in ledger.obligations
+                ],
+                "verified_source_evidence": [],
+            },
+        },
+        tmp_path,
+    )
+
+    assert updated == service.read_state("session-a", "turn-1")
+    assert updated.material_obligation_ledger == ledger
 
 
 def test_explicit_activation_rejects_registration_without_task8_ledger(tmp_path):

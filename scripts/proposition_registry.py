@@ -273,33 +273,26 @@ class RegistryService:
                 self.plugin_data,
             )
             if existing is None:
-                propositions = [proposition]
-                invocation_count = 1
-                repair_count = 0
-                enforcement_count = 0
-                first_reconciliation = None
-                second_reconciliation = None
-                stop_disposition = None
-                material_obligation_ledger = None
-                material_obligation_ledger_required = False
-            else:
-                propositions = list(existing.propositions)
-                for index, item in enumerate(propositions):
-                    if item.proposition_id == proposition.proposition_id:
-                        propositions[index] = proposition
-                        break
-                else:
-                    propositions.append(proposition)
-                invocation_count = existing.registry_invocation_count + 1
-                repair_count = existing.repair_count
-                enforcement_count = existing.registry_enforcement_count
-                first_reconciliation = existing.first_reconciliation
-                second_reconciliation = existing.second_reconciliation
-                stop_disposition = existing.stop_disposition
-                material_obligation_ledger = existing.material_obligation_ledger
-                material_obligation_ledger_required = (
-                    existing.material_obligation_ledger_required
+                raise RuntimeStateError(
+                    "registry registration requires an exact pending activation"
                 )
+            propositions = list(existing.propositions)
+            for index, item in enumerate(propositions):
+                if item.proposition_id == proposition.proposition_id:
+                    propositions[index] = proposition
+                    break
+            else:
+                propositions.append(proposition)
+            invocation_count = existing.registry_invocation_count + 1
+            repair_count = existing.repair_count
+            enforcement_count = existing.registry_enforcement_count
+            first_reconciliation = existing.first_reconciliation
+            second_reconciliation = existing.second_reconciliation
+            stop_disposition = existing.stop_disposition
+            material_obligation_ledger = existing.material_obligation_ledger
+            material_obligation_ledger_required = (
+                existing.material_obligation_ledger_required
+            )
 
             state = RuntimeTurnState(
                 schema_version=RUNTIME_STATE_SCHEMA_VERSION,

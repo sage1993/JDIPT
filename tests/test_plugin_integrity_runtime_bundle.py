@@ -15,6 +15,7 @@ PLUGIN_FILES = (
     "scripts/proposition_source_closure.py",
     "scripts/proposition_obligation_closure.py",
     "scripts/material_obligation_ledger.py",
+    "scripts/material_obligation_ingress.py",
     "scripts/synthesis_runtime_state.py",
     "scripts/jdipt_runtime_mcp.py",
     "scripts/inject_registry_runtime.py",
@@ -53,6 +54,7 @@ def test_manifest_includes_canonical_plugin_runtime_bundle(tmp_path):
     assert "plugin/scripts/proposition_source_closure.py" in manifest
     assert "plugin/scripts/proposition_obligation_closure.py" in manifest
     assert "plugin/scripts/material_obligation_ledger.py" in manifest
+    assert "plugin/scripts/material_obligation_ingress.py" in manifest
     assert "plugin/scripts/stop_synthesis_gate.py" in manifest
     assert "plugin/scripts/synthesis_runtime_state.py" in manifest
     assert "plugin/scripts/runtime_registry_state.py" not in manifest
