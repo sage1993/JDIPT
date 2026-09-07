@@ -120,10 +120,10 @@ Focused command:
 python -m pytest -q -p no:cacheprovider 'F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure\tests\test_task10_semantic_soundness.py'
 ```
 
-Exact output:
+Current focused output:
 
 ```text
-10 failed, 14 passed in 0.21s
+10 failed, 14 passed in 0.19s
 ```
 
 Current failing cases:
@@ -140,3 +140,4 @@ Current failing cases:
 - `test_unavailable_semantic_authority_fails`
 
 The negative PASS case now uses the canonical negative render only and no longer injects a contradictory positive conclusion marker.
+The unavailable-authority regression now uses a named empty-authority helper with a valid typed proposition and asserts the evaluator result at the boundary; the baseline still silently passes.

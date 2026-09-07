@@ -11,6 +11,7 @@ from scripts.legal_proposition import (
 from scripts.proposition_reconciliation import reconcile_render_contracts
 from scripts.proposition_rendering import build_render_contract
 from scripts.proposition_soundness import evaluate_soundness
+from scripts.proposition_soundness import SoundnessResult
 
 
 def _evidence(source_id: str = "law-001") -> EvidenceRef:
@@ -94,6 +95,10 @@ def _soundness_many(propositions: list[LegalProposition], draft: str):
 
 def _coverage(contract, draft: str):
     return reconcile_render_contracts([contract], draft)
+
+
+def _empty_contract_authority():
+    return []
 
 
 def test_closed_positive_with_matching_final_adoption_passes():
@@ -479,9 +484,10 @@ def test_ambiguous_adopted_identity_fails():
 
 def test_unavailable_semantic_authority_fails():
     proposition = _proposition()
+    contract_authority = _empty_contract_authority()
     soundness = evaluate_soundness(
         [proposition],
-        [],
+        contract_authority,
         "\n".join(
             (
                 "# 2. 검토결론",
@@ -492,5 +498,6 @@ def test_unavailable_semantic_authority_fails():
         ),
     )
 
+    assert isinstance(soundness, SoundnessResult)
     assert soundness.soundness_passed is False
     assert "UNAVAILABLE_SEMANTIC_AUTHORITY" in _codes(soundness)
