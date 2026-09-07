@@ -118,11 +118,7 @@ def test_closed_negative_with_matching_final_adoption_passes():
         legal_action="금지",
         operative_verb_lexeme="금지",
     )
-    draft = _draft_with_contract(
-        proposition,
-        prefix="# 2. 검토결론\n",
-        suffix="\n결론: 요건 C와 절차 P를 충족하더라도 행정청은 대상 O를 지위 Z로 금지된다.",
-    )
+    draft = _rendered(proposition)
 
     coverage = _coverage(build_render_contract(proposition), draft)
     soundness = _soundness(proposition, draft)

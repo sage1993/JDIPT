@@ -111,3 +111,32 @@ tests\test_task10_semantic_soundness.py:311: AssertionError
 ```
 
 The focused run remained red on the current Task 10 evaluator boundary, while the test-only review fixes stayed in the test module and report only.
+
+## Fix Run 2
+
+Focused command:
+
+```powershell
+python -m pytest -q -p no:cacheprovider 'F:\2026-PJ\JDIPT\.worktrees\task10-semantic-soundness-closure\tests\test_task10_semantic_soundness.py'
+```
+
+Exact output:
+
+```text
+10 failed, 14 passed in 0.21s
+```
+
+Current failing cases:
+
+- `test_must_weakened_to_may_fails_with_structured_violation`
+- `test_must_not_weakened_to_may_not_fails_with_structured_violation`
+- `test_correct_intermediate_render_plus_contradictory_final_conclusion_fails`
+- `test_one_correct_duplicate_plus_one_contradictory_duplicate_fails`
+- `test_source_specific_legal_action_removed_while_other_keywords_remain_fails`
+- `test_source_specific_legal_effect_removed_while_other_keywords_remain_fails`
+- `test_exception_condition_preserved_but_exception_effect_changed_fails`
+- `test_malformed_semantic_identity_fails`
+- `test_ambiguous_adopted_identity_fails`
+- `test_unavailable_semantic_authority_fails`
+
+The negative PASS case now uses the canonical negative render only and no longer injects a contradictory positive conclusion marker.
