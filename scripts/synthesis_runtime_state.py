@@ -25,6 +25,12 @@ from scripts.legal_proposition import (
     PropositionValidationError,
 )
 from scripts.proposition_obligation_closure import obligation_closure_result_to_dict
+from scripts.material_obligation_ledger import (
+    MaterialObligationLedger,
+    ObligationValidationError,
+    material_obligation_ledger_to_dict,
+    registry_closure_result_to_dict,
+)
 from scripts.proposition_source_closure import source_closure_result_to_dict
 from scripts.proposition_soundness import soundness_result_to_dict
 
@@ -78,6 +84,7 @@ class RuntimeTurnState:
     first_reconciliation: dict[str, Any] | None = None
     second_reconciliation: dict[str, Any] | None = None
     stop_disposition: str | None = None
+    material_obligation_ledger: MaterialObligationLedger | None = None
 
     def __post_init__(self) -> None:
         _validate_identifier(self.session_id, "session_id")
@@ -152,6 +159,13 @@ class RuntimeTurnState:
             self.propositions
         ):
             raise RuntimeStateError("duplicate proposition_id in runtime state")
+        if self.material_obligation_ledger is not None and not isinstance(
+            self.material_obligation_ledger,
+            MaterialObligationLedger,
+        ):
+            raise RuntimeStateError(
+                "material_obligation_ledger must be a MaterialObligationLedger"
+            )
         for name in ("first_reconciliation", "second_reconciliation"):
             value = getattr(self, name)
             if value is not None:
@@ -272,6 +286,10 @@ def _as_json(state: RuntimeTurnState) -> dict[str, Any]:
     except (ValueError, RuntimeStateError) as exc:
         raise RuntimeStateError(f"invalid runtime state: {exc}") from exc
     payload = asdict(state)
+    if state.material_obligation_ledger is not None:
+        payload["material_obligation_ledger"] = material_obligation_ledger_to_dict(
+            state.material_obligation_ledger
+        )
     for item in payload["propositions"]:
         for field in (
             "status",
@@ -315,6 +333,7 @@ def _registry_state_fingerprint(state: RuntimeTurnState) -> str:
             "registry_invocation_count",
             "registry_enforcement_count",
             "propositions",
+            "material_obligation_ledger",
             "stop_disposition",
         )
     }
@@ -382,6 +401,16 @@ def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
     except (KeyError, TypeError, ValueError, RuntimeStateError, PropositionValidationError) as exc:
         raise RuntimeStateError(f"invalid proposition metadata: {exc}") from exc
 
+    raw_ledger = payload.get("material_obligation_ledger")
+    try:
+        material_obligation_ledger = (
+            None
+            if raw_ledger is None
+            else MaterialObligationLedger.from_mapping(raw_ledger)
+        )
+    except (KeyError, TypeError, ValueError, ObligationValidationError) as exc:
+        raise RuntimeStateError(f"invalid material obligation ledger: {exc}") from exc
+
     try:
         return RuntimeTurnState(
             schema_version=payload["schema_version"],
@@ -399,6 +428,7 @@ def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
             first_reconciliation=payload["first_reconciliation"],
             second_reconciliation=payload["second_reconciliation"],
             stop_disposition=payload["stop_disposition"],
+            material_obligation_ledger=material_obligation_ledger,
         )
     except (KeyError, TypeError, ValueError, RuntimeStateError) as exc:
         raise RuntimeStateError(f"invalid runtime state: {exc}") from exc
@@ -523,6 +553,7 @@ def _reconciliation_summary(
     soundness_result: Any | None = None,
     source_closure_result: Any | None = None,
     obligation_closure_result: Any | None = None,
+    registry_closure_result: Any | None = None,
 ) -> dict[str, Any]:
     """Serialize compact reconciliation evidence without copying the draft."""
 
@@ -558,6 +589,10 @@ def _reconciliation_summary(
         summary["obligation_closure"] = obligation_closure_result_to_dict(
             obligation_closure_result
         )
+    if registry_closure_result is not None:
+        summary["registry_closure"] = registry_closure_result_to_dict(
+            registry_closure_result
+        )
     summary["overall_covered"] = bool(
         summary["covered"]
         and (
@@ -578,6 +613,7 @@ def record_reconciliation(
     soundness_result: Any | None = None,
     source_closure_result: Any | None = None,
     obligation_closure_result: Any | None = None,
+    registry_closure_result: Any | None = None,
 ) -> RuntimeTurnState:
     """Persist compact first/second reconciliation and relation evidence."""
 
@@ -590,6 +626,7 @@ def record_reconciliation(
             soundness_result,
             source_closure_result,
             obligation_closure_result,
+            registry_closure_result,
         )
     }
     updated = replace(state, **updates)

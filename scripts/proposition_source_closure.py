@@ -235,6 +235,21 @@ def _temporal_satisfied(proposition: LegalProposition, actual_status: str) -> tu
     return False, "TEMPORAL_SOURCE_UNRESOLVED"
 
 
+def authority_satisfies(proposition: LegalProposition, actual_source_type: str) -> bool:
+    """Expose the canonical authority semantics for other closure gates."""
+
+    return _authority_satisfied(proposition, actual_source_type)
+
+
+def temporal_satisfies(
+    proposition: LegalProposition,
+    actual_status: str,
+) -> tuple[bool, str | None]:
+    """Expose the canonical temporal semantics for other closure gates."""
+
+    return _temporal_satisfied(proposition, actual_status)
+
+
 def _support_fields(proposition: LegalProposition) -> tuple[tuple[str, str], ...]:
     return tuple(
         (name, value)

@@ -18,6 +18,20 @@ from scripts.proposition_reconciliation import normalize_rendered_text
 from scripts.proposition_rendering import PropositionRenderContract
 from scripts.proposition_soundness import AnswerSpan, classify_answer_regions
 
+# Re-export the Task 8 domain boundary for callers that already consume the
+# proposition-obligation module.  The implementation and state authority live
+# in material_obligation_ledger.py.
+from scripts.material_obligation_ledger import (
+    MaterialObligation,
+    MaterialObligationLedger,
+    ObligationSourceStatus,
+    ObligationStatus,
+    RegistryClosureResult,
+    SourceResolutionStatus,
+    evaluate_registry_closure,
+    validate_registry_closure,
+)
+
 
 @dataclass(frozen=True)
 class ObligationClosureViolation:

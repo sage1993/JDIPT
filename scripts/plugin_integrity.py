@@ -21,6 +21,7 @@ PLUGIN_RUNTIME_FILES = (
     "scripts/proposition_soundness.py",
     "scripts/proposition_source_closure.py",
     "scripts/proposition_obligation_closure.py",
+    "scripts/material_obligation_ledger.py",
     "scripts/synthesis_runtime_state.py",
     "scripts/jdipt_activation.py",
     "scripts/proposition_relations.py",

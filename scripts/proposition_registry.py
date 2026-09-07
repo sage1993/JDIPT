@@ -18,6 +18,7 @@ from scripts.legal_proposition import (
     normalize_status,
     PropositionValidationError,
 )
+from scripts.material_obligation_ledger import MaterialObligationLedger
 from scripts.proposition_rendering import PropositionRenderContract, build_render_contract
 from scripts.synthesis_runtime_state import (
     RUNTIME_STATE_SCHEMA_VERSION,
@@ -247,6 +248,7 @@ class RegistryService:
                 first_reconciliation = None
                 second_reconciliation = None
                 stop_disposition = None
+                material_obligation_ledger = None
             else:
                 propositions = list(existing.propositions)
                 for index, item in enumerate(propositions):
@@ -261,6 +263,7 @@ class RegistryService:
                 first_reconciliation = existing.first_reconciliation
                 second_reconciliation = existing.second_reconciliation
                 stop_disposition = existing.stop_disposition
+                material_obligation_ledger = existing.material_obligation_ledger
 
             state = RuntimeTurnState(
                 schema_version=RUNTIME_STATE_SCHEMA_VERSION,
@@ -278,6 +281,7 @@ class RegistryService:
                 first_reconciliation=first_reconciliation,
                 second_reconciliation=second_reconciliation,
                 stop_disposition=stop_disposition,
+                material_obligation_ledger=material_obligation_ledger,
             )
             save_runtime_state(state, self.plugin_data)
 
@@ -346,6 +350,27 @@ class RegistryService:
         ):
             current = self._load_expected(expected)
             updated = replace(current, stop_disposition=disposition)
+            save_runtime_state(updated, self.plugin_data)
+            return updated
+
+    def record_material_obligation_ledger(
+        self,
+        expected: RuntimeTurnState,
+        ledger: MaterialObligationLedger,
+    ) -> RuntimeTurnState:
+        """Persist the independently supplied obligation ledger atomically."""
+
+        if not isinstance(ledger, MaterialObligationLedger):
+            raise RuntimeStateError(
+                "material obligation ledger must be a MaterialObligationLedger"
+            )
+        with runtime_state_transition_lock(
+            expected.session_id,
+            expected.turn_id,
+            self.plugin_data,
+        ):
+            current = self._load_expected(expected)
+            updated = replace(current, material_obligation_ledger=ledger)
             save_runtime_state(updated, self.plugin_data)
             return updated
 

@@ -130,6 +130,7 @@ PROPOSITION_RELATIONS = ROOT / "scripts" / "proposition_relations.py"
 PROPOSITION_SOUNDNESS = ROOT / "scripts" / "proposition_soundness.py"
 PROPOSITION_SOURCE_CLOSURE = ROOT / "scripts" / "proposition_source_closure.py"
 PROPOSITION_OBLIGATION_CLOSURE = ROOT / "scripts" / "proposition_obligation_closure.py"
+MATERIAL_OBLIGATION_LEDGER = ROOT / "scripts" / "material_obligation_ledger.py"
 REQUIRED_RUNTIME_FILES = (
     PROPOSITION_MODEL,
     PROPOSITION_RENDERING,
@@ -140,6 +141,7 @@ REQUIRED_RUNTIME_FILES = (
     PROPOSITION_SOUNDNESS,
     PROPOSITION_SOURCE_CLOSURE,
     PROPOSITION_OBLIGATION_CLOSURE,
+    MATERIAL_OBLIGATION_LEDGER,
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
@@ -223,6 +225,16 @@ RUNTIME_PRODUCTION_MARKERS = {
         "DEPENDENCY_OMITTED",
         "FINAL_CONCLUSION_UNSUPPORTED",
         "def evaluate_obligation_closure",
+    ),
+    "scripts/material_obligation_ledger.py": (
+        "class ObligationSourceStatus",
+        "SOURCE_CONFIRMED",
+        "SOURCE_UNRESOLVED",
+        "NOT_APPLICABLE",
+        "class MaterialObligation",
+        "class MaterialObligationLedger",
+        "class RegistryClosureResult",
+        "def evaluate_registry_closure",
     ),
     "scripts/jdipt_runtime_mcp.py": (
         "register_material_proposition",
@@ -552,6 +564,7 @@ PRODUCTION_RUNTIME_MODULES = (
     "scripts/proposition_registry.py",
     "scripts/proposition_source_closure.py",
     "scripts/proposition_obligation_closure.py",
+    "scripts/material_obligation_ledger.py",
     "scripts/synthesis_runtime_state.py",
     "scripts/jdipt_runtime_mcp.py",
     "scripts/inject_registry_runtime.py",

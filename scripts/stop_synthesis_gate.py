@@ -18,6 +18,7 @@ from scripts.proposition_relations import (
     reconcile_range_exception_relation,
 )
 from scripts.proposition_obligation_closure import evaluate_obligation_closure
+from scripts.material_obligation_ledger import evaluate_registry_closure
 from scripts.proposition_soundness import evaluate_soundness
 from scripts.proposition_source_closure import evaluate_source_closure
 from scripts.proposition_registry import RegistryService
@@ -46,6 +47,7 @@ def _failure_reason(
     soundness_result=None,
     source_closure_result=None,
     obligation_closure_result=None,
+    registry_closure_result=None,
 ) -> str:
     grouped: dict[str, list[str]] = {}
     for slot in result.missing_slots:
@@ -73,12 +75,18 @@ def _failure_reason(
     for label, closure_result in (
         ("source_closure", source_closure_result),
         ("obligation_closure", obligation_closure_result),
+        ("registry_closure", registry_closure_result),
     ):
         if closure_result is not None:
-            passed = (
-                closure_result.source_closure_passed
+            passed = getattr(
+                closure_result,
+                "source_closure_passed"
                 if label == "source_closure"
-                else closure_result.obligation_closure_passed
+                else (
+                    "obligation_closure_passed"
+                    if label == "obligation_closure"
+                    else "registry_closure_passed"
+                ),
             )
             if not passed:
                 codes = ", ".join(
@@ -221,6 +229,15 @@ def handle_stop_event(
             contracts,
             draft,
         )
+        registry_closure_result = (
+            None
+            if state.material_obligation_ledger is None
+            else evaluate_registry_closure(
+                state.material_obligation_ledger,
+                state.material_obligation_ledger.verified_source_evidence,
+                state.propositions,
+            )
+        )
     except (TypeError, UnicodeError, ValueError):
         return _fail_closed(
             "JDIPT synthesis validation failed-closed; semantic/source/obligation "
@@ -240,8 +257,18 @@ def handle_stop_event(
         and obligation_closure_result.dependency_closure_passed
         and obligation_closure_result.final_conclusion_support_passed
     )
+    overall_registry = (
+        registry_closure_result is None
+        or registry_closure_result.registry_closure_passed
+    )
     phase = "second" if state.repair_count else "first"
-    if overall_covered and overall_sound and overall_source and overall_obligation:
+    if (
+        overall_covered
+        and overall_sound
+        and overall_source
+        and overall_obligation
+        and overall_registry
+    ):
         try:
             updated = record_reconciliation(
                 state,
@@ -252,6 +279,7 @@ def handle_stop_event(
                 soundness_result=soundness_result,
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
+                registry_closure_result=registry_closure_result,
             )
             service.record_disposition(updated, "COMPLETED")
         except (OSError, RuntimeStateError, ValueError):
@@ -272,6 +300,7 @@ def handle_stop_event(
                 soundness_result=soundness_result,
                 source_closure_result=source_closure_result,
                 obligation_closure_result=obligation_closure_result,
+                registry_closure_result=registry_closure_result,
             )
             service.record_disposition(
                 updated,
@@ -298,6 +327,7 @@ def handle_stop_event(
             soundness_result=soundness_result,
             source_closure_result=source_closure_result,
             obligation_closure_result=obligation_closure_result,
+            registry_closure_result=registry_closure_result,
         )
         service.record_disposition(updated, "REPAIR_REQUESTED")
     except (OSError, RuntimeStateError, ValueError):
@@ -311,6 +341,7 @@ def handle_stop_event(
             soundness_result,
             source_closure_result,
             obligation_closure_result,
+            registry_closure_result,
         )
     )
 

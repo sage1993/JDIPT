@@ -1,4 +1,3 @@
-from dataclasses import replace
 import json
 from pathlib import Path
 
@@ -22,10 +21,15 @@ from scripts.material_obligation_ledger import (
     evaluate_registry_closure,
 )
 from scripts.proposition_registry import RegistryService
+from scripts.proposition_rendering import build_render_contract
+from scripts.stop_synthesis_gate import handle_stop_event
 from scripts.synthesis_runtime_state import (
+    RUNTIME_STATE_SCHEMA_VERSION,
     RuntimeStateError,
+    RuntimeTurnState,
     load_runtime_state,
     runtime_state_path,
+    save_runtime_state,
 )
 
 
@@ -40,7 +44,7 @@ def evidence(source_id: str = "law-base", *, temporal_status: str = "CURRENT_CON
         authority_kind="statute",
         source_title="검증 법령",
         source_locator=f"https://example.test/{source_id}",
-        evidence_span="행정청은 요건을 충족하면 대상에 법적 효과를 부여할 수 있다.",
+        evidence_span="행정청은 요건을 충족하고 절차를 거쳐 대상에 법적 효과를 부여할 수 있다.",
         temporal_status=temporal_status,
         temporal_render_text="현행 기준에 따른다.",
     )
@@ -394,7 +398,158 @@ def test_stop_gate_records_and_enforces_registry_closure(tmp_path):
     pending = service.begin_pending("session-a", "turn-1")
     service.record_material_obligation_ledger(pending, ledger)
 
-    assert service.read_state("session-a", "turn-1").material_obligation_ledger == ledger
+    state = service.read_state("session-a", "turn-1")
+    assert state is not None
+    assert state.material_obligation_ledger == ledger
+
+
+def _active_state(
+    propositions: tuple[LegalProposition, ...],
+    ledger: MaterialObligationLedger,
+) -> RuntimeTurnState:
+    return RuntimeTurnState(
+        schema_version=RUNTIME_STATE_SCHEMA_VERSION,
+        session_id="session-a",
+        turn_id="turn-1",
+        registry_active=True,
+        repair_count=0,
+        propositions=list(propositions),
+        registry_required=True,
+        registry_completed=True,
+        registry_invocation_count=1,
+        material_obligation_ledger=ledger,
+    )
+
+
+def _adopted_draft(proposition: LegalProposition) -> str:
+    contract = build_render_contract(proposition)
+    return "\n".join(
+        (
+            "# 2. 검토결론",
+            *(slot.text for slot in contract.slots),
+            f"근거: {proposition.evidence.source_id} {proposition.evidence.source_title} "
+            f"{proposition.evidence.source_locator}",
+        )
+    )
+
+
+def test_stop_accepts_a_valid_material_obligation_registry_closure(tmp_path):
+    source = evidence()
+    proposition = closed_proposition(proposition_evidence=source)
+    ledger = MaterialObligationLedger(
+        obligations=(
+            obligation(
+                "O_BASE",
+                "BASE_RULE",
+                SOURCE_CONFIRMED,
+                evidence_source_ids=(source.source_id,),
+                proposition_ids=(proposition.proposition_id,),
+            ),
+        ),
+        verified_source_evidence=(source,),
+    )
+    save_runtime_state(_active_state((proposition,), ledger), tmp_path)
+
+    result = handle_stop_event(
+        {
+            "session_id": "session-a",
+            "turn_id": "turn-1",
+            "last_assistant_message": _adopted_draft(proposition),
+        },
+        tmp_path,
+    )
+    stored = load_runtime_state("session-a", "turn-1", tmp_path)
+
+    assert result == {}
+    assert stored is not None
+    assert stored.first_reconciliation["registry_closure"]["registry_closure_passed"] is True
+
+
+def test_stop_blocks_when_required_obligation_is_missing_from_canonical_registry(tmp_path):
+    source = evidence()
+    proposition = closed_proposition(proposition_evidence=source)
+    ledger = MaterialObligationLedger(
+        obligations=(
+            obligation(
+                "O_BASE",
+                "BASE_RULE",
+                SOURCE_CONFIRMED,
+                evidence_source_ids=(source.source_id,),
+                proposition_ids=(proposition.proposition_id,),
+            ),
+            obligation(
+                "O_RANGE",
+                "RANGE_EXCEPTION",
+                SOURCE_CONFIRMED,
+                evidence_source_ids=("law-range",),
+                proposition_ids=("P_RANGE",),
+            ),
+        ),
+        verified_source_evidence=(source,),
+    )
+    save_runtime_state(_active_state((proposition,), ledger), tmp_path)
+
+    result = handle_stop_event(
+        {
+            "session_id": "session-a",
+            "turn_id": "turn-1",
+            "last_assistant_message": _adopted_draft(proposition),
+        },
+        tmp_path,
+    )
+    stored = load_runtime_state("session-a", "turn-1", tmp_path)
+
+    assert result["decision"] == "block"
+    assert "registry_closure" in result["reason"]
+    assert stored is not None
+    assert stored.first_reconciliation["registry_closure"]["registry_closure_passed"] is False
+
+
+def test_stop_ignores_a_shadow_obligation_artifact(tmp_path):
+    source = evidence()
+    proposition = closed_proposition(proposition_evidence=source)
+    ledger = MaterialObligationLedger(
+        obligations=(
+            obligation(
+                "O_BASE",
+                "BASE_RULE",
+                SOURCE_CONFIRMED,
+                evidence_source_ids=(source.source_id,),
+                proposition_ids=(proposition.proposition_id,),
+            ),
+        ),
+        verified_source_evidence=(source,),
+    )
+    save_runtime_state(_active_state((proposition,), ledger), tmp_path)
+    (tmp_path / "shadow-obligation-ledger.json").write_text(
+        json.dumps(
+            {
+                "obligations": [
+                    {
+                        "obligation_id": "O_STALE",
+                        "issue_type": "STALE_ISSUE",
+                        "source_status": "SOURCE_CONFIRMED",
+                        "evidence_source_ids": ["missing"],
+                        "proposition_ids": ["P_STALE"],
+                    }
+                ],
+                "verified_source_evidence": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert (
+        handle_stop_event(
+            {
+                "session_id": "session-a",
+                "turn_id": "turn-1",
+                "last_assistant_message": _adopted_draft(proposition),
+            },
+            tmp_path,
+        )
+        == {}
+    )
 
 
 def test_malformed_persisted_ledger_fails_closed(tmp_path):
