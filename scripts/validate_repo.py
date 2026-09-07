@@ -616,6 +616,35 @@ def _definitions(path: Path, *, name: str | None = None, kind: type[ast.AST] | N
     return nodes
 
 
+def _direct_runtime_reader_uses(path: Path) -> list[int]:
+    """Return line numbers where a consumer bypasses RegistryService reads."""
+
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError):
+        return []
+
+    reader_names = {"load_runtime_state", "runtime_state_path"}
+    lines: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module:
+            if node.module.endswith("synthesis_runtime_state"):
+                for alias in node.names:
+                    if alias.name in reader_names:
+                        lines.add(node.lineno)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name.endswith("synthesis_runtime_state"):
+                    lines.add(node.lineno)
+        elif isinstance(node, ast.Call):
+            function = node.func
+            if isinstance(function, ast.Name) and function.id in reader_names:
+                lines.add(node.lineno)
+            elif isinstance(function, ast.Attribute) and function.attr in reader_names:
+                lines.add(node.lineno)
+    return sorted(lines)
+
+
 def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
     """Return structural failures limited to the intended production runtime modules."""
     violations: list[str] = []
@@ -686,6 +715,7 @@ def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
 
     registry_path = module_paths.get(registry_relative)
     required_service_methods = {
+        "read_state",
         "begin_pending",
         "register",
         "mark_enforcement",
@@ -737,6 +767,34 @@ def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
             violations.append(
                 f"{relative} must delegate {required_method} through RegistryService"
             )
+
+    persistence_relative = "scripts/synthesis_runtime_state.py"
+    reader_owner_modules = {registry_relative, persistence_relative}
+    direct_runtime_reader_uses = [
+        (relative, line)
+        for relative, path in module_paths.items()
+        if relative not in reader_owner_modules
+        for line in _direct_runtime_reader_uses(path)
+    ]
+    if direct_runtime_reader_uses:
+        violations.append(
+            "direct runtime state reader outside RegistryService boundary: "
+            f"{direct_runtime_reader_uses}"
+        )
+
+    stop_path = module_paths.get("scripts/stop_synthesis_gate.py")
+    if stop_path is not None:
+        try:
+            stop_text = stop_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            violations.append(
+                f"production runtime could not be read: scripts/stop_synthesis_gate.py: {exc}"
+            )
+        else:
+            if ".read_state(" not in stop_text:
+                violations.append(
+                    "scripts/stop_synthesis_gate.py must read state through RegistryService"
+                )
 
     state_path = module_paths.get("scripts/synthesis_runtime_state.py")
     if state_path is not None and _definitions(state_path, name="build_render_contract"):

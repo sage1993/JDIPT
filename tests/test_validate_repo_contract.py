@@ -42,6 +42,7 @@ def test_registry_lifecycle_has_one_service_owner():
 
     assert "class RegistryService" in text
     assert "def begin_pending" in text
+    assert "def read_state" in text
     assert "def mark_enforcement" in text
     assert "def record_disposition" in text
     assert "def create_pending_runtime_state" not in text
@@ -127,3 +128,43 @@ def test_architecture_checker_is_scoped_to_production_modules(tmp_path):
     assert any("ASH-specific" in item for item in violations)
     assert any("hooks" in item for item in violations)
     assert any("MCP" in item for item in violations)
+
+
+def test_architecture_checker_rejects_direct_runtime_state_reader_consumer(tmp_path):
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    for relative in validate_repo.PRODUCTION_RUNTIME_MODULES:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
+
+    (tmp_path / "scripts" / "legal_proposition.py").write_text(
+        "class LegalProposition: pass\n", encoding="utf-8"
+    )
+    (tmp_path / "scripts" / "proposition_registry.py").write_text(
+        "class RegistryService:\n"
+        "    def read_state(self): pass\n"
+        "    def begin_pending(self): pass\n"
+        "    def register(self): pass\n"
+        "    def mark_enforcement(self): pass\n"
+        "    def record_disposition(self): pass\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "scripts" / "synthesis_runtime_state.py").write_text(
+        "def load_runtime_state(): pass\n", encoding="utf-8"
+    )
+    (tmp_path / "scripts" / "stop_synthesis_gate.py").write_text(
+        "from scripts.synthesis_runtime_state import load_runtime_state\n"
+        "def handle_stop_event():\n"
+        "    return load_runtime_state()\n",
+        encoding="utf-8",
+    )
+    (tmp_path / ".codex-plugin").mkdir()
+    (tmp_path / ".codex-plugin" / "plugin.json").write_text(
+        json.dumps({"name": "jdipt", "hooks": {}, "mcpServers": {}}),
+        encoding="utf-8",
+    )
+
+    violations = validate_repo.runtime_architecture_violations(tmp_path)
+
+    assert any("direct runtime state reader" in item for item in violations)

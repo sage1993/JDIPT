@@ -53,6 +53,57 @@ it validates, serializes, loads exact session/turn state, and records non-regist
 evidence. Activation, MCP transport, and the Stop hook delegate lifecycle writes
 to the service and do not mutate registry fields directly.
 
+Task 7 extends the same boundary to runtime reads. `RegistryService.read_state()`
+is the only production consumer read interface for the exact `(session_id,
+turn_id)` registry snapshot. The persistence module remains the low-level atomic
+storage implementation, but a consumer may not import or call
+`load_runtime_state()` or `runtime_state_path()` directly. `PLUGIN_DATA` is only a
+location/bootstrap input; it cannot assert activation, completion, enforcement,
+or proposition identity and cannot override a registry snapshot.
+
+Before Task 7, the Stop gate bypassed the service and read the exact-turn JSON
+through `load_runtime_state()` before passing that object to the semantic
+pipeline. After Task 7, one `RegistryService` instance supplies the snapshot and
+the same instance performs registry transitions:
+
+```text
+                         RegistryService
+                    read_state / lifecycle CAS
+                              │
+          ┌───────────────────┼───────────────────┐
+          │                   │                   │
+      activation          synthesis          Stop gate
+                              │                   │
+                              ▼                   │
+                 canonical exact session/turn    │
+                 proposition + lifecycle state   │
+                              │                   │
+             ┌────────────────┼───────────────────┘
+             ▼                ▼
+       reconciliation   soundness / source / obligation
+                              │
+                              ▼
+                         Stop decision
+```
+
+The runtime consumer authority matrix is:
+
+| Runtime consumer | Authority after Task 7 | Direct runtime-state filesystem read | Shadow/fallback authority |
+|---|---|---:|---:|
+| Activation | `RegistryService.begin_pending` and exact-turn service state | 0 | 0 |
+| Synthesis | `RegistryService.read_state` snapshot | 0 | 0 |
+| Reconciliation | service snapshot propositions | 0 | 0 |
+| Soundness | service snapshot propositions | 0 | 0 |
+| Source / obligation closure | service snapshot propositions | 0 | 0 |
+| Stop gate | service read plus service lifecycle transitions | 0 | 0 |
+
+`first_reconciliation`, `second_reconciliation`, `repair_count`, and
+`stop_disposition` remain derived exact-turn evidence. They are persisted through
+the existing CAS path and never serve as a fallback truth source for registry
+activation, proposition identity, or lifecycle state. Missing, malformed, stale,
+or conflicting shadow artifacts therefore cannot make a turn active or allow a
+Stop decision.
+
 Every service transition acquires a bounded exact-turn lock and builds a complete
 next `RuntimeTurnState` before the existing `mkstemp` → flush/fsync → `os.replace`
 write. A held lock, stale expected state, malformed state, or cross-session/turn
