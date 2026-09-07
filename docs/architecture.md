@@ -45,6 +45,19 @@ Obligation / Dependency Closure
 Answer / Stop Gate
 ```
 
+Registry ownership is intentionally single-writer. `scripts/proposition_registry.py`
+contains the authoritative `RegistryService`; it owns PENDING activation,
+proposition merge/registration, the bounded registry-enforcement transition, and
+registry dispositions. `scripts/synthesis_runtime_state.py` is persistence-only:
+it validates, serializes, loads exact session/turn state, and records non-registry
+evidence. Activation, MCP transport, and the Stop hook delegate lifecycle writes
+to the service and do not mutate registry fields directly.
+
+Every service transition acquires a bounded exact-turn lock and builds a complete
+next `RuntimeTurnState` before the existing `mkstemp` → flush/fsync → `os.replace`
+write. A held lock, stale expected state, malformed state, or cross-session/turn
+identity mismatch fails closed; no partial PENDING → ACTIVE state is committed.
+
 `registry_active=true` means that the bundled registry successfully wrote a proposition for the exact authoritative `session_id` and `turn_id`. It is a runtime activation record for the registry; runtime state does not independently prove host Plugin invocation. The state file is compact persistence under `PLUGIN_DATA`; an unrelated turn without the exact record remains a no-op.
 
 The runtime path first compares deterministic slots (render slots) against the draft for coverage. The post-coverage Semantic Soundness Gate then checks whether each required proposition is adopted in an affirmative answer region, preserves its typed status/polarity and legal relation, and agrees with the final conclusion. Coverage and soundness remain independent evidence. The Source / Authority / Temporal Closure gate then requires a supporting evidence span, an adopted source anchor, compatible authority, and resolved temporal status. The Obligation / Dependency Closure gate preserves modality, polarity, condition, exception, procedure, material dependencies, and final-conclusion support. Each result is persisted independently under exact `session_id` and `turn_id`; any failed gate blocks the Stop path after the bounded repair budget is exhausted. The Oracle/evaluator may use relation-bound semantic proposition matching to accept faithful paraphrases, but the runtime enforcement path does not use semantic token matching or answer-wide bag-of-words coverage.

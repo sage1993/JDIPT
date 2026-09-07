@@ -20,14 +20,13 @@ from scripts.proposition_relations import (
 from scripts.proposition_obligation_closure import evaluate_obligation_closure
 from scripts.proposition_soundness import evaluate_soundness
 from scripts.proposition_source_closure import evaluate_source_closure
+from scripts.proposition_registry import RegistryService
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
-    create_pending_runtime_state,
     load_runtime_state,
     record_reconciliation,
     record_stop_disposition,
     update_repair_count,
-    update_registry_enforcement_count,
 )
 
 
@@ -123,8 +122,10 @@ def _registry_enforcement_response(
         and event.get("stop_hook_active") is not True
     ):
         try:
-            updated = update_registry_enforcement_count(state, 1, plugin_data)
-            record_stop_disposition(updated, "REGISTRY_ENFORCEMENT", plugin_data)
+            RegistryService(plugin_data).mark_enforcement(
+                state,
+                "REGISTRY_ENFORCEMENT",
+            )
         except (OSError, RuntimeStateError, ValueError):
             return _fail_closed(
                 "JDIPT synthesis validation failed-closed; registry enforcement "
@@ -135,10 +136,9 @@ def _registry_enforcement_response(
             "register_material_proposition contract before final synthesis."
         )
     try:
-        record_stop_disposition(
+        RegistryService(plugin_data).record_disposition(
             state,
             "REGISTRY_ENFORCEMENT_EXHAUSTED",
-            plugin_data,
         )
     except (OSError, RuntimeStateError, ValueError):
         return _fail_closed(
@@ -185,8 +185,9 @@ def handle_stop_event(
         if not _looks_like_jdipt_answer(draft):
             return {}
         try:
-            state = create_pending_runtime_state(session_id, turn_id, plugin_data)
-            record_stop_disposition(state, "ACTIVATION_BYPASS", plugin_data)
+            service = RegistryService(plugin_data)
+            state = service.begin_pending(session_id, turn_id)
+            service.record_disposition(state, "ACTIVATION_BYPASS")
         except (OSError, RuntimeStateError, ValueError):
             return _fail_closed(
                 "JDIPT synthesis validation failed closed; pending activation "

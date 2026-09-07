@@ -371,68 +371,6 @@ def update_repair_count(
     return updated
 
 
-def update_registry_enforcement_count(
-    state: RuntimeTurnState,
-    enforcement_count: int,
-    plugin_data: str | os.PathLike[str] | None = None,
-) -> RuntimeTurnState:
-    """Persist the single permitted registry-enforcement continuation."""
-
-    if (
-        not state.registry_required
-        or state.registry_completed
-        or state.registry_enforcement_count != 0
-        or enforcement_count != 1
-    ):
-        raise ValueError(
-            "registry enforcement can only transition from 0 to 1 before completion"
-        )
-    updated = replace(state, registry_enforcement_count=enforcement_count)
-    save_runtime_state(updated, plugin_data)
-    return updated
-
-
-def create_pending_runtime_state(
-    session_id: str,
-    turn_id: str,
-    plugin_data: str | os.PathLike[str] | None = None,
-) -> RuntimeTurnState:
-    """Create the exact-turn pending state at the explicit prompt boundary."""
-
-    existing = load_runtime_state(session_id, turn_id, plugin_data)
-    if existing is not None and existing.registry_required and existing.registry_completed:
-        return existing
-    if existing is not None:
-        updated = replace(
-            existing,
-            registry_active=False,
-            activation_state="PENDING",
-            registry_required=True,
-            registry_completed=False,
-            registry_required_operations=("register_material_proposition",),
-            registry_enforcement_count=0,
-            stop_disposition=None,
-        )
-        save_runtime_state(updated, plugin_data)
-        return updated
-    state = RuntimeTurnState(
-        schema_version=RUNTIME_STATE_SCHEMA_VERSION,
-        session_id=session_id,
-        turn_id=turn_id,
-        registry_active=False,
-        repair_count=0,
-        propositions=[],
-        activation_state="PENDING",
-        registry_required=True,
-        registry_completed=False,
-        registry_required_operations=("register_material_proposition",),
-        registry_invocation_count=0,
-        registry_enforcement_count=0,
-    )
-    save_runtime_state(state, plugin_data)
-    return state
-
-
 def _reconciliation_summary(
     result: Any,
     relation_result: Any | None = None,

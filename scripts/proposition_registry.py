@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 import os
+import time
 from typing import Any
 
 from scripts.legal_proposition import (
@@ -24,6 +26,7 @@ from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     RuntimeTurnState,
     load_runtime_state,
+    runtime_state_path,
     save_runtime_state,
 )
 
@@ -71,6 +74,61 @@ class RegistrationResult:
     state: RuntimeTurnState
     proposition: LegalProposition
     render_contract: PropositionRenderContract
+
+
+@contextmanager
+def _registry_transition_lock(
+    session_id: str,
+    turn_id: str,
+    plugin_data: str | os.PathLike[str] | None,
+):
+    """Serialize one exact-turn registry transition and fail closed on contention."""
+
+    lock_path = runtime_state_path(plugin_data, session_id, turn_id).with_suffix(
+        ".lock"
+    )
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + 1.0
+    descriptor: int | None = None
+    while descriptor is None:
+        try:
+            descriptor = os.open(
+                lock_path,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            )
+            os.write(descriptor, f"{os.getpid()}\n".encode("ascii"))
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise RuntimeStateError(
+                    "registry transition lock is held; refusing an unlocked write"
+                )
+            time.sleep(0.01)
+        except OSError as exc:
+            if descriptor is not None:
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
+                try:
+                    lock_path.unlink()
+                except OSError:
+                    pass
+                descriptor = None
+            raise RuntimeStateError(
+                f"could not acquire registry transition lock: {exc}"
+            ) from exc
+    try:
+        yield
+    finally:
+        try:
+            os.close(descriptor)
+        finally:
+            try:
+                lock_path.unlink()
+            except OSError as exc:
+                raise RuntimeStateError(
+                    f"could not release registry transition lock: {exc}"
+                ) from exc
 
 
 def _text_arg(fields: Mapping[str, Any], name: str) -> str | None:
@@ -136,70 +194,208 @@ def _build_proposition(fields: Mapping[str, Any]) -> LegalProposition:
     )
 
 
-def _merge_state(
-    proposition: LegalProposition,
-    session_id: str,
-    turn_id: str,
-    plugin_data: str | os.PathLike[str] | None,
-) -> RuntimeTurnState:
-    existing = load_runtime_state(session_id, turn_id, plugin_data)
-    if existing is None:
-        state = RuntimeTurnState(
-            schema_version=RUNTIME_STATE_SCHEMA_VERSION,
-            session_id=session_id,
-            turn_id=turn_id,
-            registry_active=True,
-            repair_count=0,
-            propositions=[proposition],
-            activation_state="ACTIVE",
-            registry_required=True,
-            registry_completed=True,
-            registry_invocation_count=1,
-            registry_enforcement_count=0,
+class RegistryService:
+    """The sole owner of registry lifecycle and proposition write transitions."""
+
+    def __init__(self, plugin_data: str | os.PathLike[str] | None = None):
+        self.plugin_data = plugin_data
+
+    def begin_pending(self, session_id: str, turn_id: str) -> RuntimeTurnState:
+        """Persist PENDING exactly once for an explicit exact-turn invocation."""
+
+        with _registry_transition_lock(
+            session_id,
+            turn_id,
+            self.plugin_data,
+        ):
+            existing = load_runtime_state(session_id, turn_id, self.plugin_data)
+            if existing is not None and existing.registry_required and existing.registry_completed:
+                return existing
+            if existing is not None and existing.activation_state == "PENDING":
+                return existing
+            if existing is not None and existing.activation_state == "ACTIVE":
+                raise RuntimeStateError(
+                    "active registry state cannot be downgraded to PENDING"
+                )
+            if existing is not None:
+                pending = replace(
+                    existing,
+                    registry_active=False,
+                    activation_state="PENDING",
+                    registry_required=True,
+                    registry_completed=False,
+                    registry_required_operations=("register_material_proposition",),
+                    registry_enforcement_count=0,
+                    stop_disposition=None,
+                )
+            else:
+                pending = RuntimeTurnState(
+                    schema_version=RUNTIME_STATE_SCHEMA_VERSION,
+                    session_id=session_id,
+                    turn_id=turn_id,
+                    registry_active=False,
+                    repair_count=0,
+                    propositions=[],
+                    activation_state="PENDING",
+                    registry_required=True,
+                    registry_completed=False,
+                    registry_required_operations=("register_material_proposition",),
+                    registry_invocation_count=0,
+                    registry_enforcement_count=0,
+                )
+            save_runtime_state(pending, self.plugin_data)
+            return pending
+
+    def register(
+        self,
+        fields: Mapping[str, Any],
+        session_id: str | None = None,
+        turn_id: str | None = None,
+    ) -> RegistrationResult:
+        """Validate, merge, and atomically activate one exact-turn proposition."""
+
+        if not isinstance(fields, Mapping):
+            raise RuntimeStateError("registry input must be an object")
+        unknown_fields = sorted(set(fields) - _REGISTRY_FIELDS)
+        if unknown_fields:
+            raise PropositionValidationError(
+                "Unsupported registry arguments: " + ", ".join(unknown_fields)
+            )
+        actual_session_id = fields.get("session_id")
+        actual_turn_id = fields.get("turn_id")
+        if not isinstance(actual_session_id, str) or not isinstance(actual_turn_id, str):
+            raise RuntimeStateError("session_id and turn_id are required")
+        if session_id is not None and actual_session_id != session_id:
+            raise RuntimeStateError("registry session_id does not match authoritative turn")
+        if turn_id is not None and actual_turn_id != turn_id:
+            raise RuntimeStateError("registry turn_id does not match authoritative turn")
+
+        proposition = _build_proposition(fields)
+        with _registry_transition_lock(
+            actual_session_id,
+            actual_turn_id,
+            self.plugin_data,
+        ):
+            existing = load_runtime_state(
+                actual_session_id,
+                actual_turn_id,
+                self.plugin_data,
+            )
+            if existing is None:
+                propositions = [proposition]
+                invocation_count = 1
+                repair_count = 0
+                enforcement_count = 0
+                first_reconciliation = None
+                second_reconciliation = None
+                stop_disposition = None
+            else:
+                propositions = list(existing.propositions)
+                for index, item in enumerate(propositions):
+                    if item.proposition_id == proposition.proposition_id:
+                        propositions[index] = proposition
+                        break
+                else:
+                    propositions.append(proposition)
+                invocation_count = existing.registry_invocation_count + 1
+                repair_count = existing.repair_count
+                enforcement_count = existing.registry_enforcement_count
+                first_reconciliation = existing.first_reconciliation
+                second_reconciliation = existing.second_reconciliation
+                stop_disposition = existing.stop_disposition
+
+            state = RuntimeTurnState(
+                schema_version=RUNTIME_STATE_SCHEMA_VERSION,
+                session_id=actual_session_id,
+                turn_id=actual_turn_id,
+                registry_active=True,
+                repair_count=repair_count,
+                propositions=propositions,
+                activation_state="ACTIVE",
+                registry_required=True,
+                registry_completed=True,
+                registry_required_operations=("register_material_proposition",),
+                registry_invocation_count=invocation_count,
+                registry_enforcement_count=enforcement_count,
+                first_reconciliation=first_reconciliation,
+                second_reconciliation=second_reconciliation,
+                stop_disposition=stop_disposition,
+            )
+            save_runtime_state(state, self.plugin_data)
+
+        return RegistrationResult(
+            state=state,
+            proposition=proposition,
+            render_contract=build_render_contract(proposition),
         )
-    else:
-        propositions = list(existing.propositions)
-        for index, item in enumerate(propositions):
-            if item.proposition_id == proposition.proposition_id:
-                propositions[index] = proposition
-                break
-        else:
-            propositions.append(proposition)
-        state = replace(
-            existing,
-            registry_active=True,
-            activation_state="ACTIVE",
-            registry_required=True,
-            registry_completed=True,
-            registry_required_operations=("register_material_proposition",),
-            registry_invocation_count=existing.registry_invocation_count + 1,
-            propositions=propositions,
+
+    def _load_expected(self, expected: RuntimeTurnState) -> RuntimeTurnState:
+        current = load_runtime_state(
+            expected.session_id,
+            expected.turn_id,
+            self.plugin_data,
         )
-    save_runtime_state(state, plugin_data)
-    return state
+        if current is None or current != expected:
+            raise RuntimeStateError(
+                "registry transition expected state is stale or belongs to another turn"
+            )
+        return current
+
+    def mark_enforcement(
+        self,
+        expected: RuntimeTurnState,
+        disposition: str,
+    ) -> RuntimeTurnState:
+        """Atomically persist the bounded registry-enforcement transition."""
+
+        if not isinstance(disposition, str) or not disposition:
+            raise RuntimeStateError("registry disposition must be a non-empty string")
+        with _registry_transition_lock(
+            expected.session_id,
+            expected.turn_id,
+            self.plugin_data,
+        ):
+            current = self._load_expected(expected)
+            if (
+                not current.registry_required
+                or current.registry_completed
+                or current.registry_enforcement_count != 0
+            ):
+                raise RuntimeStateError(
+                    "registry enforcement can only transition from 0 to 1 before completion"
+                )
+            updated = replace(
+                current,
+                registry_enforcement_count=1,
+                stop_disposition=disposition,
+            )
+            save_runtime_state(updated, self.plugin_data)
+            return updated
+
+    def record_disposition(
+        self,
+        expected: RuntimeTurnState,
+        disposition: str,
+    ) -> RuntimeTurnState:
+        """Persist a disposition only after exact-turn state revalidation."""
+
+        if not isinstance(disposition, str) or not disposition:
+            raise RuntimeStateError("registry disposition must be a non-empty string")
+        with _registry_transition_lock(
+            expected.session_id,
+            expected.turn_id,
+            self.plugin_data,
+        ):
+            current = self._load_expected(expected)
+            updated = replace(current, stop_disposition=disposition)
+            save_runtime_state(updated, self.plugin_data)
+            return updated
 
 
 def register_material_proposition(
     fields: Mapping[str, Any],
     plugin_data: str | os.PathLike[str] | None = None,
 ) -> RegistrationResult:
-    """Parse, validate, persist, and render one canonical proposition."""
+    """Compatibility boundary delegating the write to the single service."""
 
-    if not isinstance(fields, Mapping):
-        raise RuntimeStateError("registry input must be an object")
-    unknown_fields = sorted(set(fields) - _REGISTRY_FIELDS)
-    if unknown_fields:
-        raise PropositionValidationError(
-            "Unsupported registry arguments: " + ", ".join(unknown_fields)
-        )
-    session_id = fields.get("session_id")
-    turn_id = fields.get("turn_id")
-    if not isinstance(session_id, str) or not isinstance(turn_id, str):
-        raise RuntimeStateError("session_id and turn_id are required")
-    proposition = _build_proposition(fields)
-    state = _merge_state(proposition, session_id, turn_id, plugin_data)
-    return RegistrationResult(
-        state=state,
-        proposition=proposition,
-        render_contract=build_render_contract(proposition),
-    )
+    return RegistryService(plugin_data).register(fields)

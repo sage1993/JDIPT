@@ -13,10 +13,8 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.synthesis_runtime_state import (
-    RuntimeStateError,
-    create_pending_runtime_state,
-)
+from scripts.proposition_registry import RegistryService
+from scripts.synthesis_runtime_state import RuntimeStateError
 
 
 EXPLICIT_INVOCATION = "$law-interpretation-request"
@@ -69,7 +67,7 @@ def handle_user_prompt_submit(
             "JDIPT activation detection failed; turn_id is unavailable."
         )
     try:
-        create_pending_runtime_state(session_id, turn_id, plugin_data)
+        RegistryService(plugin_data).begin_pending(session_id, turn_id)
     except (OSError, RuntimeStateError, TypeError, ValueError) as exc:
         return _fail_closed(
             f"JDIPT activation detection failed; state was not persisted: {exc}"

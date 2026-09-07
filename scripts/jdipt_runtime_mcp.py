@@ -13,7 +13,7 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.proposition_registry import register_material_proposition as _register_material_proposition
+from scripts.proposition_registry import RegistryService
 from scripts.synthesis_runtime_state import RuntimeStateError
 
 
@@ -183,7 +183,7 @@ def register_material_proposition(
         runtime_plugin_data = injected
     fields = dict(arguments)
     fields.pop(RUNTIME_PLUGIN_DATA_FIELD, None)
-    result = _register_material_proposition(fields, runtime_plugin_data)
+    result = RegistryService(runtime_plugin_data).register(fields)
     return {
         "session_id": result.state.session_id,
         "turn_id": result.state.turn_id,

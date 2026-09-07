@@ -35,6 +35,52 @@ def test_current_production_architecture_has_one_owner_per_runtime_role():
     assert validate_repo.runtime_architecture_violations() == []
 
 
+def test_registry_lifecycle_has_one_service_owner():
+    text = (validate_repo.ROOT / "scripts" / "proposition_registry.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "class RegistryService" in text
+    assert "def begin_pending" in text
+    assert "def mark_enforcement" in text
+    assert "def record_disposition" in text
+    assert "def create_pending_runtime_state" not in text
+    assert "def update_registry_enforcement_count" not in text
+
+
+def test_architecture_checker_rejects_duplicate_registry_lifecycle_writer(tmp_path):
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    for relative in validate_repo.PRODUCTION_RUNTIME_MODULES:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
+
+    (tmp_path / "scripts" / "legal_proposition.py").write_text(
+        "class LegalProposition: pass\n", encoding="utf-8"
+    )
+    (tmp_path / "scripts" / "proposition_registry.py").write_text(
+        "class RegistryService:\n"
+        "    def begin_pending(self): pass\n"
+        "    def register(self): pass\n"
+        "    def mark_enforcement(self): pass\n"
+        "    def record_disposition(self): pass\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "scripts" / "synthesis_runtime_state.py").write_text(
+        "def create_pending_runtime_state(): pass\n", encoding="utf-8"
+    )
+    (tmp_path / ".codex-plugin").mkdir()
+    (tmp_path / ".codex-plugin" / "plugin.json").write_text(
+        json.dumps({"name": "jdipt", "hooks": {}, "mcpServers": {}}),
+        encoding="utf-8",
+    )
+
+    violations = validate_repo.runtime_architecture_violations(tmp_path)
+
+    assert any("lifecycle writer" in item for item in violations)
+
+
 def test_required_runtime_bundle_includes_canonical_bridge_and_manifests():
     required = {path.relative_to(validate_repo.ROOT).as_posix() for path in validate_repo.REQUIRED_RUNTIME_FILES}
     for relative in plugin_integrity.PLUGIN_RUNTIME_FILES:

@@ -152,6 +152,15 @@ REQUIRED_RUNTIME_FILES = (
     MCP_MANIFEST,
 )
 RUNTIME_PRODUCTION_MARKERS = {
+    "scripts/proposition_registry.py": (
+        "class RegistryService",
+        "def begin_pending",
+        "def register",
+        "def mark_enforcement",
+        "def record_disposition",
+        "O_CREAT | os.O_EXCL",
+        "save_runtime_state",
+    ),
     "scripts/synthesis_runtime_state.py": (
         "PLUGIN_DATA",
         "synthesis-runtime",
@@ -171,8 +180,8 @@ RUNTIME_PRODUCTION_MARKERS = {
         "reconcile_render_contracts",
         "reconcile_range_exception_relation",
         "record_reconciliation",
-        "update_registry_enforcement_count",
         "update_repair_count",
+        "RegistryService",
     ),
     "scripts/proposition_soundness.py": (
         "class AnswerSpan",
@@ -653,6 +662,77 @@ def runtime_architecture_violations(root: Path = ROOT) -> list[str]:
             "register_material_proposition implementation outside proposition_registry.py: "
             f"{non_domain_writers}"
         )
+
+    lifecycle_writer_names = {
+        "create_pending_runtime_state",
+        "update_registry_enforcement_count",
+    }
+    duplicate_lifecycle_writers = [
+        (relative, node.name, node.lineno)
+        for relative, path in module_paths.items()
+        if relative != registry_relative
+        for node in _definitions(path)
+        if node.name in lifecycle_writer_names
+    ]
+    if duplicate_lifecycle_writers:
+        violations.append(
+            "registry lifecycle writer outside proposition_registry.py: "
+            f"{duplicate_lifecycle_writers}"
+        )
+
+    registry_path = module_paths.get(registry_relative)
+    required_service_methods = {
+        "begin_pending",
+        "register",
+        "mark_enforcement",
+        "record_disposition",
+    }
+    service_definitions = (
+        _definitions(registry_path, name="RegistryService", kind=ast.ClassDef)
+        if registry_path is not None
+        else []
+    )
+    if len(service_definitions) != 1:
+        violations.append(
+            "RegistryService definition count: "
+            f"expected 1, found {len(service_definitions)}"
+        )
+    else:
+        actual_methods = {
+            node.name
+            for node in ast.walk(service_definitions[0])
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        missing_methods = sorted(required_service_methods - actual_methods)
+        if missing_methods:
+            violations.append(
+                "RegistryService lifecycle methods missing: "
+                f"{missing_methods}"
+            )
+
+    integration_modules = {
+        "scripts/jdipt_activation.py": "begin_pending",
+        "scripts/jdipt_runtime_mcp.py": "register",
+        "scripts/stop_synthesis_gate.py": "mark_enforcement",
+    }
+    for relative, required_method in integration_modules.items():
+        path = root / relative
+        if not path.is_file():
+            violations.append(f"registry service integration missing: {relative}")
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            violations.append(f"production runtime could not be read: {relative}: {exc}")
+            continue
+        if "from scripts.proposition_registry import RegistryService" not in text:
+            violations.append(
+                f"{relative} must import RegistryService from proposition_registry.py"
+            )
+        if f"RegistryService(" not in text or f".{required_method}" not in text:
+            violations.append(
+                f"{relative} must delegate {required_method} through RegistryService"
+            )
 
     state_path = module_paths.get("scripts/synthesis_runtime_state.py")
     if state_path is not None and _definitions(state_path, name="build_render_contract"):
