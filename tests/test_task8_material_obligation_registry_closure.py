@@ -445,6 +445,18 @@ def _active_state(
     )
 
 
+def test_ledger_ingress_cannot_mutate_an_active_registry(tmp_path):
+    ledger = MaterialObligationLedger(
+        obligations=(obligation("O_BASE", "BASE_RULE", SOURCE_UNRESOLVED),),
+        verified_source_evidence=(),
+    )
+    active = _active_state((), ledger)
+    save_runtime_state(active, tmp_path)
+
+    with pytest.raises(RuntimeStateError):
+        RegistryService(tmp_path).record_material_obligation_ledger(active, ledger)
+
+
 def _adopted_draft(proposition: LegalProposition) -> str:
     contract = build_render_contract(proposition)
     return "\n".join(
@@ -669,6 +681,87 @@ def test_unactivated_registration_cannot_create_an_active_registry(tmp_path):
         )
 
     assert RegistryService(tmp_path).read_state("session-a", "turn-1") is None
+
+
+def test_inactive_registry_state_cannot_be_activated_by_registration(tmp_path):
+    save_runtime_state(
+        RuntimeTurnState(
+            schema_version=RUNTIME_STATE_SCHEMA_VERSION,
+            session_id="session-a",
+            turn_id="turn-1",
+            registry_active=False,
+            repair_count=0,
+            propositions=[],
+            activation_state="INACTIVE",
+            registry_required=False,
+            registry_completed=False,
+            registry_invocation_count=0,
+        ),
+        tmp_path,
+    )
+
+    with pytest.raises(RuntimeStateError):
+        RegistryService(tmp_path).register(
+            {
+                "session_id": "session-a",
+                "turn_id": "turn-1",
+                "proposition_id": "P_BASE",
+                "status": "CLOSED",
+                "materiality": "material",
+                "subject": "행정청",
+                "condition": "요건",
+                "procedure": "절차",
+                "modality": "may",
+                "legal_action": "부여",
+                "operative_verb_lexeme": "부여",
+                "legal_object": "대상",
+                "legal_effect": "법적 효과",
+                "polarity": "positive",
+                "relation_type": "base",
+                "base_proposition_id": None,
+                "exception_proposition_id": None,
+                "source_id": "law-base",
+                "authority_kind": "statute",
+                "source_title": "검증 법령",
+                "source_locator": "https://example.test/law-base",
+                "evidence_span": "행정청은 요건을 충족하고 절차를 거쳐 대상에 법적 효과를 부여할 수 있다.",
+                "temporal_status": "CURRENT_CONFIRMED",
+                "temporal_render_text": "현행 기준에 따른다.",
+            }
+        )
+
+    state = RegistryService(tmp_path).read_state("session-a", "turn-1")
+    assert state is not None
+    assert state.activation_state == "INACTIVE"
+
+
+def test_explicit_activation_wires_the_trusted_ledger_ingress(tmp_path):
+    result = handle_user_prompt_submit(
+        {
+            "session_id": "session-a",
+            "turn_id": "turn-1",
+            "prompt": "$law-interpretation-request\n\n법령 쟁점을 검토해줘.",
+            "material_obligation_ledger": {
+                "obligations": [
+                    {
+                        "obligation_id": "O_RANGE",
+                        "issue_type": "RANGE_EXCEPTION",
+                        "source_status": "SOURCE_UNRESOLVED",
+                        "evidence_source_ids": [],
+                        "proposition_ids": [],
+                    }
+                ],
+                "verified_source_evidence": [],
+            },
+        },
+        tmp_path,
+    )
+
+    assert result == {}
+    state = RegistryService(tmp_path).read_state("session-a", "turn-1")
+    assert state is not None
+    assert state.material_obligation_ledger is not None
+    assert state.material_obligation_ledger.obligations[0].source_status is SOURCE_UNRESOLVED
 
 
 def test_trusted_ledger_ingress_uses_the_canonical_registry_writer(tmp_path):

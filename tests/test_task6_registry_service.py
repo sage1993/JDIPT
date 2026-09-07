@@ -123,6 +123,7 @@ def test_enforcement_transition_is_single_atomic_state_update(tmp_path):
 
 def test_active_completed_state_cannot_be_downgraded_by_pending_activation(tmp_path):
     service = RegistryService(tmp_path)
+    service.begin_pending("session-a", "turn-1")
     service.register(_fields(), "session-a", "turn-1")
 
     state = service.begin_pending("session-a", "turn-1")

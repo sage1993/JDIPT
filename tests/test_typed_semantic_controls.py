@@ -13,6 +13,7 @@ from scripts.legal_proposition import (
     TemporalRequirement,
 )
 from scripts.proposition_registry import register_material_proposition
+from scripts.proposition_registry import RegistryService
 from scripts.jdipt_runtime_mcp import tool_definitions
 from scripts.proposition_rendering import build_render_contract
 from scripts.synthesis_runtime_state import load_runtime_state, save_runtime_state
@@ -80,6 +81,13 @@ def _closed_fields(**overrides):
     }
     values.update(overrides)
     return values
+
+
+@pytest.fixture(autouse=True)
+def _pending_registry_state(tmp_path):
+    """Keep direct semantic-control tests on the canonical lifecycle boundary."""
+
+    RegistryService(tmp_path).begin_pending("session-a", "turn-1")
 
 
 @pytest.mark.parametrize("value", ["criticality", "critical", "important"])

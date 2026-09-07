@@ -276,6 +276,10 @@ class RegistryService:
                 raise RuntimeStateError(
                     "registry registration requires an exact pending activation"
                 )
+            if existing.activation_state == "INACTIVE":
+                raise RuntimeStateError(
+                    "registry registration cannot activate an inactive state"
+                )
             propositions = list(existing.propositions)
             for index, item in enumerate(propositions):
                 if item.proposition_id == proposition.proposition_id:
@@ -400,6 +404,10 @@ class RegistryService:
             self.plugin_data,
         ):
             current = self._load_expected(expected)
+            if current.activation_state != "PENDING" or current.registry_completed:
+                raise RuntimeStateError(
+                    "material-obligation ledger must be recorded before registry completion"
+                )
             updated = replace(
                 current,
                 material_obligation_ledger=ledger,

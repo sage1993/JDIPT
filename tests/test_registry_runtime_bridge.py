@@ -4,8 +4,11 @@ from pathlib import Path
 import subprocess
 import sys
 
+from scripts.jdipt_activation import handle_user_prompt_submit
 from scripts.inject_registry_runtime import CANONICAL_TOOL_NAME, handle_pre_tool_use
 from scripts.jdipt_runtime_mcp import dispatch_json_rpc
+from scripts.material_obligation_ledger import MaterialObligationLedger
+from scripts.proposition_registry import RegistryService
 from scripts.synthesis_runtime_state import load_runtime_state, runtime_state_path
 
 
@@ -61,6 +64,50 @@ def _tool_call(arguments, request_id=1):
     }
 
 
+def _prepare_task8_state(tmp_path):
+    assert (
+        handle_user_prompt_submit(
+            {
+                "session_id": "actual-session",
+                "turn_id": "actual-turn",
+                "prompt": "$law-interpretation-request\n\n법령 쟁점을 검토해줘.",
+            },
+            tmp_path,
+        )
+        == {}
+    )
+    service = RegistryService(tmp_path)
+    pending = service.read_state("actual-session", "actual-turn")
+    assert pending is not None
+    service.record_material_obligation_ledger(
+        pending,
+        MaterialObligationLedger.from_mapping(
+            {
+                "obligations": [
+                    {
+                        "obligation_id": "O_BASE",
+                        "issue_type": "BASE_RULE",
+                        "source_status": "SOURCE_CONFIRMED",
+                        "evidence_source_ids": ["law-001"],
+                        "proposition_ids": ["P1"],
+                    }
+                ],
+                "verified_source_evidence": [
+                    {
+                        "source_id": "law-001",
+                        "authority_kind": "statute",
+                        "source_title": "검증 법령",
+                        "source_locator": "법령 식별자/조문",
+                        "evidence_span": "확인된 원문",
+                        "temporal_status": "CURRENT_CONFIRMED",
+                        "temporal_render_text": "2026-09-04 현재 시행 중인 기준이다.",
+                    }
+                ],
+            }
+        ),
+    )
+
+
 def test_pretool_overwrites_model_identity_and_injects_authoritative_plugin_data(tmp_path):
     result = handle_pre_tool_use(_event(_arguments()), tmp_path)
     updated = result["hookSpecificOutput"]["updatedInput"]
@@ -71,6 +118,7 @@ def test_pretool_overwrites_model_identity_and_injects_authoritative_plugin_data
 
 
 def test_bridge_and_mcp_write_exact_stop_hook_state(tmp_path):
+    _prepare_task8_state(tmp_path)
     hook_output = handle_pre_tool_use(_event(_arguments()), tmp_path)
     updated = hook_output["hookSpecificOutput"]["updatedInput"]
 
@@ -93,6 +141,7 @@ def test_missing_plugin_data_denies_registry_call(monkeypatch):
 
 
 def test_mandatory_modality_is_not_weakened_to_discretion(tmp_path):
+    _prepare_task8_state(tmp_path)
     args = _arguments(
         modality="mandatory",
         operative_verb_lexeme="shall hold",
@@ -124,6 +173,7 @@ def test_surrogate_is_rejected_before_state_write(tmp_path):
 
 
 def test_stdio_forces_utf8_even_if_pythonioencoding_is_cp949(tmp_path):
+    _prepare_task8_state(tmp_path)
     args = _arguments(
         session_id="actual-session",
         turn_id="actual-turn",

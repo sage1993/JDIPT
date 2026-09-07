@@ -14,6 +14,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.proposition_registry import RegistryService
+from scripts.material_obligation_ingress import record_material_obligation_ledger
 from scripts.synthesis_runtime_state import RuntimeStateError
 
 
@@ -67,11 +68,23 @@ def handle_user_prompt_submit(
             "JDIPT activation detection failed; turn_id is unavailable."
         )
     try:
-        RegistryService(plugin_data).begin_pending(
+        service = RegistryService(plugin_data)
+        service.begin_pending(
             session_id,
             turn_id,
             material_obligations_required=True,
         )
+        if "material_obligation_ledger" in event:
+            record_material_obligation_ledger(
+                {
+                    "session_id": session_id,
+                    "turn_id": turn_id,
+                    "material_obligation_ledger": event.get(
+                        "material_obligation_ledger"
+                    ),
+                },
+                plugin_data,
+            )
     except (OSError, RuntimeStateError, TypeError, ValueError) as exc:
         return _fail_closed(
             f"JDIPT activation detection failed; state was not persisted: {exc}"
