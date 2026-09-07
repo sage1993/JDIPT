@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import re
 from typing import Any, Literal
 
@@ -15,7 +15,7 @@ from scripts.legal_proposition import (
     PropositionStatus,
 )
 from scripts.proposition_reconciliation import normalize_rendered_text
-from scripts.proposition_rendering import PropositionRenderContract
+from scripts.proposition_rendering import PropositionRenderContract, RenderSlot, build_render_contract
 
 
 AnswerRegionKind = Literal[
@@ -42,8 +42,8 @@ class AnswerSpan:
 class SoundnessViolation:
     code: str
     proposition_id: str
-    proposition_status: PropositionStatus
-    materiality: Materiality
+    proposition_status: PropositionStatus | None
+    materiality: Materiality | None
     modality: Modality | None
     polarity: Polarity | None
     relation_fields: tuple[str, ...]
@@ -67,13 +67,14 @@ _REGION_PRIORITY: dict[AnswerRegionKind, int] = {
     "quotation": 55,
     "code_block": 60,
 }
-_HEADING_RE = re.compile(r"(?m)^[ \t]*#\s+\d+\.\s+[^\n]*")
+_HEADING_RE = re.compile(r"(?m)^[ \t]*#{1,6}\s+[^\n]*")
 _CONCLUSION_HEADING_RE = re.compile(
     r"(?mi)^[ \t]*#\s*2\.\s*검토결론\s*$"
 )
 _CONCLUSION_LABEL_RE = re.compile(r"(?mi)^[ \t]*(?:최종\s*)?결론\s*:")
 _CODE_BLOCK_RE = re.compile(
-    r"(?ms)^[ \t]*```[^\n]*\n.*?^[ \t]*```[ \t]*(?:\n|$)"
+    r"(?ms)^[ \t]*(?P<fence>`{3,}|~{3,})[^\n]*\n.*?"
+    r"(?:^[ \t]*(?P=fence)[ \t]*(?:\n|$)|\Z)"
 )
 _BLOCKQUOTE_RE = re.compile(r"(?m)^[ \t]*>[^\n]*(?:\n|$)")
 _INLINE_QUOTE_RE = re.compile(r"(?s)(?P<quote>[\"'])(?P<body>.+?)(?P=quote)")
@@ -145,11 +146,12 @@ def _section_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
         if _CONCLUSION_HEADING_RE.fullmatch(heading.group(0).rstrip("\r\n")):
             _add_interval(intervals, heading.end(), end, "final_conclusion")
     for match in _CONCLUSION_LABEL_RE.finditer(draft):
-        end = draft.find("\n\n", match.end())
-        if end < 0:
-            end = len(draft)
-        else:
-            end += 2
+        # A label cannot swallow a later section's canonical render.
+        stops = [heading.start() for heading in headings if heading.start() > match.end()]
+        blank = re.search(r"\r?\n[ \t]*\r?\n", draft[match.end():])
+        if blank:
+            stops.append(match.end() + blank.start())
+        end = min(stops, default=len(draft))
         _add_interval(intervals, match.end(), end, "final_conclusion")
     return intervals
 
@@ -313,7 +315,7 @@ def _relation_fields(proposition: LegalProposition) -> tuple[tuple[str, str | No
 
 
 def _make_violation(
-    proposition: LegalProposition,
+    proposition: LegalProposition | None,
     code: str,
     *,
     matched_region: str,
@@ -323,11 +325,11 @@ def _make_violation(
 ) -> SoundnessViolation:
     return SoundnessViolation(
         code=code,
-        proposition_id=proposition.proposition_id,
-        proposition_status=proposition.status,
-        materiality=proposition.materiality,
-        modality=proposition.modality,
-        polarity=proposition.polarity,
+        proposition_id=getattr(proposition, "proposition_id", ""),
+        proposition_status=(proposition.status if isinstance(getattr(proposition, "status", None), PropositionStatus) else None),
+        materiality=(proposition.materiality if isinstance(getattr(proposition, "materiality", None), Materiality) else None),
+        modality=(proposition.modality if isinstance(getattr(proposition, "modality", None), Modality) else None),
+        polarity=(proposition.polarity if isinstance(getattr(proposition, "polarity", None), Polarity) else None),
         relation_fields=tuple(relation_fields),
         matched_region=matched_region,
         matched_span=matched_span,
@@ -354,7 +356,10 @@ def _output_polarity(text: str) -> tuple[bool, bool]:
         text,
         flags=re.IGNORECASE,
     )
-    return bool(_POSITIVE_RE.search(cleaned)), bool(_NEGATIVE_RE.search(cleaned))
+    negative = bool(_NEGATIVE_RE.search(cleaned))
+    # In particular, 불가능 must not also match the positive 가능 token.
+    positive = bool(_POSITIVE_RE.search(_NEGATIVE_RE.sub("", cleaned)))
+    return positive, negative
 
 
 def _has_definitive_conclusion(text: str) -> bool:
@@ -375,8 +380,239 @@ def _relation_missing_in_conclusion(
     return tuple(
         name
         for name, value in _relation_fields(proposition)
-        if value and normalize_rendered_text(value) not in normalized
+        if value and not _field_pattern(value).search(normalized)
     )
+
+
+def _field_pattern(value: str) -> re.Pattern[str]:
+    # Korean particles may follow a lexeme, but an ASCII identifier must not
+    # match inside another identifier, source locator, or ordinary word.
+    return re.compile(r"(?<![a-z0-9_가-힣])" + re.escape(normalize_rendered_text(value)) + r"(?![a-z0-9_])")
+
+
+def _authority_contracts(
+    propositions: Sequence[LegalProposition],
+    contracts: Sequence[PropositionRenderContract],
+    violations: list[SoundnessViolation],
+) -> tuple[tuple[LegalProposition, PropositionRenderContract], ...]:
+    """Validate supplied snapshots, never resolve another registry or source.
+
+    Rebuilding a contract checks semantic freshness against the supplied typed
+    proposition. This does not compute Task 9's required set or draft coverage.
+    """
+    valid: list[tuple[LegalProposition, PropositionRenderContract]] = []
+    for proposition in propositions:
+        code = None
+        try:
+            if not isinstance(proposition, LegalProposition):
+                raise TypeError("canonical proposition required")
+            replace(proposition)  # Revalidate even a forged frozen dataclass.
+            if proposition.evidence is not None:
+                replace(proposition.evidence)
+            if proposition.materiality is Materiality.NON_MATERIAL:
+                continue
+            if proposition.status is PropositionStatus.CLOSED and proposition.polarity is None:
+                raise ValueError("closed polarity authority missing")
+            if sum(getattr(item, "proposition_id", None) == proposition.proposition_id for item in propositions) != 1:
+                code = "AMBIGUOUS_ADOPTED_IDENTITY"
+            elif contracts is None:
+                code = "UNAVAILABLE_SEMANTIC_AUTHORITY"
+            else:
+                matches = [item for item in contracts if isinstance(item, PropositionRenderContract)
+                           and item.proposition_id == proposition.proposition_id]
+                if not matches:
+                    code = "MALFORMED_SEMANTIC_IDENTITY" if contracts else "UNAVAILABLE_SEMANTIC_AUTHORITY"
+                elif len(matches) != 1:
+                    code = "AMBIGUOUS_ADOPTED_IDENTITY"
+                else:
+                    contract = matches[0]
+                    expected = build_render_contract(proposition)
+                    if not isinstance(contract.slots, tuple) or not contract.slots:
+                        code = "MALFORMED_SEMANTIC_IDENTITY"
+                    elif any(not isinstance(slot, RenderSlot) for slot in contract.slots):
+                        code = "MALFORMED_SEMANTIC_IDENTITY"
+                    elif tuple((slot.slot_id, slot.proposition_id, slot.kind) for slot in contract.slots) != tuple(
+                        (slot.slot_id, slot.proposition_id, slot.kind) for slot in expected.slots
+                    ):
+                        code = "MALFORMED_SEMANTIC_IDENTITY"
+                    elif contract != expected:
+                        code = "STALE_SEMANTIC_AUTHORITY"
+                    else:
+                        valid.append((proposition, contract))
+        except (AttributeError, TypeError, ValueError, KeyError):
+            code = "MALFORMED_SEMANTIC_IDENTITY"
+        if code:
+            _append_once(violations, _make_violation(
+                proposition, code, matched_region="authority", matched_span="",
+                final_conclusion_span="",
+            ))
+
+    # An exact effect/open string cannot identify two different propositions.
+    identities: dict[str, list[LegalProposition]] = {}
+    for proposition, contract in valid:
+        for slot in contract.slots:
+            if slot.kind != "temporal":
+                identities.setdefault(normalize_rendered_text(slot.text), []).append(proposition)
+    for owners in identities.values():
+        if len(owners) > 1:
+            for proposition in owners:
+                _append_once(violations, _make_violation(
+                    proposition, "AMBIGUOUS_ADOPTED_IDENTITY", matched_region="authority",
+                    matched_span="", final_conclusion_span="",
+                ))
+    return tuple(valid)
+
+
+def _semantic_runs(spans: Sequence[AnswerSpan]) -> tuple[AnswerSpan, ...]:
+    """Rejoin uncertainty fragments without crossing an adoption boundary.
+
+    The public classifier retains its existing uncertainty/adopted contract for
+    source and obligation consumers. Internally an OPEN sentence must stay whole.
+    """
+    runs: list[AnswerSpan] = []
+    for span in spans:
+        if not span.adopted and span.kind != "uncertainty":
+            continue
+        if runs and runs[-1].end == span.start and (
+            runs[-1].kind == span.kind or span.kind == "uncertainty" or runs[-1].kind == "uncertainty"
+        ):
+            previous = runs.pop()
+            kind = span.kind if previous.kind == "uncertainty" else previous.kind
+            runs.append(AnswerSpan(kind, previous.text + span.text, previous.start, span.end, True))
+        else:
+            runs.append(span)
+    return tuple(runs)
+
+
+def _claim_owners(
+    text: str,
+    authorities: Sequence[tuple[LegalProposition, PropositionRenderContract]],
+) -> tuple[LegalProposition, ...]:
+    """Use exact relation fields; incomparable identities remain ambiguous."""
+    matches = [(proposition, frozenset(
+        name for name, value in _relation_fields(proposition)
+        if value and _field_pattern(value).search(text)
+    )) for proposition, _ in authorities]
+    return tuple(proposition for proposition, fields in matches if fields and not any(
+        fields < other_fields for _, other_fields in matches
+    ))
+
+
+_MODALITY_MARKERS = (
+    (Modality.MAY_NOT, re.compile(r"(?:하지\s*않아도\s*된다|하지\s*않을\s*수\s*있다)")),
+    (Modality.MUST_NOT, re.compile(r"(?:하여서는\s*안|해서는\s*안|하지\s*않아야)")),
+    (Modality.MUST, re.compile(r"(?:하여야|해야)\s*(?:한다|하고|함)")),
+    (Modality.MAY, re.compile(r"(?:할\s*수\s*있|허용된다|가능하다)")),
+)
+
+
+def _claim_semantics(
+    proposition: LegalProposition,
+    contract: PropositionRenderContract,
+    claim: AnswerSpan,
+    violations: list[SoundnessViolation],
+) -> None:
+    text = claim.text
+    missing = list(_relation_missing_in_conclusion(proposition, text))
+
+    def reject(code: str, fields: Sequence[str] = ()) -> None:
+        _append_once(violations, _make_violation(
+            proposition, code, matched_region=claim.kind, matched_span=text,
+            final_conclusion_span=text if claim.kind == "final_conclusion" else "",
+            relation_fields=fields,
+        ))
+
+    # Field words are authority, not predicate markers (e.g. a condition may
+    # contain '금지'). Inspect only the surrounding relation grammar.
+    predicate = text
+    values = [value for _, value in _relation_fields(proposition) if value]
+    for value in sorted(values, key=len, reverse=True):
+        predicate = _field_pattern(value).sub(" ", predicate)
+    if proposition.status is PropositionStatus.OPEN:
+        # An uncertainty marker cannot cancel a definitive predicate.
+        if _has_definitive_conclusion(predicate):
+            reject("OPEN_PROMOTED_TO_CLOSED")
+        return
+    observed: set[Modality] = set()
+    remainder = predicate
+    for modality, marker in _MODALITY_MARKERS:
+        if marker.search(remainder):
+            observed.add(modality)
+            remainder = marker.sub("", remainder)
+    if proposition.modality is Modality.MUST and observed != {Modality.MUST}:
+        reject("MUST_DEGRADED_TO_MAY", missing)
+        return
+    if proposition.modality is Modality.MUST_NOT and observed != {Modality.MUST_NOT}:
+        reject("MUST_NOT_DEGRADED", missing)
+        return
+
+    positive, negative = _output_polarity(predicate)
+    opposite = (proposition.polarity is Polarity.POSITIVE and negative) or (
+        proposition.polarity is Polarity.NEGATIVE and positive
+    )
+    if opposite:
+        reject("POLARITY_CONTRADICTION")
+        if claim.kind == "final_conclusion":
+            reject("FINAL_CONCLUSION_CONTRADICTION")
+    elif observed and observed != {proposition.modality}:
+        reject("MODALITY_CONTRADICTION", ("modality",))
+    elif not observed and not missing:
+        reject("UNAVAILABLE_SEMANTIC_AUTHORITY", ("modality",))
+
+    if _CONDITION_BYPASS_RE.search(predicate):
+        missing.extend(name for name in ("condition", "procedure") if name not in missing)
+        if claim.kind == "final_conclusion":
+            reject("FINAL_CONCLUSION_CONTRADICTION")
+    effect = next(slot.text for slot in contract.slots if slot.kind == "effect")
+    # The renderer owns how an exception relation is expressed.
+    if effect.startswith("다만, 예외로 ") and not re.search(
+        r"(?:다만,\s*예외로|예외\s*:|예외\s*기준은)", text
+    ):
+        missing.append("relation_type")
+    if missing:
+        reject("LEGAL_RELATION_DEGRADATION", missing)
+
+
+def _evaluate_claims(
+    authorities: Sequence[tuple[LegalProposition, PropositionRenderContract]],
+    spans: Sequence[AnswerSpan],
+    violations: list[SoundnessViolation],
+) -> None:
+    """Inspect every residual adopted sentence, never a document-wide union.
+
+    Exact canonical slots are consumed as typed assertions. Remaining clauses
+    cannot borrow their fields or predicate from those assertions or duplicates.
+    """
+    slots = sorted({normalize_rendered_text(slot.text) for _, contract in authorities
+                    for slot in contract.slots}, key=len, reverse=True)
+    contracts = {proposition.proposition_id: contract for proposition, contract in authorities}
+    for run in _semantic_runs(spans):
+        text = normalize_rendered_text(run.text)
+        for slot in slots:
+            text = text.replace(slot, "\n")
+        for sentence in re.split(r"\n+|(?<=[.!?])\s+", text):
+            sentence = sentence.strip()
+            if not sentence:
+                continue
+            owners = _claim_owners(sentence, authorities)
+            definitive = _has_definitive_conclusion(sentence) or any(
+                marker.search(sentence) for _, marker in _MODALITY_MARKERS
+            )
+            if not owners and run.kind == "final_conclusion" and definitive:
+                owners = tuple(proposition for proposition, _ in authorities)
+            if not owners:
+                continue  # unrelated explanatory prose has no legal identity
+            if len(owners) > 1:
+                for proposition in owners:
+                    _append_once(violations, _make_violation(
+                        proposition, "AMBIGUOUS_ADOPTED_IDENTITY", matched_region=run.kind,
+                        matched_span=sentence,
+                        final_conclusion_span=sentence if run.kind == "final_conclusion" else "",
+                    ))
+                continue
+            proposition = owners[0]
+            _claim_semantics(proposition, contracts[proposition.proposition_id],
+                             AnswerSpan(run.kind, sentence, run.start, run.end, True), violations)
 
 
 def evaluate_soundness(
@@ -388,15 +624,29 @@ def evaluate_soundness(
 
     spans = classify_answer_regions(draft)
     conclusion = _final_conclusion_text(spans)
-    contracts_by_id = {contract.proposition_id: contract for contract in contracts}
     violations: list[SoundnessViolation] = []
+    if propositions is None:
+        return SoundnessResult(False, (_make_violation(
+            None, "UNAVAILABLE_SEMANTIC_AUTHORITY", matched_region="authority",
+            matched_span="", final_conclusion_span="",
+        ),))
+    authorities = _authority_contracts(propositions, contracts, violations)
 
-    for proposition in propositions:
-        if proposition.materiality is not Materiality.MATERIAL:
-            continue
-        contract = contracts_by_id.get(proposition.proposition_id)
-        if contract is None or not contract.slots:
-            continue
+    for proposition, contract in authorities:
+        # Supplemental linked-rule metadata may be rendered in its own
+        # relation sentence, rather than repeated in every effect sentence.
+        rules = [(name, getattr(proposition, name)) for name in ("base_rule", "exception_rule")
+                 if getattr(proposition, name)]
+        if rules and not any(
+            all(_field_pattern(value).search(sentence) for _, value in rules)
+            for run in _semantic_runs(spans)
+            for sentence in re.split(r"(?<=[.!?])\s+", normalize_rendered_text(run.text))
+        ):
+            _append_once(violations, _make_violation(
+                proposition, "LEGAL_RELATION_DEGRADATION", matched_region="unresolved",
+                matched_span="", final_conclusion_span=conclusion,
+                relation_fields=[name for name, _ in rules],
+            ))
         matches_by_slot = {
             slot.slot_id: _slot_matches(slot.text, spans)
             for slot in contract.slots
@@ -406,7 +656,6 @@ def evaluate_soundness(
             for matches in matches_by_slot.values()
             for match in matches
         )
-        adopted_matches = tuple(match for match in all_matches if match.adopted)
         unadopted_required_matches = tuple(
             match
             for matches in matches_by_slot.values()
@@ -417,6 +666,20 @@ def evaluate_soundness(
             any(match.adopted for match in matches_by_slot[slot.slot_id])
             for slot in contract.slots
         )
+
+        if proposition.status is PropositionStatus.OPEN:
+            # Neutral paraphrases are allowed; excluded regions cannot adopt.
+            neutral_adoption = any(
+                _UNCERTAINTY_RE.search(run.text)
+                and proposition in _claim_owners(normalize_rendered_text(run.text), authorities)
+                for run in _semantic_runs(spans)
+            )
+            if not neutral_adoption:
+                _append_once(violations, _make_violation(
+                    proposition, "UNAVAILABLE_SEMANTIC_AUTHORITY",
+                    matched_region="unresolved", matched_span="",
+                    final_conclusion_span=conclusion,
+                ))
 
         if proposition.status is PropositionStatus.CLOSED and not required_slots_adopted:
             evidence_matches = unadopted_required_matches or all_matches
@@ -452,55 +715,7 @@ def evaluate_soundness(
                 ),
             )
 
-        if proposition.status is PropositionStatus.OPEN and conclusion:
-            if _has_definitive_conclusion(conclusion):
-                _append_once(
-                    violations,
-                    _make_violation(
-                        proposition,
-                        "OPEN_PROMOTED_TO_CLOSED",
-                        matched_region="final_conclusion",
-                        matched_span=" ".join(match.text.strip() for match in all_matches),
-                        final_conclusion_span=conclusion,
-                    ),
-                )
-            continue
-
-        if proposition.status is not PropositionStatus.CLOSED or not conclusion:
-            continue
-
-        positive_output, negative_output = _output_polarity(conclusion)
-        bypass = bool(_CONDITION_BYPASS_RE.search(conclusion))
-        opposite = (
-            proposition.polarity is Polarity.POSITIVE and negative_output
-        ) or (proposition.polarity is Polarity.NEGATIVE and positive_output)
-        if opposite:
-            code = "FINAL_CONCLUSION_CONTRADICTION" if bypass else "POLARITY_CONTRADICTION"
-            _append_once(
-                violations,
-                _make_violation(
-                    proposition,
-                    code,
-                    matched_region="final_conclusion",
-                    matched_span=" ".join(match.text.strip() for match in adopted_matches),
-                    final_conclusion_span=conclusion,
-                ),
-            )
-
-        missing_fields = _relation_missing_in_conclusion(proposition, conclusion)
-        if missing_fields:
-            _append_once(
-                violations,
-                _make_violation(
-                    proposition,
-                    "LEGAL_RELATION_DEGRADATION",
-                    matched_region="final_conclusion",
-                    matched_span=" ".join(match.text.strip() for match in adopted_matches),
-                    final_conclusion_span=conclusion,
-                    relation_fields=missing_fields,
-                ),
-            )
-
+    _evaluate_claims(authorities, spans, violations)
     return SoundnessResult(
         soundness_passed=not violations,
         violations=tuple(violations),
