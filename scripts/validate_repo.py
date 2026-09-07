@@ -127,6 +127,7 @@ PROPOSITION_RECONCILIATION = ROOT / "scripts" / "proposition_reconciliation.py"
 PROPOSITION_REGISTRY = ROOT / "scripts" / "proposition_registry.py"
 ACTIVATION = ROOT / "scripts" / "jdipt_activation.py"
 PROPOSITION_RELATIONS = ROOT / "scripts" / "proposition_relations.py"
+PROPOSITION_SOUNDNESS = ROOT / "scripts" / "proposition_soundness.py"
 REQUIRED_RUNTIME_FILES = (
     PROPOSITION_MODEL,
     PROPOSITION_RENDERING,
@@ -134,6 +135,7 @@ REQUIRED_RUNTIME_FILES = (
     PROPOSITION_REGISTRY,
     ACTIVATION,
     PROPOSITION_RELATIONS,
+    PROPOSITION_SOUNDNESS,
     RUNTIME_STATE,
     STOP_GATE,
     RUNTIME_MCP,
@@ -167,6 +169,18 @@ RUNTIME_PRODUCTION_MARKERS = {
         "record_reconciliation",
         "update_registry_enforcement_count",
         "update_repair_count",
+    ),
+    "scripts/proposition_soundness.py": (
+        "class AnswerSpan",
+        "class SoundnessViolation",
+        "class SoundnessResult",
+        "REJECTED_QUOTATION_ONLY",
+        "CODE_BLOCK_OR_EXAMPLE_ONLY",
+        "OPEN_PROMOTED_TO_CLOSED",
+        "POLARITY_CONTRADICTION",
+        "FINAL_CONCLUSION_CONTRADICTION",
+        "LEGAL_RELATION_DEGRADATION",
+        "def evaluate_soundness",
     ),
     "scripts/jdipt_runtime_mcp.py": (
         "register_material_proposition",
