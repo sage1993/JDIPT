@@ -11,6 +11,7 @@ from scripts.synthesis_runtime_state import (
     load_runtime_state,
     record_reconciliation,
     runtime_state_path,
+    update_runtime_state,
     update_repair_count,
 )
 
@@ -192,4 +193,49 @@ def test_inactive_completed_registry_state_is_rejected():
             registry_required=True,
             registry_completed=True,
             registry_invocation_count=1,
+        )
+
+
+def test_missing_state_cannot_be_resurrected_from_stale_snapshot(tmp_path):
+    service = RegistryService(tmp_path)
+    expected = service.begin_pending("session-a", "turn-1")
+    runtime_state_path(tmp_path, "session-a", "turn-1").unlink()
+
+    with pytest.raises(RuntimeStateError):
+        update_repair_count(expected, 1, tmp_path)
+
+    assert load_runtime_state("session-a", "turn-1", tmp_path) is None
+
+
+def test_persistence_cas_cannot_mutate_registry_lifecycle_or_propositions(tmp_path):
+    from dataclasses import replace
+
+    service = RegistryService(tmp_path)
+    expected = service.begin_pending("session-a", "turn-1")
+    malicious = replace(
+        expected,
+        registry_active=True,
+        activation_state="ACTIVE",
+        registry_completed=True,
+        registry_invocation_count=1,
+    )
+
+    with pytest.raises(RuntimeStateError):
+        update_runtime_state(expected, malicious, tmp_path)
+
+    assert load_runtime_state("session-a", "turn-1", tmp_path) == expected
+
+
+def test_active_registry_state_requires_registry_completion_contract():
+    with pytest.raises(RuntimeStateError):
+        RuntimeTurnState(
+            schema_version=RUNTIME_STATE_SCHEMA_VERSION,
+            session_id="session-a",
+            turn_id="turn-1",
+            registry_active=True,
+            repair_count=0,
+            propositions=[],
+            activation_state="ACTIVE",
+            registry_required=False,
+            registry_completed=False,
         )

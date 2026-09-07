@@ -155,6 +155,9 @@ def test_stop_gate_requests_slots_instead_of_rewriting_the_draft(tmp_path):
         registry_active=True,
         repair_count=0,
         propositions=[proposition],
+        registry_required=True,
+        registry_completed=True,
+        registry_invocation_count=1,
     )
     save_runtime_state(state, tmp_path)
 

@@ -106,6 +106,10 @@ class RuntimeTurnState:
             raise RuntimeStateError("registry_completed requires registry_required")
         if self.activation_state == "PENDING" and not self.registry_required:
             raise RuntimeStateError("PENDING runtime state requires registry_required")
+        if self.activation_state == "ACTIVE" and not self.registry_required:
+            raise RuntimeStateError(
+                "ACTIVE runtime state requires registry_required"
+            )
         if self.activation_state == "INACTIVE" and (
             self.registry_required or self.registry_completed
         ):
@@ -296,6 +300,32 @@ def runtime_state_fingerprint(state: RuntimeTurnState) -> str:
         raise RuntimeStateError(f"could not fingerprint runtime state: {exc}") from exc
 
 
+def _registry_state_fingerprint(state: RuntimeTurnState) -> str:
+    payload = _as_json(state)
+    registry_payload = {
+        name: payload[name]
+        for name in (
+            "session_id",
+            "turn_id",
+            "registry_active",
+            "activation_state",
+            "registry_required",
+            "registry_completed",
+            "registry_required_operations",
+            "registry_invocation_count",
+            "registry_enforcement_count",
+            "propositions",
+            "stop_disposition",
+        )
+    }
+    return json.dumps(
+        registry_payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
 def _from_json(payload: Any, session_id: str, turn_id: str) -> RuntimeTurnState:
     if not isinstance(payload, dict):
         raise RuntimeStateError("runtime state must be a JSON object")
@@ -458,12 +488,17 @@ def update_runtime_state(
             expected.turn_id,
             plugin_data,
         )
-        if current is not None and (
-            runtime_state_fingerprint(current)
-            != runtime_state_fingerprint(expected)
-        ):
+        if current is None:
+            raise RuntimeStateError(
+                "runtime state update expected an existing exact-turn state"
+            )
+        if runtime_state_fingerprint(current) != runtime_state_fingerprint(expected):
             raise RuntimeStateError(
                 "runtime state update expected state is stale or belongs to another turn"
+            )
+        if _registry_state_fingerprint(expected) != _registry_state_fingerprint(updated):
+            raise RuntimeStateError(
+                "persistence-only update cannot mutate registry lifecycle or propositions"
             )
         save_runtime_state(updated, plugin_data)
         return updated

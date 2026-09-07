@@ -71,6 +71,9 @@ def _state(*, repair_count: int = 0, active: bool = True, propositions=None):
         registry_active=active,
         repair_count=repair_count,
         propositions=propositions or [_proposition()],
+        registry_required=active,
+        registry_completed=active,
+        registry_invocation_count=1 if active else 0,
     )
 
 

@@ -113,6 +113,9 @@ def _runtime_state(proposition: LegalProposition, *, repair_count: int = 0):
         registry_active=True,
         repair_count=repair_count,
         propositions=[proposition],
+        registry_required=True,
+        registry_completed=True,
+        registry_invocation_count=1,
     )
 
 

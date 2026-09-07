@@ -67,6 +67,9 @@ def _state(*, repair_count: int = 0) -> RuntimeTurnState:
         registry_active=True,
         repair_count=repair_count,
         propositions=[_proposition()],
+        registry_required=True,
+        registry_completed=True,
+        registry_invocation_count=1,
     )
 
 
@@ -183,6 +186,7 @@ def test_open_proposition_is_preserved_as_open(tmp_path):
 
 def test_reconciliation_round_trip_preserves_structured_soundness_evidence(tmp_path):
     state = _state()
+    save_runtime_state(state, tmp_path)
     contract = build_render_contract(state.propositions[0])
     rendered = "\n".join(slot.text for slot in contract.slots)
     draft = f"```text\n{rendered}\n```"
