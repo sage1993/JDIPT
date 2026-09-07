@@ -75,9 +75,9 @@ def test_missing_registry_does_not_fallback_to_legacy_shadow_state(tmp_path):
 
     assert result["continue"] is False
     assert "ACTIVATION_BYPASS" in result["systemMessage"]
-    assert not runtime_state_path(tmp_path, "session-a", "turn-1").exists() or (
-        RegistryService(tmp_path).read_state("session-a", "turn-1") is not None
-    )
+    assert RegistryService(tmp_path).read_state(
+        "session-a", "turn-1"
+    ).activation_state == "PENDING"
 
 
 def test_registry_state_wins_over_shadow_state(tmp_path):
@@ -170,3 +170,60 @@ def test_derived_diagnostic_artifact_does_not_become_authority(tmp_path):
     )
 
     assert service.read_state(state.session_id, state.turn_id).activation_state == "PENDING"
+
+
+def test_stop_gate_rejects_shadow_completion_when_registry_enforcement_is_incomplete(
+    tmp_path,
+):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending("session-a", "turn-1")
+    shadow = tmp_path / "legacy-stop-state.json"
+    shadow.write_text(
+        json.dumps(
+            {
+                "session_id": "session-a",
+                "turn_id": "turn-1",
+                "registry_enforcement_count": 1,
+                "stop_disposition": "COMPLETED",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = handle_stop_event(_event("범위만 설명"), tmp_path)
+
+    assert result["decision"] == "block"
+    assert "REGISTRY_ENFORCEMENT" in result["reason"]
+    assert service.read_state("session-a", "turn-1").registry_enforcement_count == 1
+    assert pending.registry_enforcement_count == 0
+
+
+def test_stale_source_closure_artifact_cannot_authorize_a_new_registry_turn(tmp_path):
+    service = RegistryService(tmp_path)
+    pending = service.begin_pending("session-a", "turn-2")
+    stale = tmp_path / "source-closure-turn-1.json"
+    stale.write_text(
+        json.dumps(
+            {
+                "session_id": "session-a",
+                "turn_id": "turn-1",
+                "source_closure_passed": True,
+                "authority_closure_passed": True,
+                "temporal_closure_passed": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = handle_stop_event(
+        _event("범위만 설명", turn_id="turn-2"),
+        tmp_path,
+    )
+
+    assert result["decision"] == "block"
+    assert "REGISTRY_ENFORCEMENT" in result["reason"]
+    stored = service.read_state("session-a", "turn-2")
+    assert stored is not None
+    assert stored.session_id == pending.session_id
+    assert stored.turn_id == pending.turn_id
+    assert stored.registry_enforcement_count == 1
