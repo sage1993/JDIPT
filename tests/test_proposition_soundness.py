@@ -138,6 +138,18 @@ def test_explicitly_rejected_alternative_cannot_count_as_adopted():
     assert soundness.violations[0].matched_region == "rejected_alternative"
 
 
+def test_discussed_proposition_followed_by_rejection_cannot_count_as_adopted():
+    proposition = _closed_proposition()
+    contract, rendered = _covered_draft(proposition)
+    draft = f"검토 대상 명제는 다음과 같다. {rendered} 그러나 이 명제는 타당하지 않다."
+
+    soundness = evaluate_soundness([proposition], [contract], draft)
+
+    assert not soundness.soundness_passed
+    assert _codes(soundness) == {"REJECTED_QUOTATION_ONLY"}
+    assert soundness.violations[0].matched_region == "rejected_alternative"
+
+
 def test_open_same_direction_definitive_conclusion_is_not_closed():
     proposition = _open_proposition()
     contract, rendered = _covered_draft(proposition)

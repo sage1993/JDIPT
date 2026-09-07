@@ -62,9 +62,9 @@ _REGION_PRIORITY: dict[AnswerRegionKind, int] = {
     "affirmative": 0,
     "final_conclusion": 10,
     "uncertainty": 20,
-    "quotation": 30,
-    "example": 40,
+    "example": 30,
     "rejected_alternative": 50,
+    "quotation": 55,
     "code_block": 60,
 }
 _HEADING_RE = re.compile(r"(?m)^[ \t]*#\s+\d+\.\s+[^\n]*")
@@ -84,6 +84,9 @@ _REJECTED_MARKER_RE = re.compile(
 )
 _REJECTED_HEADING_RE = re.compile(
     r"(?i)^\s*(?:반대\s*견해|을설|rejected\s+alternative|배척)\s*:"
+)
+_EXPLICIT_REJECTION_RE = re.compile(
+    r"(?i)(?:타당하지\s*않|채택하지\s*않|옳지\s*않)"
 )
 _UNCERTAINTY_RE = re.compile(
     r"(?:확인\s*필요|확정할\s*수\s*없|판단할\s*수\s*없|불확실|미확인)",
@@ -194,8 +197,11 @@ def _rejected_intervals(draft: str) -> list[tuple[int, int, AnswerRegionKind]]:
     intervals: list[tuple[int, int, AnswerRegionKind]] = []
     lines = _line_ranges(draft)
     for index, (start, _, line) in enumerate(lines):
-        if not _REJECTED_MARKER_RE.search(line) or not _REJECTED_HEADING_RE.match(
-            line
+        if not _REJECTED_MARKER_RE.search(line):
+            continue
+        if not (
+            _REJECTED_HEADING_RE.match(line)
+            or _EXPLICIT_REJECTION_RE.search(line)
         ):
             continue
         block_start = start
