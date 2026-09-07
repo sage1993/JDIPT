@@ -13,6 +13,7 @@ from scripts.legal_proposition import (
     PropositionStatus,
     TemporalRequirement,
 )
+from scripts.jdipt_activation import handle_user_prompt_submit
 from scripts.material_obligation_ledger import (
     MaterialObligation,
     MaterialObligationLedger,
@@ -633,6 +634,51 @@ def test_begin_pending_can_explicitly_require_task8_ledger(tmp_path):
     )
 
     assert pending.material_obligation_ledger_required is True
+
+
+def test_explicit_activation_rejects_registration_without_task8_ledger(tmp_path):
+    activation_event = {
+        "hook_event_name": "UserPromptSubmit",
+        "session_id": "session-a",
+        "turn_id": "turn-1",
+        "prompt": "$law-interpretation-request\n\n법령 쟁점을 검토해줘.",
+    }
+    assert handle_user_prompt_submit(activation_event, tmp_path) == {}
+
+    with pytest.raises(RuntimeStateError):
+        RegistryService(tmp_path).register(
+            {
+                "session_id": "session-a",
+                "turn_id": "turn-1",
+                "proposition_id": "P_BASE",
+                "status": "CLOSED",
+                "materiality": "material",
+                "subject": "행정청",
+                "condition": "요건",
+                "procedure": "절차",
+                "modality": "may",
+                "legal_action": "부여",
+                "operative_verb_lexeme": "부여",
+                "legal_object": "대상",
+                "legal_effect": "법적 효과",
+                "polarity": "positive",
+                "relation_type": "base",
+                "base_proposition_id": None,
+                "exception_proposition_id": None,
+                "source_id": "law-base",
+                "authority_kind": "statute",
+                "source_title": "검증 법령",
+                "source_locator": "https://example.test/law-base",
+                "evidence_span": "행정청은 요건을 충족하고 절차를 거쳐 대상에 법적 효과를 부여할 수 있다.",
+                "temporal_status": "CURRENT_CONFIRMED",
+                "temporal_render_text": "현행 기준에 따른다.",
+            }
+        )
+
+    state = RegistryService(tmp_path).read_state("session-a", "turn-1")
+    assert state is not None
+    assert state.material_obligation_ledger_required is True
+    assert state.activation_state == "PENDING"
 
 
 def test_task8_does_not_add_a_second_runtime_reader():

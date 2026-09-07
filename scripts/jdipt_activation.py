@@ -67,7 +67,11 @@ def handle_user_prompt_submit(
             "JDIPT activation detection failed; turn_id is unavailable."
         )
     try:
-        RegistryService(plugin_data).begin_pending(session_id, turn_id)
+        RegistryService(plugin_data).begin_pending(
+            session_id,
+            turn_id,
+            material_obligations_required=True,
+        )
     except (OSError, RuntimeStateError, TypeError, ValueError) as exc:
         return _fail_closed(
             f"JDIPT activation detection failed; state was not persisted: {exc}"

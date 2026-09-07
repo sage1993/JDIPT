@@ -4,7 +4,12 @@ import pytest
 
 from scripts.jdipt_activation import handle_user_prompt_submit
 from scripts.jdipt_runtime_mcp import dispatch_json_rpc
+from scripts.material_obligation_ledger import (
+    MaterialObligationLedger,
+    ObligationSourceStatus,
+)
 from scripts.proposition_rendering import build_render_contract
+from scripts.proposition_registry import RegistryService
 from scripts.proposition_relations import (
     build_range_exception_relation,
     render_range_exception_relation,
@@ -71,6 +76,43 @@ def _registry_fields(tmp_path, *, session_id="session-a", turn_id="turn-1"):
     }
 
 
+def _record_task8_ledger(tmp_path, *proposition_ids, evidence_spans=None):
+    default_evidence_span = "행정청은 요건 C를 충족하고 절차 P를 거쳐 대상 O를 지위 Z로 지정할 수 있다."
+    spans = evidence_spans or (default_evidence_span,) * len(proposition_ids)
+    assert len(spans) == len(proposition_ids)
+    sources = [
+        {
+            "source_id": f"law-00{index + 1}",
+            "authority_kind": "statute",
+            "source_title": "검증 법령",
+            "source_locator": "법령 식별자/조문",
+            "evidence_span": spans[index],
+            "temporal_status": "CURRENT_CONFIRMED",
+            "temporal_render_text": "현행 기준에 따른다.",
+        }
+        for index in range(len(proposition_ids))
+    ]
+    ledger = MaterialObligationLedger.from_mapping(
+        {
+            "obligations": [
+                {
+                    "obligation_id": f"O_{index}",
+                    "issue_type": "BASE_RULE" if index == 0 else "RANGE_EXCEPTION",
+                    "source_status": ObligationSourceStatus.SOURCE_CONFIRMED.value,
+                    "evidence_source_ids": [sources[index]["source_id"]],
+                    "proposition_ids": [proposition_id],
+                }
+                for index, proposition_id in enumerate(proposition_ids)
+            ],
+            "verified_source_evidence": sources,
+        }
+    )
+    service = RegistryService(tmp_path)
+    state = service.read_state("session-a", "turn-1")
+    assert state is not None
+    service.record_material_obligation_ledger(state, ledger)
+
+
 def _stop_event(message, *, session_id="session-a", turn_id="turn-1", active=False):
     return {
         "hook_event_name": "Stop",
@@ -95,6 +137,7 @@ def test_explicit_activation_persists_pending_registry_contract(tmp_path):
 
 def test_successful_registry_write_is_the_only_completion_transition(tmp_path):
     handle_user_prompt_submit(_prompt_event(), tmp_path)
+    _record_task8_ledger(tmp_path, "P1")
 
     response = dispatch_json_rpc(
         _tool_call(_registry_fields(tmp_path)),
@@ -174,6 +217,7 @@ def test_registry_enforcement_is_exactly_one_and_separate_from_repair(tmp_path):
 
 def test_completed_registry_does_not_increment_registry_enforcement(tmp_path):
     handle_user_prompt_submit(_prompt_event(), tmp_path)
+    _record_task8_ledger(tmp_path, "P1")
     dispatch_json_rpc(_tool_call(_registry_fields(tmp_path)))
     state = load_runtime_state("session-a", "turn-1", tmp_path)
     assert state is not None
@@ -201,6 +245,36 @@ def test_completed_registry_does_not_increment_registry_enforcement(tmp_path):
 def test_completion_is_isolated_by_exact_session_and_turn(tmp_path):
     handle_user_prompt_submit(_prompt_event("session-a", "turn-a"), tmp_path)
     handle_user_prompt_submit(_prompt_event("session-a", "turn-b"), tmp_path)
+    state_a = RegistryService(tmp_path).read_state("session-a", "turn-a")
+    assert state_a is not None
+    service = RegistryService(tmp_path)
+    service.record_material_obligation_ledger(
+        state_a,
+        MaterialObligationLedger.from_mapping(
+            {
+                "obligations": [
+                    {
+                        "obligation_id": "O_BASE",
+                        "issue_type": "BASE_RULE",
+                        "source_status": "SOURCE_CONFIRMED",
+                        "evidence_source_ids": ["law-001"],
+                        "proposition_ids": ["P1"],
+                    }
+                ],
+                "verified_source_evidence": [
+                    {
+                        "source_id": "law-001",
+                        "authority_kind": "statute",
+                        "source_title": "검증 법령",
+                        "source_locator": "법령 식별자/조문",
+                        "evidence_span": "행정청은 요건 C를 충족하고 절차 P를 거쳐 대상 O를 지위 Z로 지정할 수 있다.",
+                        "temporal_status": "CURRENT_CONFIRMED",
+                        "temporal_render_text": "현행 기준에 따른다.",
+                    }
+                ],
+            }
+        ),
+    )
     dispatch_json_rpc(
         _tool_call(_registry_fields(tmp_path, session_id="session-a", turn_id="turn-a"))
     )
@@ -222,6 +296,15 @@ def test_completion_is_isolated_by_exact_session_and_turn(tmp_path):
 
 def test_canonical_registry_to_stop_preserves_relation_and_final_evidence(tmp_path):
     handle_user_prompt_submit(_prompt_event(), tmp_path)
+    _record_task8_ledger(
+        tmp_path,
+        "BASE_RANGE",
+        "EXCEPTION_RANGE",
+        evidence_spans=(
+            "행정청은 요건 C를 충족하고 절차 P를 거쳐 대상 O를 지위 Z로 지정할 수 있다.",
+            "행정청은 특정 입지 요건을 충족하는 경우 통합심의를 거치면 사업대상지를 예외 대상 지정할 수 있다.",
+        ),
+    )
     base = _registry_fields(tmp_path)
     base.update(
         {
@@ -240,6 +323,7 @@ def test_canonical_registry_to_stop_preserves_relation_and_final_evidence(tmp_pa
             "base_proposition_id": "BASE_RANGE",
             "base_rule": "승강장 경계로부터 100m 이내",
             "exception_rule": "승강장 경계로부터 150m 이내",
+            "source_id": "law-002",
             "condition": "특정 입지 요건을 충족하는 경우",
             "procedure": "통합심의를 거치면",
             "legal_object": "사업대상지",
@@ -262,7 +346,7 @@ def test_canonical_registry_to_stop_preserves_relation_and_final_evidence(tmp_pa
             "예외: 특정 입지 요건을 충족하는 경우 통합심의를 거치면 행정청은 사업대상지를 예외 대상 지정할 수 있다.",
             *(slot.text for proposition in state.propositions for slot in build_render_contract(proposition).slots),
             render_range_exception_relation(relation),
-            "근거: law-001 검증 법령 법령 식별자/조문",
+            "근거: law-001 law-002 검증 법령 법령 식별자/조문",
         )
     )
 
