@@ -267,6 +267,44 @@ def test_authority_failure_that_looks_empty_fails_closed():
     assert "authority" in result.failure_reason.casefold()
 
 
+def test_registry_ledger_authority_mismatch_fails_closed():
+    proposition = _proposition("P1", "S1")
+    ledger = _ledger(proposition)
+    forged_closure = RegistryClosureResult(
+        registry_closure_passed=True,
+        violations=(
+            RegistryClosureViolation(
+                code="FORGED_AUTHORITY",
+                obligation_id=None,
+                proposition_id=None,
+                source_id=None,
+                reason="not produced by canonical closure",
+            ),
+        ),
+    )
+
+    result = _evaluate(
+        ledger,
+        forged_closure,
+        (proposition,),
+        "",
+    )
+
+    assert result.coverage_passed is False
+    assert "does not match" in result.failure_reason.casefold()
+
+
+def test_non_string_final_render_fails_closed():
+    proposition = _proposition("P1", "S1")
+    ledger = _ledger(proposition)
+    closure = _closed_authority((proposition,), ledger)
+
+    result = _evaluate(ledger, closure, (proposition,), None)
+
+    assert result.coverage_passed is False
+    assert "final rendered answer" in result.failure_reason.casefold()
+
+
 def test_coverage_presence_does_not_claim_semantic_soundness():
     proposition = _proposition("P1", "S1")
     ledger = _ledger(proposition)
