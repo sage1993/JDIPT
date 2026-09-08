@@ -1,0 +1,20 @@
+{
+  "root_cause": "HOOK_COMMAND_EXPANSION",
+  "root_cause_proven": true,
+  "defect_boundary": "app-server hook dispatcher reserved-environment contract to Windows command expansion",
+  "active_plugin_source": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4",
+  "expected_plugin_data": "C:\\Users\\KSH\\.codex\\plugins\\data\\jdipt-sage1993",
+  "source_relation": "SOURCE_MISMATCH",
+  "active_runtime_identity": "IDENTITY_UNRESOLVED",
+  "plugin_data_injection": "FAIL",
+  "active_hook_identity": "PROVEN_PATH_HASH",
+  "active_module_identity": "NOT_PROVEN",
+  "base_mismatch_count": 18,
+  "final_mismatch_count": 18,
+  "task11r_introduced_mismatch_count": 0,
+  "exact_turn_continuity": "NOT_PASS",
+  "ash06_3run": "HOLD_0_OF_3",
+  "ash06_10run": "NOT_RUN_PREREQUISITE_FAILED",
+  "cache_modified": false,
+  "semantic_contract_modified": false
+}

@@ -1,0 +1,15 @@
+executable=C:\Users\KSH\.codex\plugins\.plugin-appserver\codex.exe
+version=codex-cli 0.153.4
+session_id=01a07bc6-7202-74e0-8550-b1b081ed51b3
+
+WARN skipping duplicate plugin MCP server name plugin="jdipt@task3-typed-semantic-controls" previous_plugin="jdipt@sage1993" server="jdipt_runtime"
+WARN skipping duplicate plugin MCP server name plugin="jdipt@task4-semantic-soundness" previous_plugin="jdipt@task3-typed-semantic-controls" server="jdipt_runtime"
+WARN conflicting MCP server actions; using resolved catalog outcome server="jdipt_runtime" plugin_id="jdipt@sage1993" host_root="C:\Users\KSH\.codex\plugins\cache\sage1993\jdipt\0.2.4"
+hook: UserPromptSubmit
+hook: UserPromptSubmit Failed
+hook: PreToolUse
+hook: PreToolUse Failed
+mcp: jdipt_runtime/register_material_proposition started
+Mcp error -32602: Invalid tool arguments: authoritative plugin data was not injected
+hook: Stop
+hook: Stop Failed

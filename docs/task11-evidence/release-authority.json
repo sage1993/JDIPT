@@ -1,0 +1,41 @@
+{
+  "required_evidence": [
+    "STATIC_VALIDATION",
+    "REGRESSION",
+    "ACTIVE_RUNTIME_IDENTITY",
+    "TURN_CONTINUITY",
+    "ASH06_3RUN",
+    "ASH06_10RUN",
+    "SEMANTIC_SOUNDNESS",
+    "PLUGIN_INTEGRITY_CLASSIFICATION",
+    "MCP_RUNTIME"
+  ],
+  "inputs": {
+    "static_validation": {"status": "PASS"},
+    "regression": {"status": "PASS", "full_pytest": "666 passed"},
+    "active_runtime_identity": {"status": "IDENTITY_UNRESOLVED", "source_relation": "SOURCE_MISMATCH"},
+    "turn_continuity": {"status": "FAIL_CLOSED", "cross_turn_state_reuse": 0},
+    "ash06_3run": {"status": "HOLD", "runs": ["FAIL_CLOSED", "FAIL_CLOSED", "FAIL_CLOSED"]},
+    "ash06_10run": {"status": "NOT_RUN", "runs": []},
+    "semantic_soundness": {"coverage": false, "sound": false, "false_green": 0, "critical_missing": 0, "invalid_promotion": 0},
+    "plugin_integrity_classification": {"base_mismatches": 18, "final_mismatches": 18, "introduced_mismatches": 0, "active_runtime_relevant": 18, "mismatches": []},
+    "mcp_runtime": {"status": "HOLD"}
+  },
+  "decision": {
+    "verdict": "HOLD",
+    "release_ready": false,
+    "reasons": [
+      "MCP_RUNTIME_NOT_PASS",
+      "ACTIVE_RUNTIME_IDENTITY_NOT_PROVEN",
+      "ACTIVE_RUNTIME_SOURCE_MISMATCH",
+      "TURN_CONTINUITY_NOT_PASS",
+      "ASH06_3RUN_NOT_3_OF_3",
+      "ASH06_3RUN_NOT_PASS",
+      "ASH06_10RUN_NOT_10_OF_10",
+      "ASH06_10RUN_NOT_PASS",
+      "SEMANTIC_SOUNDNESS_NOT_PASS"
+    ]
+  },
+  "authority_implementation": "scripts/runtime_acceptance.py:evaluate_release_authority",
+  "fail_closed_on_missing_stale_malformed_ambiguous": true
+}

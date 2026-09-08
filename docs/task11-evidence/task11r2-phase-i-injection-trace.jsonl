@@ -1,0 +1,8 @@
+{"stage":"T0","status":"NOT_RUN","reason":"formal plugin install did not complete; no fresh active hook path"}
+{"stage":"T1","status":"NOT_RUN","reason":"reserved environment was not observed in a fresh active hook"}
+{"stage":"T2","status":"NOT_RUN","reason":"active Windows command expansion could not be executed from installed package"}
+{"stage":"T3","status":"NOT_RUN","reason":"active Python module entry was not observed"}
+{"stage":"T4","status":"NOT_RUN","reason":"active _runtime_plugin_data generation was not observed"}
+{"stage":"T5","status":"NOT_RUN","reason":"active MCP authoritative-value receipt was not observed"}
+{"trace_status":"HOLD","active_runtime_identity":"UNRESOLVED","synthetic_injection":"NO"}
+

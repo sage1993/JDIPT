@@ -34,8 +34,6 @@ from scripts.material_obligation_ledger import (
 from scripts.proposition_source_closure import source_closure_result_to_dict
 from scripts.proposition_soundness import soundness_result_to_dict
 from scripts.proposition_render_coverage import render_coverage_result_to_dict
-
-
 STATE_DIRECTORY = "synthesis-runtime"
 RUNTIME_STATE_SCHEMA_VERSION = 3
 _ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
@@ -222,12 +220,25 @@ def _validate_text(value: str, field: str) -> str:
 
 
 def _plugin_data_root(plugin_data: str | os.PathLike[str] | None) -> Path:
-    value = plugin_data if plugin_data is not None else os.environ.get("PLUGIN_DATA")
-    if not value:
+    value = plugin_data
+    if value is None:
+        if "CLAUDE_PLUGIN_DATA" in os.environ:
+            value = os.environ["CLAUDE_PLUGIN_DATA"]
+        else:
+            value = os.environ.get("PLUGIN_DATA")
+    if value is None:
         raise RuntimeStateError("PLUGIN_DATA is required for runtime state")
-    root = Path(value)
-    if root.name in {"", ".", ".."}:
-        raise RuntimeStateError("PLUGIN_DATA must be a concrete directory")
+    try:
+        text = os.fspath(value)
+    except TypeError as exc:
+        raise RuntimeStateError("PLUGIN_DATA must be an existing absolute directory") from exc
+    if not isinstance(text, str) or not text:
+        raise RuntimeStateError("PLUGIN_DATA must be an existing absolute directory")
+    root = Path(text)
+    if not root.is_absolute() or root.name in {"", ".", ".."}:
+        raise RuntimeStateError("PLUGIN_DATA must be an existing absolute directory")
+    if plugin_data is None and not root.is_dir():
+        raise RuntimeStateError("PLUGIN_DATA must be an existing absolute directory")
     return root
 
 

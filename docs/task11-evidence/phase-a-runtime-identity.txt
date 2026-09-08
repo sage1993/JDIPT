@@ -1,0 +1,35 @@
+Task 11 Phase A — observed runtime identity
+
+codex --version
+  codex-cli 0.153.3
+
+Live Codex resolution
+  plugin id: jdipt@sage1993
+  active host root: C:\Users\KSH\.codex\plugins\cache\sage1993\jdipt\0.2.4
+  plugin data: C:\Users\KSH\.codex\plugins\data\jdipt-sage1993
+  executable: C:\Users\KSH\.codex\plugins\.plugin-appserver\codex.exe
+
+Candidate
+  F:\2026-PJ\JDIPT\.worktrees\task11-runtime-acceptance-closure
+  manifest SHA-256: 7cbb56acd468102038078a67bd139d10eb2a08105ed68d4587b90faba4da74b7
+
+Active cache
+  C:\Users\KSH\.codex\plugins\cache\sage1993\jdipt\0.2.4
+  manifest SHA-256: e078540a742940c3836050a5bae39d1bf9549ce7e00f362666b654ef7d5cd072
+
+Result
+  SOURCE_RELATION = SOURCE_MISMATCH
+  ACTIVE_RUNTIME_IDENTITY = IDENTITY_UNRESOLVED
+  Loaded Python module path/hash was not observable, and fresh hook-bound PLUGIN_DATA was not observed.
+  No SOURCE_MATCH inference was made.
+
+Active hook file
+  hooks/hooks.json SHA-256: 840509260E9AB3F5A69A01A37302EB361C9C0A637C0D863777C25D96D30CBF81
+  PreToolUse: py -3 %PLUGIN_ROOT%\scripts\inject_registry_runtime.py
+  Stop: py -3 %PLUGIN_ROOT%\scripts\stop_synthesis_gate.py
+
+Integrity
+  BASE_MISMATCH_COUNT = 18
+  FINAL_MISMATCH_COUNT = 18
+  TASK11_INTRODUCED_MISMATCH_COUNT = 0
+  All 18 are classified ACTIVE_RUNTIME_RELEVANT because the resolved active cache is the installed root and the files are loaded skill/runtime components.

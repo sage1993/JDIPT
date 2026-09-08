@@ -1,0 +1,8 @@
+{"stage":"T0","status":"NOT_RUN","reason":"official installation exited 1; no fresh post-install hook"}
+{"stage":"T1","status":"NOT_RUN","reason":"fresh host-reserved environment was not collected"}
+{"stage":"T2","status":"NOT_RUN","reason":"fresh Windows command expansion was not collected"}
+{"stage":"T3","status":"NOT_RUN","reason":"fresh active Python module identity was not collected"}
+{"stage":"T4","status":"NOT_RUN","reason":"fresh authoritative PLUGIN_DATA bridge was not collected"}
+{"stage":"T5","status":"NOT_RUN","reason":"fresh MCP equality check was not collected"}
+{"summary":"T0_T5 = NOT_RUN; no synthetic or inferred PLUGIN_DATA was accepted"}
+

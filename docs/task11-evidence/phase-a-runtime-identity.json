@@ -1,0 +1,86 @@
+{
+  "task": "Task 11",
+  "captured_on": "2026-09-07",
+  "repository": {
+    "base_sha": "c6e225f1c549070581765583577c1c9aba6ceeb7",
+    "candidate_head": "c6e225f1c549070581765583577c1c9aba6ceeb7",
+    "branch": "codex/task11-runtime-acceptance-closure",
+    "worktree": "F:\\2026-PJ\\JDIPT\\.worktrees\\task11-runtime-acceptance-closure",
+    "root_dirty_changes_preserved": true
+  },
+  "codex": {
+    "executable": "C:\\Users\\KSH\\.codex\\plugins\\.plugin-appserver\\codex.exe",
+    "version": "codex-cli 0.153.3",
+    "version_command": "codex --version"
+  },
+  "configured_binding": {
+    "plugin_id": "jdipt@sage1993",
+    "enabled": true,
+    "marketplace_source": "\\\\?\\C:\\Users\\KSH\\.codex\\visualizations\\2026\\09\\06\\01a0769a-1b77-7a83-990e-e8f32ba44634\\jdipt-correctness-stabilization",
+    "resolved_by_live_codex_warning": true,
+    "resolved_plugin_id": "jdipt@sage1993",
+    "resolved_plugin_root": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4"
+  },
+  "plugin": {
+    "id": "jdipt",
+    "version": "0.2.4",
+    "candidate_root": "F:\\2026-PJ\\JDIPT\\.worktrees\\task11-runtime-acceptance-closure",
+    "active_root": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4",
+    "candidate_manifest_sha256": "7cbb56acd468102038078a67bd139d10eb2a08105ed68d4587b90faba4da74b7",
+    "active_manifest_sha256": "e078540a742940c3836050a5bae39d1bf9549ce7e00f362666b654ef7d5cd072",
+    "source_relation": "SOURCE_MISMATCH",
+    "identity_status": "IDENTITY_UNRESOLVED",
+    "identity_reason": "The live CLI exposed the active cache root, but no loaded Python module path/hash or fresh hook-bound PLUGIN_DATA was observed."
+  },
+  "active_paths": {
+    "hooks": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4\\hooks\\hooks.json",
+    "plugin_data": "C:\\Users\\KSH\\.codex\\plugins\\data\\jdipt-sage1993",
+    "registry": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4\\scripts\\proposition_registry.py",
+    "runtime_state": "C:\\Users\\KSH\\.codex\\plugins\\cache\\sage1993\\jdipt\\0.2.4\\scripts\\synthesis_runtime_state.py",
+    "loaded_python_modules": []
+  },
+  "active_file_sha256": {
+    ".codex-plugin/plugin.json": "D0A90B855382141960B01FA58D489CC1A536283E73234DE9868C2DE68B76AE9B",
+    "hooks/hooks.json": "840509260E9AB3F5A69A01A37302EB361C9C0A637C0D863777C25D96D30CBF81",
+    "scripts/jdipt_activation.py": "9D2A30F30228DCD53E28973BCFE635F7C6C91C55ED2C5A25A2B56BA100EB3A16",
+    "scripts/inject_registry_runtime.py": "F9876111F32A4449AC4648D9D8BB22FB59B37B3ACE3B316E87DA6FFFE3D314EB",
+    "scripts/jdipt_runtime_mcp.py": "6EC7E9E21711DD277DE610ADDEF88191AA159F2B9A1C7A668B3F72F9AE647583",
+    "scripts/proposition_registry.py": "79BC4A4A0609D677563E42A612A8213EE3C59D9E20BEDC5DF87F4255639F1436",
+    "scripts/synthesis_runtime_state.py": "F7C9367DB730AA60006BFDFFA135B1E2037D917CAC5A6269962F4A2DF41C6FF7",
+    "scripts/stop_synthesis_gate.py": "9B10A933DA12DE953DD61CDA0477041F4C195B02485291077BC5ABA107F12560"
+  },
+  "active_hooks": {
+    "user_prompt_submit": "py -3 %PLUGIN_ROOT%\\scripts\\jdipt_activation.py",
+    "pre_tool_use_matcher": "^mcp__jdipt_runtime__register_material_proposition$",
+    "pre_tool_use": "py -3 %PLUGIN_ROOT%\\scripts\\inject_registry_runtime.py",
+    "stop": "py -3 %PLUGIN_ROOT%\\scripts\\stop_synthesis_gate.py"
+  },
+  "plugin_integrity": {
+    "base_mismatch_count": 18,
+    "final_mismatch_count": 18,
+    "task11_introduced_mismatch_count": 0,
+    "classification_rule": "Active cache root equals installed root; every mismatched loaded skill/runtime module is conservatively classified as ACTIVE_RUNTIME_RELEVANT.",
+    "mismatches": [
+      {"mismatch": "digest mismatch: SKILL.md", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/hooks/hooks.json", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/jdipt_activation.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/jdipt_runtime_mcp.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/legal_proposition.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "missing installed file: plugin/scripts/material_obligation_ingress.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "missing installed file: plugin/scripts/material_obligation_ledger.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "missing installed file: plugin/scripts/proposition_obligation_closure.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/proposition_registry.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/proposition_relations.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "missing installed file: plugin/scripts/proposition_render_coverage.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/proposition_rendering.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "missing installed file: plugin/scripts/proposition_soundness.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "missing installed file: plugin/scripts/proposition_source_closure.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/stop_synthesis_gate.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: plugin/scripts/synthesis_runtime_state.py", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: references/legal-issue-mapping.md", "classification": "ACTIVE_RUNTIME_RELEVANT"},
+      {"mismatch": "digest mismatch: references/source-policy.md", "classification": "ACTIVE_RUNTIME_RELEVANT"}
+    ]
+  },
+  "source_match_decision": "IDENTITY_UNRESOLVED",
+  "fail_closed": true
+}

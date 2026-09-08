@@ -5,7 +5,16 @@ from collections.abc import Mapping
 import json
 import os
 import sys
+from pathlib import Path
 from typing import Any
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.plugin_runtime_context import (
+    is_valid_plugin_data_path,
+    resolve_plugin_data,
+)
 
 CANONICAL_TOOL_NAME = "mcp__jdipt_runtime__register_material_proposition"
 RUNTIME_PLUGIN_DATA_FIELD = "_runtime_plugin_data"
@@ -41,15 +50,12 @@ def handle_pre_tool_use(
     if not isinstance(tool_input, Mapping):
         return _deny("JDIPT registry runtime binding failed; tool_input is invalid.")
 
-    root = plugin_data if plugin_data is not None else os.environ.get("PLUGIN_DATA")
+    root = resolve_plugin_data(plugin_data)
     if root is None:
         return _deny("JDIPT registry runtime binding failed; PLUGIN_DATA is unavailable.")
-    try:
-        root_text = os.fspath(root)
-    except TypeError:
+    if not is_valid_plugin_data_path(root):
         return _deny("JDIPT registry runtime binding failed; PLUGIN_DATA is invalid.")
-    if not root_text:
-        return _deny("JDIPT registry runtime binding failed; PLUGIN_DATA is unavailable.")
+    root_text = os.fspath(root)
 
     updated = dict(tool_input)
     updated["session_id"] = session_id

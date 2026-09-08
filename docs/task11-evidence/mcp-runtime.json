@@ -1,0 +1,20 @@
+{
+  "status": "HOLD",
+  "active_runtime_smoke": {
+    "status": "FAIL_CLOSED",
+    "observed": "Live jdipt_runtime/register_material_proposition calls failed because authoritative plugin data was not injected; forged values were rejected by the Windows path/runtime-state boundary."
+  },
+  "local_transport_smoke": {
+    "status": "PASS",
+    "command": "python -c <JSON-RPC initialize + tools/list> scripts/jdipt_runtime_mcp.py",
+    "returncode": 0,
+    "observed": "initialize returned jdipt-runtime 0.2.4 and tools/list returned register_material_proposition."
+  },
+  "npm_help_smoke": {
+    "status": "PASS",
+    "command": "npm run mcp -- --help",
+    "returncode": 0,
+    "observed": "korean-law-mcp@4.12.1 command completed with exit 0."
+  },
+  "release_interpretation": "Local transport is healthy, but active-runtime MCP enforcement is not proven; the aggregate MCP_RUNTIME evidence is HOLD."
+}

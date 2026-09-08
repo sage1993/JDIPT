@@ -1,0 +1,7 @@
+{
+  "case_id": "ASH-06",
+  "status": "NOT_RUN",
+  "runs": [],
+  "required": "10/10",
+  "reason": "The mandatory 3-run gate was HOLD, so the 10-run stability gate was not started."
+}

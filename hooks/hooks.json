@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "python3 \"$PLUGIN_ROOT/scripts/jdipt_activation.py\"",
-            "commandWindows": "py -3 \"%PLUGIN_ROOT%\\scripts\\jdipt_activation.py\"",
+            "commandWindows": "py -3 ${CLAUDE_PLUGIN_ROOT}\\scripts\\jdipt_activation.py",
             "timeout": 30,
             "statusMessage": "Detecting explicit JDIPT activation"
           }
@@ -21,7 +21,7 @@
           {
             "type": "command",
             "command": "python3 \"$PLUGIN_ROOT/scripts/inject_registry_runtime.py\"",
-            "commandWindows": "py -3 \"%PLUGIN_ROOT%\\scripts\\inject_registry_runtime.py\"",
+            "commandWindows": "py -3 ${CLAUDE_PLUGIN_ROOT}\\scripts\\inject_registry_runtime.py",
             "timeout": 30,
             "statusMessage": "Binding JDIPT runtime state"
           }
@@ -34,7 +34,7 @@
           {
             "type": "command",
             "command": "python3 \"$PLUGIN_ROOT/scripts/stop_synthesis_gate.py\"",
-            "commandWindows": "py -3 \"%PLUGIN_ROOT%\\scripts\\stop_synthesis_gate.py\"",
+            "commandWindows": "py -3 ${CLAUDE_PLUGIN_ROOT}\\scripts\\stop_synthesis_gate.py",
             "timeout": 30,
             "statusMessage": "Checking JDIPT synthesis integrity"
           }

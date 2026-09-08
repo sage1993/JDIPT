@@ -1,0 +1,61 @@
+{
+  "case_id": "ASH-06",
+  "fresh_runs_required": 3,
+  "status": "HOLD",
+  "acceptance": "3/3 required; observed 0/3 complete runtime passes",
+  "runs": [
+    {
+      "run": 1,
+      "thread_id": "01a07b94-93a5-72c0-b0d7-841712bd6a6b",
+      "process": "PASS",
+      "plugin_runtime_identity": "FAIL_CLOSED",
+      "pretooluse_observed": "FAIL_CLOSED",
+      "pending_activation_observed": "FAIL_CLOSED",
+      "synthesis_state": "FAIL_CLOSED",
+      "stop_reconciliation": "FAIL_CLOSED",
+      "enforcement": "FAIL_CLOSED",
+      "semantic_oracle": "PASS_REPLAY_OF_CAPTURED_ANSWER",
+      "critical_proposition_missing": 0,
+      "invalid_semantic_promotion": 0,
+      "runtime_exception": 0,
+      "notes": "The returned answer preserved the 250m base, 350m integrated-review exception/designation, and current-standard qualification; no fresh hook/state evidence was produced."
+    },
+    {
+      "run": 2,
+      "thread_id": "01a07b97-ef78-7802-a680-1b1d6df758bf",
+      "process": "FAIL_CLOSED",
+      "plugin_runtime_identity": "FAIL_CLOSED",
+      "pretooluse_observed": "FAIL_CLOSED",
+      "pending_activation_observed": "FAIL_CLOSED",
+      "synthesis_state": "FAIL_CLOSED",
+      "stop_reconciliation": "FAIL_CLOSED",
+      "enforcement": "FAIL_CLOSED",
+      "semantic_oracle": "NOT_RUN",
+      "critical_proposition_missing": null,
+      "invalid_semantic_promotion": null,
+      "runtime_exception": 0,
+      "notes": "The required registration attempt failed because authoritative plugin data was not injected."
+    },
+    {
+      "run": 3,
+      "thread_id": "01a07b9c-8bf6-7d03-8ac2-f6eb55afba1c",
+      "process": "FAIL_CLOSED",
+      "plugin_runtime_identity": "FAIL_CLOSED",
+      "pretooluse_observed": "FAIL_CLOSED",
+      "pending_activation_observed": "FAIL_CLOSED",
+      "synthesis_state": "FAIL_CLOSED",
+      "stop_reconciliation": "FAIL_CLOSED",
+      "enforcement": "FAIL_CLOSED",
+      "semantic_oracle": "NOT_RUN",
+      "critical_proposition_missing": null,
+      "invalid_semantic_promotion": null,
+      "runtime_exception": 0,
+      "notes": "The bridge rejected absent/forged runtime data, including invalid path and metadata attempts; the probe was stopped before a final answer."
+    }
+  ],
+  "critical_missing": 0,
+  "false_green": 0,
+  "cross_turn_state_reuse": 0,
+  "runtime_exception": 0,
+  "stop_reason": "ASH06_3RUN != 3/3; do not execute the 10-run gate"
+}
