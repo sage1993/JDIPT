@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import ast
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.canonical_baseline_gate import evaluate_repository
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "law-interpretation-request" / "SKILL.md"
@@ -944,6 +950,14 @@ def validate_tracked_secrets() -> None:
 
 
 def main() -> int:
+    canonical_baseline = evaluate_repository(
+        ROOT,
+        base_ref=os.environ.get("JDIPT_CANONICAL_BASE_REF"),
+    )
+    if not canonical_baseline["allow_native"]:
+        reasons = ", ".join(str(item) for item in canonical_baseline["reasons"])
+        fail(f"canonical baseline gate failed: {reasons}")
+
     if not SKILL.is_file():
         fail("SKILL.md missing")
 
