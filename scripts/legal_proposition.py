@@ -371,7 +371,7 @@ class EvidenceRef:
     source_locator: str
     evidence_span: str
     temporal_status: TemporalStatus
-    temporal_render_text: str | None
+    temporal_render_text: str | None = None
 
     def __post_init__(self) -> None:
         _validate_identifier(self.source_id, "source_id")
