@@ -12,24 +12,19 @@ from scripts.material_obligation_ledger import (
     ObligationValidationError,
 )
 from scripts.proposition_registry import RegistryService
-from scripts.synthesis_runtime_state import RuntimeStateError, RuntimeTurnState
+from scripts.synthesis_runtime_state import RuntimeStateError
 
 
 _INGRESS_FIELDS = frozenset(
-    {"session_id", "turn_id", "material_obligation_ledger"}
+    {"transaction_id", "material_obligation_ledger"}
 )
 
 
 def record_material_obligation_ledger(
     event: Mapping[str, Any],
     plugin_data: str | os.PathLike[str] | None = None,
-) -> RuntimeTurnState:
-    """Persist one independently produced ledger before proposition registration.
-
-    This is a trusted integration boundary for Legal Issue Mapping / source
-    verification. It is intentionally not exposed as a model-facing MCP tool.
-    The canonical RegistryService remains the only state writer.
-    """
+) -> Any:
+    """Persist one ledger against the transaction-owned canonical registry."""
 
     if not isinstance(event, Mapping):
         raise RuntimeStateError("material-obligation ingress input must be an object")
@@ -38,12 +33,9 @@ def record_material_obligation_ledger(
         raise RuntimeStateError(
             "unsupported material-obligation ingress fields: " + ", ".join(unknown)
         )
-    session_id = event.get("session_id")
-    turn_id = event.get("turn_id")
-    if not isinstance(session_id, str) or not session_id:
-        raise RuntimeStateError("material-obligation ingress session_id is required")
-    if not isinstance(turn_id, str) or not turn_id:
-        raise RuntimeStateError("material-obligation ingress turn_id is required")
+    transaction_id = event.get("transaction_id")
+    if not isinstance(transaction_id, str) or not transaction_id:
+        raise RuntimeStateError("material-obligation ingress transaction_id is required")
     raw_ledger = event.get("material_obligation_ledger")
     try:
         ledger = (
@@ -57,13 +49,4 @@ def record_material_obligation_ledger(
         ) from exc
 
     service = RegistryService(plugin_data)
-    state = service.read_state(session_id, turn_id)
-    if state is None:
-        raise RuntimeStateError(
-            "material-obligation ingress requires an exact pending activation"
-        )
-    if state.activation_state != "PENDING" or not state.material_obligation_ledger_required:
-        raise RuntimeStateError(
-            "material-obligation ingress requires a pending Task 8 activation"
-        )
-    return service.record_material_obligation_ledger(state, ledger)
+    return service.record_material_obligation_ledger(transaction_id, ledger)

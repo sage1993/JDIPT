@@ -295,6 +295,31 @@ def _source_semantics_match(proposition: LegalProposition, source_span: str) -> 
     return True
 
 
+def source_relation_failure_code(proposition: LegalProposition) -> str | None:
+    """Validate a bound evidence span before a proposition enters the registry."""
+
+    if proposition.materiality is not Materiality.MATERIAL:
+        return None
+    if proposition.status is not PropositionStatus.CLOSED:
+        return None
+    evidence = proposition.evidence
+    if evidence is None:
+        return "SOURCE_REQUIRED_BUT_MISSING"
+    matched_fields = [
+        name
+        for name, value in _support_fields(proposition)
+        if _phrase_present(value, evidence.evidence_span)
+    ]
+    required_fields = [name for name, _ in _support_fields(proposition)]
+    if not matched_fields:
+        return "SOURCE_PRESENT_BUT_NOT_SUPPORTING"
+    if len(matched_fields) != len(required_fields):
+        return "SOURCE_PROPOSITION_MISMATCH"
+    if not _source_semantics_match(proposition, evidence.evidence_span):
+        return "SOURCE_PROPOSITION_MISMATCH"
+    return None
+
+
 def _assessment(
     proposition: LegalProposition,
     status: SourceClosureStatus,

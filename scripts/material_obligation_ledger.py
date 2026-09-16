@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from enum import StrEnum
+import hashlib
+import json
 import re
 from typing import Any
 
@@ -629,6 +631,21 @@ def material_obligation_ledger_to_dict(
         ],
         "verified_source_evidence": [asdict(item) for item in ledger.verified_source_evidence],
     }
+
+
+def canonical_material_obligation_ledger_digest(
+    ledger: MaterialObligationLedger,
+) -> str:
+    """Return the stable digest used to prevent ledger mutation mid-transaction."""
+
+    payload = material_obligation_ledger_to_dict(ledger)
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def registry_closure_result_to_dict(

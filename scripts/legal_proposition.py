@@ -76,6 +76,121 @@ _AUTHORITY_KINDS = {
     "other",
 }
 
+# This is the single flattened, model-facing contract for a canonical
+# LegalProposition.  EvidenceRef is intentionally flattened because MCP
+# arguments are JSON objects, while the registry stores it as a typed value.
+# `source_clause` and `current_status` remain compatibility inputs for the
+# legacy ledger bridge; new Native calls must use evidence_span and
+# temporal_status instead.  Generated/internal fields and legacy semantic
+# renames are deliberately absent.
+CANONICAL_PROPOSITION_FIELDS = frozenset(
+    {
+        "proposition_id",
+        "status",
+        "subject",
+        "condition",
+        "procedure",
+        "operative_verb_lexeme",
+        "legal_action",
+        "legal_object",
+        "legal_effect",
+        "modality",
+        "polarity",
+        "materiality",
+        "relation_type",
+        "base_proposition_id",
+        "exception_proposition_id",
+        "source_clause",
+        "current_status",
+        "base_rule",
+        "exception_rule",
+        "required_authority",
+        "required_temporal_status",
+        "required_source_type",
+        "source_id",
+        "authority_kind",
+        "source_title",
+        "source_locator",
+        "evidence_span",
+        "temporal_status",
+        "temporal_render_text",
+    }
+)
+CANONICAL_PROPOSITION_REQUIRED_FIELDS = (
+    "proposition_id",
+    "status",
+    "materiality",
+)
+
+
+def canonical_proposition_schema() -> dict[str, object]:
+    """Return the JSON schema for the canonical flattened proposition input."""
+
+    properties: dict[str, object] = {
+        name: {"type": "string"}
+        for name in sorted(CANONICAL_PROPOSITION_FIELDS)
+        if name not in {"status", "materiality", "modality", "polarity", "authority_kind", "temporal_status", "required_authority", "required_temporal_status", "required_source_type"}
+    }
+    properties.update(
+        {
+            "status": {"type": "string", "enum": ["OPEN", "CLOSED"]},
+            "materiality": {
+                "type": "string",
+                "enum": ["MATERIAL", "NON_MATERIAL", "material", "non_material", "non-material"],
+            },
+            "modality": {
+                "type": "string",
+                "enum": [item.value for item in Modality],
+            },
+            "polarity": {
+                "type": "string",
+                "enum": [item.value for item in Polarity],
+            },
+            "authority_kind": {"type": "string", "enum": sorted(_AUTHORITY_KINDS)},
+            "temporal_status": {"type": "string", "enum": sorted(_TEMPORAL_STATUSES)},
+            "required_authority": {
+                "type": "string",
+                "enum": [item.value for item in AuthorityRequirement],
+            },
+            "required_temporal_status": {
+                "type": "string",
+                "enum": [item.value for item in TemporalRequirement],
+            },
+            "required_source_type": {"type": "string", "enum": sorted(_AUTHORITY_KINDS)},
+        }
+    )
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": list(CANONICAL_PROPOSITION_REQUIRED_FIELDS),
+        "properties": properties,
+        "allOf": [
+            {
+                "if": {"properties": {"status": {"const": "CLOSED"}}},
+                "then": {
+                    "required": [
+                        "subject",
+                        "condition",
+                        "procedure",
+                        "modality",
+                        "legal_object",
+                        "legal_effect",
+                        "source_id",
+                        "authority_kind",
+                        "source_title",
+                        "source_locator",
+                        "evidence_span",
+                        "temporal_status",
+                    ],
+                    "anyOf": [
+                        {"required": ["legal_action"]},
+                        {"required": ["operative_verb_lexeme"]},
+                    ],
+                },
+            }
+        ],
+    }
+
 
 class PropositionValidationError(ValueError):
     """Raised when proposition or evidence metadata is unsafe or incomplete."""

@@ -62,6 +62,89 @@ class RuntimeStateError(ValueError):
     """Raised when runtime state cannot be safely loaded or written."""
 
 
+@dataclass(frozen=True)
+class MaterialProposition:
+    """Legacy registry shape retained for the canonical registry bridge."""
+
+    proposition_id: str
+    status: Literal["OPEN", "CLOSED"]
+    subject: str | None = None
+    condition: str | None = None
+    procedure: str | None = None
+    operative_verb_lexeme: str | None = None
+    legal_object: str | None = None
+    legal_effect: str | None = None
+    source_clause: str | None = None
+    mandatory_render_clause: str | None = None
+    relation_type: str | None = None
+    base_proposition_id: str | None = None
+    exception_proposition_id: str | None = None
+    current_status: str | None = None
+    modality: str | None = "may"
+    legal_action: str | None = None
+    polarity: str | None = "positive"
+    materiality: str = "material"
+
+    def __post_init__(self) -> None:
+        _validate_identifier(self.proposition_id, "proposition_id")
+        if self.status not in {"OPEN", "CLOSED"}:
+            raise RuntimeStateError("status must be OPEN or CLOSED")
+        if self.status == "CLOSED":
+            required = {
+                "subject": self.subject,
+                "condition": self.condition,
+                "procedure": self.procedure,
+                "legal action": self.operative_verb_lexeme or self.legal_action,
+                "legal object": self.legal_object,
+                "legal effect": self.legal_effect,
+            }
+            missing = [field for field, value in required.items() if not value]
+            if missing:
+                raise RuntimeStateError(
+                    "CLOSED proposition is missing required legal relation fields: "
+                    + ", ".join(missing)
+                )
+        for name in (
+            "subject", "condition", "procedure", "operative_verb_lexeme",
+            "legal_object", "legal_effect", "source_clause",
+            "mandatory_render_clause", "relation_type", "base_proposition_id",
+            "exception_proposition_id", "current_status", "modality",
+            "legal_action", "polarity", "materiality",
+        ):
+            value = getattr(self, name)
+            if value is not None:
+                _validate_text(value, name)
+
+    def to_integrity_proposition(self):
+        from scripts.synthesis_integrity import MaterialProposition as IntegrityProposition
+
+        action = self.legal_action or _action_name(self.operative_verb_lexeme)
+        relation = self.relation_type or ""
+        if relation.lower() == "exception" and self.base_proposition_id:
+            relation = f"exception to {self.base_proposition_id}"
+        if relation.lower() == "base" and self.exception_proposition_id:
+            relation = f"base for {self.exception_proposition_id}"
+        return IntegrityProposition(
+            proposition_id=self.proposition_id,
+            materiality=self.materiality or "material",
+            legal_actor=self.subject or "",
+            condition=self.condition or "",
+            procedure=self.procedure or "",
+            modality=self.modality or "may",
+            legal_action=action or "",
+            legal_object=self.legal_object or "",
+            resulting_status_or_effect=self.legal_effect or "",
+            polarity=self.polarity or "positive",
+            relation_to_base_or_exception=relation,
+            source_proposition=self.source_clause or "",
+            evidence_span=self.source_clause or "",
+            closure_status=self.status,
+            operative_verb_lexeme=self.operative_verb_lexeme or "",
+            mandatory_render_clause=self.mandatory_render_clause or "",
+            temporal_status=self.current_status or "",
+        )
+
+
 @dataclass
 class RuntimeTurnState:
     """Canonical proposition ledger for one exact session and turn."""
