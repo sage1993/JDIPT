@@ -13,9 +13,8 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.proposition_registry import RegistryService
-from scripts.material_obligation_ingress import record_material_obligation_ledger
-from scripts.synthesis_runtime_state import RuntimeStateError
+from scripts.runtime_root import RuntimeRootError, resolve_runtime_root
+from scripts.turn_anchor import create_turn_anchor
 
 
 EXPLICIT_INVOCATION = "$law-interpretation-request"
@@ -57,35 +56,10 @@ def handle_user_prompt_submit(
     if not is_explicit_jdipt_prompt(_prompt_value(event)):
         return {}
 
-    session_id = event.get("session_id")
-    turn_id = event.get("turn_id")
-    if not isinstance(session_id, str) or not session_id:
-        return _fail_closed(
-            "JDIPT activation detection failed; session_id is unavailable."
-        )
-    if not isinstance(turn_id, str) or not turn_id:
-        return _fail_closed(
-            "JDIPT activation detection failed; turn_id is unavailable."
-        )
     try:
-        service = RegistryService(plugin_data)
-        service.begin_pending(
-            session_id,
-            turn_id,
-            material_obligations_required=True,
-        )
-        if "material_obligation_ledger" in event:
-            record_material_obligation_ledger(
-                {
-                    "session_id": session_id,
-                    "turn_id": turn_id,
-                    "material_obligation_ledger": event.get(
-                        "material_obligation_ledger"
-                    ),
-                },
-                plugin_data,
-            )
-    except (OSError, RuntimeStateError, TypeError, ValueError) as exc:
+        root = resolve_runtime_root(plugin_data)
+        create_turn_anchor(root)
+    except (OSError, RuntimeRootError, TypeError, ValueError) as exc:
         return _fail_closed(
             f"JDIPT activation detection failed; state was not persisted: {exc}"
         )

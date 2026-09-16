@@ -62,6 +62,8 @@ def runtime_root_source(
         return "EXPLICIT"
     if os.environ.get("JDIPT_RUNTIME_ROOT") is not None:
         return "JDIPT_RUNTIME_ROOT"
+    if os.environ.get("CLAUDE_PLUGIN_DATA") is not None:
+        return "CLAUDE_PLUGIN_DATA"
     if os.environ.get("PLUGIN_DATA") is not None:
         return "PLUGIN_DATA"
     return "CODEX_HOME"
@@ -84,6 +86,8 @@ def resolve_runtime_root_with_source(
     if value is None:
         value = os.environ.get("JDIPT_RUNTIME_ROOT")
     if value is None:
+        value = os.environ.get("CLAUDE_PLUGIN_DATA")
+    if value is None:
         value = os.environ.get("PLUGIN_DATA")
     if value is None:
         codex_home = os.environ.get("CODEX_HOME")
@@ -91,7 +95,12 @@ def resolve_runtime_root_with_source(
             raise RuntimeRootError("RUNTIME_ROOT_REQUIRED: trusted runtime root is unavailable")
         value = Path(codex_home) / "plugins" / "data" / "jdipt-sage1993"
     root = _canonical(value)
-    if not explicit and os.environ.get("CODEX_HOME") and "PLUGIN_DATA" not in os.environ:
+    if (
+        not explicit
+        and os.environ.get("CODEX_HOME")
+        and "CLAUDE_PLUGIN_DATA" not in os.environ
+        and "PLUGIN_DATA" not in os.environ
+    ):
         expected = _canonical(Path(os.environ["CODEX_HOME"]) / "plugins" / "data" / "jdipt-sage1993")
         if root != expected:
             raise RuntimeRootError("RUNTIME_ROOT_MISMATCH: runtime root is outside CODEX_HOME")
@@ -125,6 +134,8 @@ def assert_test_runtime_root_isolated(
     configured = production_root
     if configured is None:
         configured = os.environ.get("JDIPT_RUNTIME_ROOT")
+        if configured is None:
+            configured = os.environ.get("CLAUDE_PLUGIN_DATA")
         if configured is None:
             configured = os.environ.get("PLUGIN_DATA")
         if configured is None:

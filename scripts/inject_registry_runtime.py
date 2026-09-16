@@ -40,13 +40,7 @@ def handle_pre_tool_use(
     if event.get("tool_name") != CANONICAL_TOOL_NAME:
         return {}
 
-    session_id = event.get("session_id")
-    turn_id = event.get("turn_id")
     tool_input = event.get("tool_input")
-    if not isinstance(session_id, str) or not session_id:
-        return _deny("JDIPT registry runtime binding failed; session_id is unavailable.")
-    if not isinstance(turn_id, str) or not turn_id:
-        return _deny("JDIPT registry runtime binding failed; turn_id is unavailable.")
     if not isinstance(tool_input, Mapping):
         return _deny("JDIPT registry runtime binding failed; tool_input is invalid.")
 
@@ -55,17 +49,14 @@ def handle_pre_tool_use(
         return _deny("JDIPT registry runtime binding failed; PLUGIN_DATA is unavailable.")
     if not is_valid_plugin_data_path(root):
         return _deny("JDIPT registry runtime binding failed; PLUGIN_DATA is invalid.")
-    root_text = os.fspath(root)
-
-    updated = dict(tool_input)
-    updated["session_id"] = session_id
-    updated["turn_id"] = turn_id
-    updated[RUNTIME_PLUGIN_DATA_FIELD] = root_text
+    # The capability-only MCP schema deliberately accepts no hook-added
+    # session, turn, or filesystem arguments.  The MCP process resolves the
+    # same host-provided root directly from its environment and authenticates
+    # the turn with the server-issued capability.
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
             "permissionDecision": "allow",
-            "updatedInput": updated,
         }
     }
 
