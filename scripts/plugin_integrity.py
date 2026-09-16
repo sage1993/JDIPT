@@ -1,4 +1,4 @@
-"""SHA-256 integrity checks for the installed JDIPT runtime Skill."""
+"""SHA-256 integrity checks for the installed JDIPT runtime bundle."""
 
 from __future__ import annotations
 
@@ -8,7 +8,18 @@ import json
 import os
 from pathlib import Path
 
-RUNTIME_FILES = ("SKILL.md", "agents/openai.yaml")
+SKILL_RUNTIME_FILES = ("SKILL.md", "agents/openai.yaml")
+PLUGIN_RUNTIME_FILES = (
+    ".codex-plugin/plugin.json",
+    ".mcp.json",
+    "hooks/hooks.json",
+    "scripts/inject_registry_runtime.py",
+    "scripts/jdipt_runtime_mcp.py",
+    "scripts/runtime_registry_state.py",
+    "scripts/stop_synthesis_gate.py",
+    "scripts/synthesis_runtime_state.py",
+    "scripts/synthesis_integrity.py",
+)
 
 
 def _skill_root(root: Path) -> Path:
@@ -21,28 +32,45 @@ def _skill_root(root: Path) -> Path:
     return root
 
 
-def _runtime_paths(skill_root: Path) -> list[Path]:
-    root = _skill_root(skill_root)
-    paths = [root / relative for relative in RUNTIME_FILES]
-    paths.extend(sorted((root / "references").glob("*.md")))
-    return paths
+def _plugin_root(root: Path) -> Path:
+    root = root.expanduser().resolve()
+    if (root / ".codex-plugin" / "plugin.json").is_file():
+        return root
+    skill = _skill_root(root)
+    if skill.name == "law-interpretation-request" and skill.parent.name == "skills":
+        return skill.parent.parent
+    return root
 
 
-def build_runtime_manifest(skill_root: Path) -> dict[str, str]:
-    """Return a relative POSIX path → SHA-256 raw-byte digest manifest."""
+def _runtime_entries(root: Path) -> list[tuple[str, Path]]:
+    skill_root = _skill_root(root)
+    plugin_root = _plugin_root(root)
+    entries = [
+        (relative, skill_root / relative)
+        for relative in SKILL_RUNTIME_FILES
+    ]
+    entries.extend(
+        (path.relative_to(skill_root).as_posix(), path)
+        for path in sorted((skill_root / "references").glob("*.md"))
+    )
+    entries.extend(
+        (f"plugin/{relative}", plugin_root / relative)
+        for relative in PLUGIN_RUNTIME_FILES
+    )
+    return entries
 
-    root = _skill_root(skill_root)
+
+def build_runtime_manifest(root: Path) -> dict[str, str]:
+    """Return logical runtime path -> SHA-256 raw-byte digest manifest."""
     manifest: dict[str, str] = {}
-    for path in _runtime_paths(root):
+    for logical_path, path in _runtime_entries(root):
         if path.is_file():
-            relative = path.relative_to(root).as_posix()
-            manifest[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+            manifest[logical_path] = hashlib.sha256(path.read_bytes()).hexdigest()
     return dict(sorted(manifest.items()))
 
 
 def compare_runtime_manifests(repo_root: Path, installed_root: Path) -> list[str]:
     """Return deterministic mismatch descriptions; an empty list means exact."""
-
     repo = build_runtime_manifest(repo_root)
     installed_path = _skill_root(installed_root)
     if not installed_path.exists():
@@ -61,7 +89,6 @@ def compare_runtime_manifests(repo_root: Path, installed_root: Path) -> list[str
 
 def _cache_skill_candidates(plugin_cache_root: Path) -> list[Path]:
     """Return usable Skill roots from a marketplace/plugin cache, newest first."""
-
     if not plugin_cache_root.is_dir():
         return []
 
@@ -96,8 +123,18 @@ def resolve_installed_skill_root(explicit: Path | None = None) -> Path | None:
     candidates.extend(
         [
             home / ".codex" / "plugins" / "jdipt" / "skills" / "law-interpretation-request",
-            home / ".codex" / "plugins" / "jdipt@sage1993" / "skills" / "law-interpretation-request",
-            home / ".codex" / "plugins" / "jdipt@jdipt-local" / "skills" / "law-interpretation-request",
+            home
+            / ".codex"
+            / "plugins"
+            / "jdipt@sage1993"
+            / "skills"
+            / "law-interpretation-request",
+            home
+            / ".codex"
+            / "plugins"
+            / "jdipt@jdipt-local"
+            / "skills"
+            / "law-interpretation-request",
         ]
     )
     for candidate in candidates:
@@ -108,7 +145,9 @@ def resolve_installed_skill_root(explicit: Path | None = None) -> Path | None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Compare repo and installed JDIPT runtime SHA-256 manifests.")
+    parser = argparse.ArgumentParser(
+        description="Compare repository and installed JDIPT runtime SHA-256 manifests."
+    )
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--installed-root", type=Path, default=None)
     args = parser.parse_args()
@@ -118,7 +157,17 @@ def main() -> int:
         print("installed runtime root could not be resolved")
         return 1
     mismatches = compare_runtime_manifests(args.repo_root, installed)
-    print(json.dumps({"repo": build_runtime_manifest(args.repo_root), "installed": build_runtime_manifest(installed), "mismatches": mismatches}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {
+                "repo": build_runtime_manifest(args.repo_root),
+                "installed": build_runtime_manifest(installed),
+                "mismatches": mismatches,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
     print("INSTALLATION_INTEGRITY:", "PASS" if not mismatches else "FAIL")
     return 0 if not mismatches else 1
 

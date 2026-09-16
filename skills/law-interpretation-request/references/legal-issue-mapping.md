@@ -94,6 +94,67 @@
 
 신·구법이 함께 언급되는 사건에서는 규정 간 관계뿐 아니라 **각 규정이 어느 기간의 법률관계를 규율하는지**를 분리한다. 개정 전 규정과 개정 후 규정이 문언상 충돌한다는 이유만으로 일반/특별 관계로 처리하지 않는다.
 
+## Direct Defining Authority Gate
+
+질문의 결론이 **법정 범주**·정의된 자격·지역·지위·시설 유형 또는 법정 예외의 성립 여부에 의존하고, 행정기관의 **운영기준**·안내·해설자료가 그 범주를 재서술하는 경우에는 최종 합성 전에 그 범주를 **직접 정의**하거나 예외와 효과를 직접 규정한 법률·시행령·조례·규칙의 원문을 합리적으로 가능한 범위에서 확인한다.
+
+- 운영기준은 세부 집행요건과 절차를 확인하는 직접 자료가 될 수 있지만, 상위 규범이 부여한 **법적 효과**를 임의로 다른 효과로 바꾸는 근거가 되지 않는다.
+- 직접 정의규정이 `지정`, `인정`, `승인`, `허가`, `적용 제외`처럼 특정 효과를 정하면 그 효과를 원문 동사 수준에서 매핑한다.
+- 검색도구 오류나 원문 접근 실패는 `규정 없음`으로 취급하지 않는다. 직접 정의규정의 **원문 확인 실패**가 결론을 바꿀 수 있으면 운영기준의 요약만으로 특정 법적 효과를 재구성하지 않고, 해당 부분을 `확인 필요`로 보존하거나 다른 공식 원문 경로를 제한적으로 재확인한다.
+- 이 Gate는 모든 상위규범을 전수조사하라는 의미가 아니다. 현재 issue의 정의·예외·법적 효과를 직접 정하는 규범까지만 추적한다.
+
+## Material Source Dependency Closure Ledger
+
+결론에 영향을 주는 각 issue는 조사 시작부터 최종 합성 직전까지 내부적으로 **material source dependency** 상태를 유지한다. 단순히 관련 조문 하나를 찾았다는 이유만으로 issue를 완료하지 않는다.
+
+각 issue의 ledger에는 필요한 범위에서 다음 필드를 연결한다.
+
+- `issue`
+- `direct definition`: 결론에 쓰인 법정 범주·자격·지역·지위·시설 유형을 직접 정의하는 규정
+- `main rule`: 해당 issue의 본칙
+- `material boundary`: 수치·범위·대상·포함·제외 등 적용경계를 바꾸는 요소
+- `exception`: 예외·특례 또는 별도 인정 경로
+- `specific legal effect`: 지정·인정·승인·허가·적용제외 등 원문이 부여한 구체적 효과
+- `direct source`: 위 명제를 직접 지지하는 공식 원문
+- `status`: `OPEN` 또는 `CLOSED`
+
+운영기준·안내·해설자료 또는 일반 적용조문에서 정의된 법적 범주를 발견했는데 그 범주가 다른 조문에서 정의되거나 예외·효과가 별도로 규정될 가능성이 현재 자료에서 합리적으로 드러나면, 그 **dependency를 직접 정의규정까지 추적**한다. 본칙을 확인했더라도 그 본칙이 사용하는 material category의 정의·경계·예외·법적 효과가 미해결이면 해당 issue는 `OPEN`이다.
+
+`CLOSED`는 결론에 필요한 모든 material 필드가 현재 실행에서 직접 근거에 연결되었거나, 확인한 직접 원문상 해당 필드가 문제되지 않음이 확인된 경우에만 부여한다. 적용시점이 결론을 바꿀 수 있는 자료라면 현행성 또는 해당 기준시점도 함께 확인되어야 한다.
+
+`OPEN`인 material 필드가 있으면 최종 합성 전에 누락 필드를 대상으로 **targeted retrieval retry**를 수행한다. 재검색은 누락된 정의·본칙·material boundary·exception·specific legal effect를 직접 규정한 원문까지의 **bounded** 추적으로 제한하며, 관련 없는 상위·하위 규범을 전수조사하지 않는다.
+
+bounded 재확인 후에도 직접 원문을 확보하지 못하면 해당 field와 그 field에 의존하는 결론을 `확인 필요`로 낮춘다. 운영기준의 요약이나 모델의 일반지식·기억으로 `OPEN` 필드를 메워 `CLOSED`로 바꾸지 않는다.
+
+확인된 `specific legal effect`는 최종 합성에서도 원문 동사 수준을 보존한다. 원문이 `지정`, `인정`, `승인`, `허가`, `적용제외`를 규정하면 이를 `완화`, `가능`, `검토 가능` 같은 포괄적 표현만으로 대체하지 않는다.
+
+## Mutable Standard Temporal Status Gate
+
+운영기준·고시·지침·행정규칙처럼 개정 가능한 기준이 면적·거리·도로·인접조건·비율 등 결론을 좌우하는 material proposition을 직접 지지하면, 조사 단계에서 그 기준의 **개정일**, **시행일** 또는 질의 기준일의 **현행성**을 확인 가능한 범위에서 함께 매핑한다.
+
+- 공식 게시이력·첨부문서·개정표시 등에서 현재 적용되는 버전임이 확인되면 최종 합성에서도 `현행`, `질의일 현재`, 검증된 개정일·시행일 등으로 그 current/effective status를 보존한다.
+- 문서명이나 URL **링크만으로** 현행성이 자동 증명되었다고 보지 않는다.
+- 개정본이라는 사실만 확인되고 시행일 또는 질의일 현재 적용 여부가 확인되지 않으면 `현행성 확인 필요`로 남기고, 그 버전의 수치를 무조건적인 현행 기준으로 승격하지 않는다.
+- 반대로 질의 기준일 현재 적용되는 버전이 직접 확인되었다면 불필요하게 `확인 필요`로 낮추지 말고 확인된 버전과 기준을 명시한다.
+
+## Compound-Issue Coverage Gate
+
+사용자 질문에 서로 독립적으로 결론을 바꿀 수 있는 **독립 판단요소**가 둘 이상 있으면 조사 전에 내부 issue 목록으로 분리하고, 최종 합성 직전까지 그 목록을 유지한다.
+
+각 독립 판단요소에 대해 결론을 바꿀 수 있는 다음 항목을 연결한다.
+
+- **본칙**
+- **예외·특례**
+- **적용시점** 또는 현행·과거 기준의 구분
+- 사실관계의 충족·불충족·`확인 필요`
+- 직접 근거가 된 규정 또는 자료
+
+한 issue가 법령상 정의된 자격·지역·지위·시설 유형 같은 **defined eligibility category**에 의존하면 그 명칭만 남기지 않는다. 해당 category의 적용 여부를 바꿀 수 있는 **material boundary**와 **exception**을 그 issue의 일부로 매핑하고, 최종 합성에서도 필요한 범위에서 보존한다.
+
+확인된 규정이 `지정·인정·승인`·허가·적용제외처럼 특정한 **specific legal effect**를 부여하면 그 법적 효과를 동사 수준에서 보존한다. 원문이 `지정할 수 있다`고 규정하는 것을 단순한 `완화 가능`과 같은 **generic relaxation**으로 치환하거나, `인정`·`승인`을 막연한 `가능`으로 축약하여 법적 효과를 바꾸지 않는다.
+
+한 issue에서 확인한 본칙·예외·특례·적용시점이 다른 issue의 설명으로 대체되었다고 보지 않는다. 최종 합성 전에 각 독립 판단요소의 material proposition과 specific legal effect, 그리고 결론에 사용한 개정 가능한 기준의 현행성 상태가 결론 또는 검토이유에 반영되었는지 확인한다. 하나라도 누락되면 해당 초안을 완성본으로 취급하지 않고 누락된 issue를 복원한 뒤 다시 합성한다.
+
 ## 6. 사실관계와 요건 연결
 
 각 핵심 법적 요건에 사용자 사실을 연결하고 다음 상태로 관리한다.
@@ -128,3 +189,56 @@
 ## 8. 사용자 출력 비노출
 
 이 Gate의 내부 mapping 라벨, 요건별 상태표, 규정관계 분류표, 적용 기준시점 후보표는 사용자가 논리감사나 분석표 공개를 명시적으로 요청하지 않는 한 사용자에게 그대로 노출하지 않는다. 최종 답변에서는 필요한 정의, 규정, 적용시점, 사실대입과 문제 발생 지점을 하나의 자연스러운 법률논증으로 통합한다.
+## Material Source Dependency Closure Ledger
+
+For each independent issue, maintain a ledger for the material evidence required before synthesis.
+
+| Evidence slot | Required state |
+|---|---|
+| direct definition | verified from the authority that directly defines the legal category or effect |
+| main rule | verified from the governing rule |
+| material boundary | verified where the category scope or eligibility can change the result |
+| exception | verified together with its exception conditions |
+| condition | verified facts or legal conditions required for the proposition |
+| procedure | required review, approval, designation, or other legal procedure |
+| specific legal effect | preserved at the source verb level, such as designation, recognition, approval, permission, or exclusion |
+| direct source | official original source identified and checked |
+| temporal status | `CURRENT_CONFIRMED`, `HISTORICAL_CONFIRMED`, or `CURRENT_UNRESOLVED` |
+| closure status | `CLOSED` only when all material fields are verified; otherwise `OPEN` |
+
+Each issue has a `closure status`: `OPEN` while any material evidence slot is missing, ambiguous, or unverified; `CLOSED` only after every required slot is verified. The condition, procedure, and source-specific legal effect are synthesis inputs, not optional review notes. A material proposition with `OPEN` status cannot be treated as source-complete or used for unconditional synthesis.
+
+Temporal status must be carried independently of the source's publication or amendment date. Use `CURRENT_CONFIRMED` only when the question-date applicable version and effective status are verified; use `HISTORICAL_CONFIRMED` for a verified prior version; use `CURRENT_UNRESOLVED` when current applicability, 시행일, repeal, supersession, or transitional treatment remains unresolved. Do not render `현재 적용` or `질의일 현재` from a recent document title alone.
+
+When a slot is `OPEN`, record the missing evidence and perform a bounded targeted retrieval retry for that slot. Limit the retry to the directly defining authority, the relevant exception conditions, or the specific legal effect; do not turn it into unbounded hierarchy exploration. If the retry does not resolve the slot, preserve the proposition as `확인 필요` and lower dependent conclusions conditionally rather than inferring the missing rule. Do not replace a preserved specific effect with a generic relaxation, benefit, or vague possibility during final synthesis.
+
+### Base / Exception Independence
+
+Represent a main rule and its exception as separate propositions even when they concern the same subject:
+
+```text
+P1 = base rule
+P2 = exception
+P3 = P2 is exception-to P1
+```
+
+When P1 and P2 are material and `CLOSED`, both propositions and P3's relation are independently preserved in synthesis. Do not merge a base threshold and an exception threshold into one general relaxation, and do not treat coverage of P2 as coverage of P1. If P2's condition, procedure, or specific legal effect is `OPEN`, retain that unresolved state rather than borrowing it from P1.
+
+## Mandatory Proposition Sentence Construction
+
+After the ledger is closed, do not give a material CLOSED proposition to free-form summary first. Construct one mandatory proposition sentence for each material proposition and place those sentences in the draft before optional explanation.
+
+The runtime ledger is activated only by the bundled `register_material_proposition` registry for the exact `session_id` and `turn_id`. Its structured fields are authoritative for the Stop reconciliation path; `mandatory_render_clause` is generated by the runtime and is not a model-supplied input. A turn without an authoritative registry record is unrelated and remains a no-op.
+
+The sentence preserves the relation:
+
+```text
+[condition] + [procedure]
+→ [legal actor] + [modality]
+→ [legal action] + [legal object]
+→ [resulting legal status/effect] + [polarity]
+```
+
+Use `operative_verb_lexeme` and `mandatory_render_clause` as surface anchors when they are available. Before drafting any number, range, or practical consequence, perform source-clause extraction and copy the verified operative clause into the proposition record. If an equivalent paraphrase is uncertain, use the operative clause from `source_proposition` or `evidence_span` as a dedicated, attributed sentence. Legal effect comes before any number, range, or practical consequence.
+
+The mandatory sentence is not satisfied by a threshold-only or generic-relaxation sentence. In particular, an exception sentence must retain its condition, required procedure, source-specific action, legal object, resulting status/effect, and relation to the base proposition. Explanatory text may add a range or practical meaning only after those slots exist.

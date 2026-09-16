@@ -39,7 +39,7 @@ def detect_ansim_markers(answer: str) -> set[str]:
     normalized = re.sub(r"\s+", " ", answer).strip()
     propositions = [
         re.sub(r"\s+", " ", proposition).strip()
-        for proposition in re.split(r"(?<=[.!?。！？])\s+|\n+", answer)
+        for proposition in re.split(r"(?<=[.!?。！？])\s+", normalized)
         if proposition.strip()
     ]
     markers: set[str] = set()
@@ -223,7 +223,27 @@ def detect_ansim_markers(answer: str) -> set[str]:
         markers.add("REPEALED_AS_CURRENT")
     if has("안심주택", "임대형기숙사") and re.search(r"국가(?:기준)?.{0,20}300\s*㎡.{0,20}(?:만|최종)", normalized):
         markers.add("GENERAL_RULE_OVERRIDES_SPECIAL")
-    if "400%" in normalized and any_of("적용됩니다", "자동 적용", "당연히 적용") and not any_of("완화 가능", "완화할 수"):
+    def proposition_has_automatic_far(proposition: str) -> bool:
+        if "400%" not in proposition:
+            return False
+        automatic_terms = ("자동", "별도 판단 없이", "즉시")
+        effect_terms = ("적용", "상향", "완화")
+        if any(term in proposition for term in automatic_terms) and any(
+            term in proposition for term in ("아니", "아닙", "않", "없습니다", "없다", "없음")
+        ):
+            return False
+        has_effect = any(term in proposition for term in effect_terms)
+        explicit_automatic = any(term in proposition for term in automatic_terms) and has_effect
+        conditional_automatic = any(
+            term in proposition for term in ("이면", "인 경우", "충족하면", "해당하면")
+        ) and has_effect
+        exact_applied_rate = re.search(
+            r"(?:용적률\s*)400%(?:가|으로|로).{0,12}(?:적용|상향|완화)",
+            proposition,
+        )
+        return bool(explicit_automatic or conditional_automatic or exact_applied_rate)
+
+    if any(proposition_has_automatic_far(proposition) for proposition in propositions):
         markers.add("AUTO_FAR_400")
     if has("주차", "자동 완화") or (has("주차", "완화됩니다") and any_of("교통", "보행")):
         markers.add("AUTO_PARKING_RELAX")

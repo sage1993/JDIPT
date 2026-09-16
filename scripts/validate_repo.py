@@ -29,6 +29,34 @@ PLUGIN_INTEGRITY = ROOT / "scripts" / "plugin_integrity.py"
 RELEASE_GATE = ROOT / "scripts" / "run_release_gate.py"
 MACHINE_ORACLES = SKILL.parent / "evals" / "machine-oracles.json"
 AGENT_SKILL_DUPLICATE = ROOT / ".agents" / "skills" / "law-interpretation-request"
+SYNTHESIS_BEHAVIOR_TEST = ROOT / "tests" / "test_synthesis_integrity_behavior.py"
+RUNTIME_STATE = ROOT / "scripts" / "synthesis_runtime_state.py"
+STOP_GATE = ROOT / "scripts" / "stop_synthesis_gate.py"
+RUNTIME_MCP = ROOT / "scripts" / "jdipt_runtime_mcp.py"
+ACTIVATION = ROOT / "scripts" / "jdipt_activation.py"
+ACTIVATION_ENTRY = ROOT / "scripts" / "jdipt_activation_forensic_entry.py"
+RUNTIME_ROOT = ROOT / "scripts" / "runtime_root.py"
+RUNTIME_HOST_PREFLIGHT = ROOT / "scripts" / "runtime_host_preflight.py"
+TURN_ANCHOR = ROOT / "scripts" / "turn_anchor.py"
+TURN_CAPABILITY = ROOT / "scripts" / "turn_capability.py"
+RUNTIME_TRANSACTION = ROOT / "scripts" / "runtime_transaction.py"
+LEGAL_PROPOSITION = ROOT / "scripts" / "legal_proposition.py"
+MATERIAL_OBLIGATION_INGRESS = ROOT / "scripts" / "material_obligation_ingress.py"
+MATERIAL_OBLIGATION_LEDGER = ROOT / "scripts" / "material_obligation_ledger.py"
+PROPOSITION_REGISTRY = ROOT / "scripts" / "proposition_registry.py"
+PROPOSITION_SOURCE_CLOSURE = ROOT / "scripts" / "proposition_source_closure.py"
+PROPOSITION_RENDERING = ROOT / "scripts" / "proposition_rendering.py"
+PROPOSITION_RECONCILIATION = ROOT / "scripts" / "proposition_reconciliation.py"
+PROPOSITION_SOUNDNESS = ROOT / "scripts" / "proposition_soundness.py"
+PROPOSITION_OBLIGATION_CLOSURE = ROOT / "scripts" / "proposition_obligation_closure.py"
+PROPOSITION_RENDER_COVERAGE = ROOT / "scripts" / "proposition_render_coverage.py"
+PROPOSITION_RELATIONS = ROOT / "scripts" / "proposition_relations.py"
+RUNTIME_STATE_TEST = ROOT / "tests" / "test_synthesis_runtime_state.py"
+STOP_GATE_TEST = ROOT / "tests" / "test_stop_synthesis_gate.py"
+RUNTIME_MCP_TEST = ROOT / "tests" / "test_jdipt_runtime_mcp.py"
+ASH06_SOURCE_CLOSURE_TEST = ROOT / "tests" / "test_ash06_source_closure_regression.py"
+HOOKS_MANIFEST = ROOT / "hooks" / "hooks.json"
+MCP_MANIFEST = ROOT / ".mcp.json"
 
 REQUIRED_REFERENCES = {
     "baseline-document-policy.md",
@@ -94,6 +122,226 @@ REQUIRED_V022_SKILL_MARKERS = {
     "기존 일반 건축물의 최초 전환",
     "건축물 신축",
 }
+# structural_synthesis_contract checks marker presence only; it is not behavioral semantic proof.
+REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS = {
+    "Synthesis Integrity Gate",
+    "Material Proposition Schema",
+    "proposition_id",
+    "status",
+    "materiality",
+    "subject",
+    "condition",
+    "procedure",
+    "modality",
+    "legal_action",
+    "operative_verb_lexeme",
+    "legal_object",
+    "legal_effect",
+    "polarity",
+    "relation_type",
+    "base_proposition_id",
+    "exception_proposition_id",
+    "base_rule",
+    "exception_rule",
+    "required_authority",
+    "required_temporal_status",
+    "required_source_type",
+    "source_id",
+    "authority_kind",
+    "source_title",
+    "source_locator",
+    "evidence_span",
+    "temporal_status",
+    "temporal_render_text",
+    "mandatory_render_clause",
+    "Canonical proposition contract (MUST)",
+    "closure_status",
+    "direct_source",
+    "relation_to_base_or_exception",
+    "resulting_status_or_effect",
+    "draft synthesis",
+    "proposition-to-draft reconciliation",
+    "material mismatch",
+    "one targeted repair",
+    "bounded re-check",
+    "Every `CLOSED` material proposition must be represented",
+    "register_material_proposition",
+    "begin_runtime_turn",
+    "submit_material_obligation_ledger",
+    "finalize_runtime_turn",
+    "turn_capability",
+    "current-turn-anchor.json",
+    "canonical transaction registry",
+    "unrelated turn",
+    "Stop-hook bound",
+    "fail-closed stop response",
+    "Immutable source-ledger order (MUST)",
+    "finish the bounded official-source retrieval",
+    "Use `SOURCE_UNRESOLVED` only after the targeted retrieval is complete",
+}
+REQUIRED_RUNTIME_FILES = (
+    RUNTIME_STATE,
+    STOP_GATE,
+    RUNTIME_MCP,
+    ACTIVATION,
+    ACTIVATION_ENTRY,
+    RUNTIME_STATE_TEST,
+    STOP_GATE_TEST,
+    RUNTIME_MCP_TEST,
+    ASH06_SOURCE_CLOSURE_TEST,
+    RUNTIME_ROOT,
+    RUNTIME_HOST_PREFLIGHT,
+    TURN_ANCHOR,
+    TURN_CAPABILITY,
+    RUNTIME_TRANSACTION,
+    LEGAL_PROPOSITION,
+    MATERIAL_OBLIGATION_INGRESS,
+    MATERIAL_OBLIGATION_LEDGER,
+    PROPOSITION_REGISTRY,
+    PROPOSITION_SOURCE_CLOSURE,
+    PROPOSITION_RENDERING,
+    PROPOSITION_RECONCILIATION,
+    PROPOSITION_SOUNDNESS,
+    PROPOSITION_OBLIGATION_CLOSURE,
+    PROPOSITION_RENDER_COVERAGE,
+    PROPOSITION_RELATIONS,
+    HOOKS_MANIFEST,
+    MCP_MANIFEST,
+)
+RUNTIME_PRODUCTION_MARKERS = {
+    "scripts/synthesis_runtime_state.py": (
+        "PLUGIN_DATA",
+        "synthesis-runtime",
+        "session_id",
+        "turn_id",
+        "os.replace",
+        "mandatory_render_clause",
+        "registry_required",
+        "registry_completed",
+        "registry_enforcement_count",
+        "update_registry_enforcement_count",
+    ),
+    "scripts/stop_synthesis_gate.py": (
+        "last_assistant_message",
+        "stop_hook_active",
+        "decision",
+        "continue",
+        "reconcile_draft",
+        "update_repair_count",
+        "REGISTRY_ENFORCEMENT",
+        "registry_required",
+        "registry_completed",
+    ),
+    "scripts/jdipt_runtime_mcp.py": (
+        "begin_runtime_turn",
+        "submit_material_obligation_ledger",
+        "register_material_proposition",
+        "finalize_runtime_turn",
+        "turn_capability",
+        "tools/list",
+        "tools/call",
+        "mandatory_render_clause",
+    ),
+    "scripts/jdipt_activation.py": (
+        "UserPromptSubmit",
+        "$law-interpretation-request",
+        "current-turn-anchor.json",
+        "create_turn_anchor",
+        "abort_previous_transaction",
+    ),
+    "scripts/jdipt_activation_forensic_entry.py": (
+        "handle_user_prompt_submit",
+        "JDIPT_MATCH_RESULT",
+        "TURN_ANCHOR_WRITE_STARTED",
+        "TURN_ANCHOR_WRITE_RESULT",
+    ),
+    "scripts/runtime_root.py": (
+        "CODEX_HOME",
+        "runtime-root.json",
+        "runtime_root_id",
+        "os.replace",
+    ),
+    "scripts/runtime_host_preflight.py": (
+        "APP_SERVER_DB_WRITABLE",
+        "SANDBOX_INIT",
+        "TEMP_PATH_USABLE",
+        "PLUGIN_RUNTIME_ROOT_WRITABLE",
+        "CODEX_NATIVE_EXEC_SMOKE",
+        "CAMPAIGN_NOT_STARTED",
+    ),
+    "scripts/turn_anchor.py": (
+        "current-turn-anchor.json",
+        "epoch",
+        "AVAILABLE",
+        "CLAIMED",
+        "ANCHOR_ALREADY_CLAIMED",
+    ),
+    "scripts/turn_capability.py": (
+        "secrets",
+        "sha256",
+        "compare_digest",
+        "jtc_",
+    ),
+    "scripts/runtime_transaction.py": (
+        "transaction_id",
+        "capability_digest",
+        "runtime_root_id",
+        "STALE_TURN_CAPABILITY",
+        "LEDGER_MUTATION",
+        "ABORTED_BY_NEW_EPOCH",
+        "CLOSED",
+    ),
+    "scripts/legal_proposition.py": (
+        "class LegalProposition",
+        "class EvidenceRef",
+        "PropositionStatus",
+    ),
+    "scripts/material_obligation_ledger.py": (
+        "class MaterialObligationLedger",
+        "from_mapping",
+        "canonical_material_obligation_ledger_digest",
+        "validate_registry_closure",
+    ),
+    "scripts/material_obligation_ingress.py": (
+        "MaterialObligationLedger.from_mapping",
+        "RegistryService",
+        "record_material_obligation_ledger",
+    ),
+    "scripts/proposition_registry.py": (
+        "class RegistryService",
+        "canonical-registry.json",
+        "record_material_obligation_ledger",
+        "def reconcile",
+    ),
+    "scripts/proposition_source_closure.py": (
+        "evaluate_source_closure",
+        "SourceClosureResult",
+    ),
+    "scripts/proposition_rendering.py": (
+        "build_render_contract",
+        "PropositionRenderContract",
+    ),
+    "scripts/proposition_reconciliation.py": (
+        "reconcile_render_contracts",
+        "DraftReconciliationResult",
+    ),
+    "scripts/proposition_soundness.py": (
+        "evaluate_soundness",
+        "SoundnessResult",
+    ),
+    "scripts/proposition_obligation_closure.py": (
+        "evaluate_obligation_closure",
+        "ObligationClosureResult",
+    ),
+    "scripts/proposition_render_coverage.py": (
+        "evaluate_render_coverage",
+        "RenderCoverageResult",
+    ),
+    "scripts/proposition_relations.py": (
+        "build_range_exception_relation",
+        "reconcile_range_exception_relation",
+    ),
+}
 REQUIRED_OUTPUT_SKILL_MARKERS = {
     "MOLEG suitability correction applies only in explicit MOLEG request mode",
     "Every percent sign in a final URL must begin a valid percent escape",
@@ -103,6 +351,15 @@ REQUIRED_OUTPUT_SKILL_MARKERS = {
     "Same-term conflict hard stop",
     "ASCII execution contract",
     "모든 사용자용 최종 출력은 Markdown",
+    "current-turn-anchor.json",
+    "canonical transaction registry",
+    "turn_capability",
+    "begin_runtime_turn",
+    "submit_material_obligation_ledger",
+    "finalize_runtime_turn",
+    "current epoch transaction",
+    "one globally active JDIPT transaction",
+    "Linked base/exception relation (MUST)",
     "정식 요청서라는 표현이 없어도 일반적인 대한민국 법령 해석·적용 질문이면 사용한다",
     "기본 출력 모드 — 별도 형식 지시가 없을 때",
     "추상적인 A/B/P/Q 법적 논리 시나리오",
@@ -225,6 +482,22 @@ REQUIRED_COUNTEREVIDENCE_SOURCE_POLICY_MARKERS = {
     "잠정 결론을 실제로 제한하는지",
     "존재하지 않는 반대근거",
 }
+REQUIRED_STRUCTURAL_SYNTHESIS_SOURCE_POLICY_MARKERS = {
+    "Material Coverage Invariant",
+    "Relation Preservation Invariant",
+    "Every CLOSED material proposition must be represented",
+    "equivalent legal relation",
+    "numeric value alone",
+    "generic relaxation",
+    "legal actor",
+    "legal action",
+    "legal object",
+    "resulting legal status/effect",
+    "bounded repair",
+    "unresolved material mismatch",
+    "OPEN proposition",
+    "must not be converted into a confirmed legal effect",
+}
 REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS = {
     "Referenced Source Resolution Hard Gate",
     "필수 확인자료로 승격",
@@ -299,6 +572,17 @@ REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS = {
     "기존 일반 건축물의 최초 전환",
     "건축물 신축",
     "참조자료의 미확인 상태",
+}
+REQUIRED_STRUCTURAL_SYNTHESIS_LOGIC_MARKERS = {
+    "Synthesis Integrity Gate",
+    "proposition-to-draft reconciliation",
+    "evidence_span / source_proposition",
+    "Every CLOSED material proposition must be represented",
+    "one targeted repair",
+    "one bounded re-check",
+    "submit the complete typed ledger exactly once",
+    "unresolved application facts remain separate `OPEN` propositions",
+    "`접하거나` / `접할 것`",
 }
 REQUIRED_ABSTRACT_FIXTURE_LOGIC_MARKERS = {
     "추상 fixture 전제 보존 Hard Gate",
@@ -538,7 +822,95 @@ def main() -> int:
     require_markers(skill_text, REQUIRED_ISSUE_MAPPING_SKILL_MARKERS, "skill issue mapping")
     require_markers(skill_text, REQUIRED_COUNTEREVIDENCE_SKILL_MARKERS, "skill counterevidence")
     require_markers(skill_text, REQUIRED_V022_SKILL_MARKERS, "skill v0.2.2 hard gates")
+    require_markers(skill_text, REQUIRED_STRUCTURAL_SYNTHESIS_SKILL_MARKERS, "structural_synthesis_contract")
+    if not SYNTHESIS_BEHAVIOR_TEST.is_file():
+        fail("behavioral semantic regression missing: test_synthesis_integrity_behavior.py")
     require_markers(skill_text, REQUIRED_OUTPUT_SKILL_MARKERS, "skill output")
+
+    missing_runtime_files = [str(path.relative_to(ROOT)) for path in REQUIRED_RUNTIME_FILES if not path.is_file()]
+    if missing_runtime_files:
+        fail(f"runtime enforcement files missing: {missing_runtime_files}")
+    runtime_texts = {
+        relative: (ROOT / relative).read_text(encoding="utf-8")
+        for relative in RUNTIME_PRODUCTION_MARKERS
+    }
+    for relative, markers in RUNTIME_PRODUCTION_MARKERS.items():
+        require_markers(runtime_texts[relative], markers, f"runtime enforcement {relative}")
+    for relative, text in runtime_texts.items():
+        if any(token in text for token in ("ASH-06", "안심주택", "250m", "350m", "400%", "사업대상지")):
+            fail(f"runtime enforcement must remain generic: {relative}")
+    mcp_text = runtime_texts["scripts/jdipt_runtime_mcp.py"]
+    if any(
+        field in mcp_text
+        for field in (
+            "session_id",
+            "turn_id",
+            "_runtime_plugin_data",
+            "_runtime_session_id",
+            "_runtime_turn_id",
+        )
+    ):
+        fail("capability-only MCP must not expose model identity fields")
+
+    try:
+        hooks = json.loads(HOOKS_MANIFEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"hooks/hooks.json invalid: {exc}")
+    prompt_entries = ((hooks.get("hooks") or {}).get("UserPromptSubmit") or []) if isinstance(hooks, dict) else []
+    prompt_commands = [
+        hook.get("command", "")
+        for entry in prompt_entries
+        if isinstance(entry, dict)
+        for hook in (entry.get("hooks") or [])
+        if isinstance(hook, dict)
+    ]
+    if not prompt_commands or not any("jdipt_activation.py" in command or "jdipt_activation_forensic_entry.py" in command for command in prompt_commands):
+        fail("UserPromptSubmit hook must invoke the JDIPT activation entry")
+    prompt_windows_commands = [
+        hook.get("commandWindows", "")
+        for entry in prompt_entries
+        if isinstance(entry, dict)
+        for hook in (entry.get("hooks") or [])
+        if isinstance(hook, dict)
+    ]
+    if not prompt_windows_commands or not any("jdipt_activation.py" in command or "jdipt_activation_forensic_entry.py" in command for command in prompt_windows_commands):
+        fail("UserPromptSubmit hook must define a Windows command for the JDIPT activation entry")
+    stop_entries = ((hooks.get("hooks") or {}).get("Stop") or []) if isinstance(hooks, dict) else []
+    hook_commands = [
+        hook.get("command", "")
+        for entry in stop_entries
+        if isinstance(entry, dict)
+        for hook in (entry.get("hooks") or [])
+        if isinstance(hook, dict)
+    ]
+    if not hook_commands or not any("stop_synthesis_gate.py" in command for command in hook_commands):
+        fail("Stop hook must invoke stop_synthesis_gate.py")
+    if not any("PLUGIN_ROOT" in command for command in hook_commands):
+        fail("Stop hook must resolve the script through PLUGIN_ROOT")
+    windows_commands = [
+        hook.get("commandWindows", "")
+        for entry in stop_entries
+        if isinstance(entry, dict)
+        for hook in (entry.get("hooks") or [])
+        if isinstance(hook, dict)
+    ]
+    if not windows_commands or not any("stop_synthesis_gate.py" in command for command in windows_commands):
+        fail("Stop hook must define a Windows command for stop_synthesis_gate.py")
+    pretool_entries = ((hooks.get("hooks") or {}).get("PreToolUse") or []) if isinstance(hooks, dict) else []
+    pretool_text = json.dumps(pretool_entries, ensure_ascii=False)
+    if pretool_entries and "deprecated" not in pretool_text.lower():
+        fail("PreToolUse runtime hook must be explicitly marked deprecated/diagnostic")
+
+    try:
+        mcp_config = json.loads(MCP_MANIFEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f".mcp.json invalid: {exc}")
+    servers = mcp_config.get("mcpServers") if isinstance(mcp_config, dict) else None
+    registry_server = servers.get("jdipt_runtime") if isinstance(servers, dict) else None
+    if not isinstance(registry_server, dict) or "jdipt_runtime_mcp.py" not in " ".join(
+        str(value) for value in registry_server.values()
+    ):
+        fail(".mcp.json must register jdipt_runtime")
 
     if not AGENT_CONFIG.is_file():
         fail("skills/law-interpretation-request/agents/openai.yaml missing")
@@ -574,6 +946,7 @@ def main() -> int:
     require_markers(logic_text, REQUIRED_COUNTEREVIDENCE_LOGIC_MARKERS, "logic counterevidence")
     require_markers(logic_text, REQUIRED_REFERENCED_SOURCE_LOGIC_MARKERS, "logic referenced source resolution")
     require_markers(logic_text, REQUIRED_ABSTRACT_FIXTURE_LOGIC_MARKERS, "logic abstract fixture preservation")
+    require_markers(logic_text, REQUIRED_STRUCTURAL_SYNTHESIS_LOGIC_MARKERS, "structural synthesis logic")
 
     request_text = REQUEST_FORMAT.read_text(encoding="utf-8")
     source_text = SOURCE_POLICY.read_text(encoding="utf-8")
@@ -592,6 +965,11 @@ def main() -> int:
         source_text,
         REQUIRED_REFERENCED_SOURCE_POLICY_MARKERS,
         "referenced source resolution policy",
+    )
+    require_markers(
+        source_text,
+        REQUIRED_STRUCTURAL_SYNTHESIS_SOURCE_POLICY_MARKERS,
+        "structural synthesis source policy",
     )
 
     if not AGENTS.is_file():
@@ -704,6 +1082,10 @@ def main() -> int:
         fail("plugin version must match package.json")
     if plugin.get("skills") != "./skills/":
         fail("plugin skills path must be ./skills/")
+    if plugin.get("hooks") != "./hooks/hooks.json":
+        fail("plugin hooks path must be ./hooks/hooks.json")
+    if plugin.get("mcpServers") != "./.mcp.json":
+        fail("plugin mcpServers path must be ./.mcp.json")
     interface = plugin.get("interface") or {}
     if interface.get("displayName") != "JDIPT":
         fail("plugin displayName must be JDIPT")
@@ -773,6 +1155,8 @@ def main() -> int:
     print(f"output_hygiene_eval_markers={len(REQUIRED_OUTPUT_HYGIENE_EVAL_MARKERS)}")
     print(f"v022_eval_markers={len(REQUIRED_V022_EVAL_MARKERS)}")
     print(f"skill_invocation_markers={len(REQUIRED_AGENT_CONFIG_MARKERS)}")
+    print("structural_synthesis_contract=PASS")
+    print("behavioral semantic regression=separate test_synthesis_integrity_behavior.py")
     return 0
 
 

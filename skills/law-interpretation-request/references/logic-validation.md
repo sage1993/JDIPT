@@ -407,3 +407,17 @@ BLOCK 항목이 없고, 필요한 수정이 반영되었으며, 핵심 전제와
 - 새로 만든 정의·요건·법적 효과가 결론의 필수 근거가 된 경우 `전제 누락` 및 추상 입력 훼손으로 BLOCK하고 해당 전제를 제거한 뒤 재검증한다.
 
 이 Gate는 실제 법령을 조사하는 사건에서 확인된 정의규정·조문체계·판례·법령해석례를 사용하는 것을 금지하는 규칙이 아니다. 오직 사용자가 의도적으로 추상 상태로 구성한 fixture를 실제 법체계처럼 채워 넣는 것을 방지한다.
+
+## Synthesis Integrity Gate
+
+The final logical validation follows the mandatory-slot path: close the ledger, register each material proposition for the exact runtime session/turn, construct mandatory proposition sentences, insert them into the draft, add explanatory synthesis, run proposition-to-draft reconciliation, perform one targeted repair if needed, run one bounded re-check, and only then perform final rendering. The bundled `register_material_proposition` tool accepts structure, while the runtime generates `mandatory_render_clause` deterministically.
+
+- Carry each material proposition as a semantic record containing `subject / legal actor`, `condition`, `procedure`, `modality`, `legal_action`, `legal_object`, `resulting_status_or_effect`, `polarity`, `relation_to_base_or_exception`, `direct_source`, `evidence_span / source_proposition`, `temporal_status`, `closure_status`, `operative_verb_lexeme`, and `mandatory_render_clause`.
+- A material CLOSED proposition receives one independent Mandatory Proposition Sentence before any number, range, or practical explanation. The sentence must retain its complete legal relation, not merely the topic or threshold.
+- Every CLOSED material proposition must be represented in the final answer with an equivalent legal relation. Numeric values, source links, or generic relaxation language alone do not satisfy coverage.
+- Preserve base and exception propositions independently, including the relation identifying the exception.
+- Check proposition presence, condition, procedure, modality, legal action, legal object, resulting status/effect, polarity, and base/exception relation.
+- A material mismatch blocks final rendering. Perform one targeted repair in this order: `mandatory_render_clause` → `source_proposition` → `evidence_span` → source-equivalent close paraphrase. Then perform one bounded re-check; if it remains unresolved, preserve the proposition as `확인 필요` or a neutral conditional statement rather than omitting it.
+- If equivalent paraphrase remains uncertain during repair, recover the operative clause from `evidence_span / source_proposition` in a dedicated attributed sentence; do not replace it with a weaker generic verb or generic relaxation.
+- An OPEN proposition must not be converted into a confirmed legal effect merely to satisfy the coverage check.
+- The Codex `Stop` hook is authoritative only for a turn with `jdipt_active=true` in `PLUGIN_DATA`; unrelated turns are no-ops. After one blocked repair request, a still-unreconciled Stop event must fail closed instead of continuing indefinitely.

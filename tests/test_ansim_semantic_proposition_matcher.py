@@ -127,3 +127,40 @@ def test_historical_stale_policy_reference_does_not_trigger_current_authority_ma
     answer = "과거 역세권 청년주택 건립 및 운영기준은 현행 안심주택에 그대로 적용하지 않습니다."
 
     assert "STALE_POLICY_CONTROLS" not in detect_ansim_markers(answer)
+
+
+def test_line_wrapped_exception_keeps_350m_review_in_one_local_proposition():
+    answer = (
+        "역세권은 승강장 경계 250m 이내가 원칙이고,\n"
+        "통합심의를 거쳐 350m 범위의 사업대상지로 지정할 수 있습니다."
+    )
+
+    markers = detect_ansim_markers(answer)
+
+    assert "EXCEPTION_350M_REVIEW" in markers
+
+
+def test_auto_far_does_not_combine_basic_rate_with_unrelated_relaxation():
+    answer = (
+        "기본용적률은 400% 이하로 적용됩니다.\n\n"
+        "다른 항목은 별도 심의를 통해 일부 기준이 완화될 수 있습니다."
+    )
+
+    assert "AUTO_FAR_400" not in detect_ansim_markers(answer)
+
+
+def test_auto_far_still_detects_explicit_automatic_application():
+    answers = (
+        "요건을 충족하면 자동으로 용적률 400%가 적용됩니다.",
+        "해당 사업은 별도 판단 없이 400%로 상향됩니다.",
+        "기준을 충족하는 즉시 용적률을 400%로 완화받습니다.",
+    )
+
+    for answer in answers:
+        assert "AUTO_FAR_400" in detect_ansim_markers(answer)
+
+
+def test_auto_far_does_not_flag_explicit_denial_of_automatic_application():
+    answer = "요건 충족만으로 용적률 400%가 자동 적용되는 것은 아닙니다."
+
+    assert "AUTO_FAR_400" not in detect_ansim_markers(answer)
