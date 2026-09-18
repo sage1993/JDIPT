@@ -30,6 +30,15 @@ PLUGIN_RUNTIME_FILES = (
     "scripts/jdipt_runtime_mcp.py",
     "scripts/inject_registry_runtime.py",
     "scripts/stop_synthesis_gate.py",
+    "scripts/runtime_root.py",
+    "scripts/runtime_host_preflight.py",
+    "scripts/turn_anchor.py",
+    "scripts/turn_capability.py",
+    "scripts/runtime_transaction.py",
+    "scripts/plugin_runtime_context.py",
+    "scripts/canonical_baseline_gate.py",
+    "scripts/runtime_acceptance.py",
+    "scripts/task11r_runtime_probe.py",
 )
 
 

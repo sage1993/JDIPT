@@ -27,11 +27,14 @@ from scripts.material_obligation_ledger import (
 from scripts.proposition_soundness import evaluate_soundness
 from scripts.proposition_source_closure import evaluate_source_closure
 from scripts.proposition_registry import RegistryService
+from scripts.runtime_root import RuntimeRootError, resolve_runtime_root
+from scripts.runtime_transaction import load_current_transaction
 from scripts.synthesis_runtime_state import (
     RuntimeStateError,
     record_reconciliation,
     update_repair_count,
 )
+from scripts.turn_anchor import load_current_turn_anchor
 
 
 def _fail_closed(system_message: str) -> dict[str, str | bool]:
@@ -172,6 +175,70 @@ def _registry_enforcement_response(
     )
 
 
+def _canonical_stop_event(
+    event: Mapping[str, Any],
+    plugin_data: str | None,
+) -> dict[str, Any]:
+    """Validate Stop against the current capability transaction only."""
+
+    draft = event.get("last_assistant_message")
+    draft = draft if isinstance(draft, str) else ""
+    jdipt_output = _looks_like_jdipt_answer(draft)
+    try:
+        root = resolve_runtime_root(plugin_data)
+        transaction = load_current_transaction(root, include_registry_snapshot=False)
+    except (OSError, RuntimeRootError, RuntimeStateError, TypeError, ValueError) as exc:
+        if jdipt_output:
+            return _fail_closed(
+                "STOP_RUNTIME_UNAVAILABLE: canonical runtime transaction could not "
+                f"be read: {exc}"
+            )
+        return {}
+
+    if transaction is None:
+        if jdipt_output:
+            return _fail_closed(
+                "STOP_TRANSACTION_MISSING: no canonical transaction exists for "
+                "this JDIPT output."
+            )
+        return {}
+
+    try:
+        anchor = load_current_turn_anchor(root)
+        registry = RegistryService(root).read_canonical_registry(
+            transaction.canonical_registry_id
+        )
+    except (OSError, RuntimeStateError, TypeError, ValueError) as exc:
+        return _fail_closed(
+            "STOP_CANONICAL_STATE_INVALID: transaction/registry evidence could not "
+            f"be read: {exc}"
+        )
+
+    same_epoch = (
+        transaction.epoch == anchor.epoch
+        and transaction.anchor_id == anchor.anchor_id
+    )
+    same_registry = bool(
+        registry is not None
+        and registry.transaction_id == transaction.transaction_id
+        and registry.registry_state == "CLOSED"
+    )
+    if (
+        same_epoch
+        and same_registry
+        and transaction.transaction_state == "CLOSED"
+        and transaction.finalized
+        and transaction.registry_completed
+    ):
+        return {}
+
+    return _fail_closed(
+        "STOP_TRANSACTION_NOT_FINALIZED: current epoch requires a canonical "
+        "transaction with finalized=true, registry_completed=true, and CLOSED "
+        "transaction/registry state."
+    )
+
+
 def handle_stop_event(
     event: Mapping[str, Any],
     plugin_data: str | None = None,
@@ -182,6 +249,8 @@ def handle_stop_event(
         return _fail_closed(
             "JDIPT synthesis validation failed closed; invalid Stop input."
         )
+
+    return _canonical_stop_event(event, plugin_data)
 
     session_id = event.get("session_id")
     turn_id = event.get("turn_id")
