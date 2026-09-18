@@ -512,7 +512,7 @@ def dispatch_json_rpc(
             "result": {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "jdipt-runtime", "version": "0.2.6"},
+                "serverInfo": {"name": "jdipt-runtime", "version": "0.2.7"},
             },
         }
     if method == "tools/list":

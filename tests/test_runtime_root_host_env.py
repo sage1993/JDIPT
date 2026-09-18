@@ -47,7 +47,7 @@ class RuntimeRootHostEnvironmentTests(unittest.TestCase):
                     / "cache"
                     / "sage1993"
                     / "jdipt"
-                    / "0.2.6"
+                    / "0.2.7"
                 )
                 plugin_root.mkdir(parents=True)
                 with patch("scripts.runtime_root.Path.cwd", return_value=plugin_root):
